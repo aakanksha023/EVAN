@@ -17,11 +17,17 @@
 
 ## Contributing
 
+Contribution will not be open to public. Contributors please feel free to [open an issue](https://github.com/deetken/evan/issues/new) or send a pull request to report bugs or add features.
+
 ### Contributors
 
 ## How to use this repository
 
+Navigations of files and descriptions of directory structure in the repository. Specific commands will be given in Usage section and example usage will be given in Examples section. 
+
 ## Data Requirements
+
+Describe the data we are using and what data sources they are coming from.
 
 ## Usage
 ### 1. Using Bash/Terminal 
@@ -39,7 +45,11 @@ python src/01_download_data.py --file_path="data/raw/" |
 
 ## Data Products
 
+Description or screenshot of end product(s) and where to find them.
+
 ## Examples
+
+Specific illustration of how to use the end product.
 
 ## Package Dependencies
 ### Python 3.7.3 and Python packages:
