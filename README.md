@@ -1,6 +1,27 @@
 # Forecasting the Evolution of Vancouver's Business Landscape
 
-## Project Summary  
+`Evolving Vancouver Project`
+
+(Description placeholder)
+
+## Table of Contents
+- [Contributing](#contributing)
+- [Contributors](#Contributors)
+- [How to use this repository](#how-to-use-this-repository)
+- [Data Requirements](#data-requirements)
+- [Usage](#usage)
+- [Data Products](#data-products)
+- [Examples](#examples)
+- [Package Dependencies](#package-dependencies)
+- [License](#license)
+
+## Contributing
+
+### Contributors
+
+## How to use this repository
+
+## Data Requirements
 
 ## Usage
 ### 1. Using Bash/Terminal 
@@ -16,9 +37,14 @@ python src/01_download_data.py --file_path="data/raw/" |
 --url2="https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B"
 ```
 
+## Data Products
+
+## Examples
+
 ## Package Dependencies
 ### Python 3.7.3 and Python packages:
 
 - pandas 
 - docopt 
 
+## License
