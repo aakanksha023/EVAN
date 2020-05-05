@@ -2,17 +2,22 @@
 # date: 2020-05-04
 
 """
-This script downloads 2 .csv files with the same columns and,
-combines them into a single data frame, and exports this data frame
-as a .csv into the /data folder. This script takes the filename,
-2 urls, and a local file path as arguments.
+This script downloads 2 .csv files and saves them to the
+file_path provided. This script takes the filename and
+url for two csv files, and a local file path as arguments.
 
-Usage: src/01_download_data.py --file_path=<file_path> --url1=<url1> --url2=<url2>
+Usage: src/01_download_data.py --file_path=<file_path> |
+    --filename_1=<filename_1> |
+    --url1=<url1> |
+    --filename_2=<filename_2> |
+    --url2=<url2>
 
 Options:
---file_path=<file_path>  Path (including filename) to the csv file.
---url1=<url1>            URL of first csv
---url2=<url2>            URL of second csv
+--file_path=<file_path>      Path to the exported csv files.
+--filename_1=<filename_1>    Filename for the first csv
+--url1=<url1>                URL of first csv
+--filename_2=<filename_2>    Filename for the second csv
+--url2=<url2>                URL of second csv
 """
 
 # URLS to pass in for Deetken evan
@@ -25,40 +30,20 @@ from docopt import docopt
 opt = docopt(__doc__)
 
 
-def main(file_path, url1, url2):
+def main(file_path, filename_1, url1, filename_2, url2):
     """
-    Combines two .csv files from url1 and url2
-    into a single data-frame and writes a .csv
-    to the provided file path. The csv's to be
-    combined need to have the same columns.
-
-    Parameters
-    ----------
-    file_path : str
-        The local file-path (including file name)
-
-    url1 : str
-        URL to a .csv file
-
-    url2 : str
-        URL to a .csv file
-
-    Returns
-    -------
-        csv file written in the provided file path
-
-    Examples
-    --------
-    main('data/alphabet_data.csv',
-        'https://public-data.com/url_abc.csv',
-        'https://public-data.com/url_def.csv')
+    Loads two .csv files from url1 and url2
+    and saves the .csv to the provided file path.
     """
+
     df_1 = pd.read_csv(url1)
     df_2 = pd.read_csv(url2)
-
-    df_combo = df_1.append(df_2)
-    df_combo.to_csv(file_path)
+    
+    # export loaded data frames to CSVs
+    df_1.to_csv(file_path + filename_1)
+    df_2.to_csv(file_path + filename_2)
 
 
 if __name__ == "__main__":
-    main(opt["--file_path"], opt["--url1"], opt["--url2"])
+    main(opt["--file_path"], opt["--filename_1"], opt["--url1"], opt["--filename_2"], opt["--url2"])
+
