@@ -14,13 +14,52 @@ knitr::opts_chunk$set(echo = FALSE)
 - why it is important
 
 
-## Plan to address the research question
+## Data Science Technique
+- Wrangle and creat multiple database for Postgres
+- Baseline model: 
+  - Logistic regression
+- Advance modeling: 
+  - Random forest , Regularization
+- Futher direction: 
+  - Survival analysis
+- Geospatial visualization:
+  - Python and Altair/Leaflet
+- Deploy with Dash on Heroku
+
 
 ## Dataset Overview
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+- Licence Dataset from 1997 to 2018
+  - Business type 
+  - Location
+  - Number of employees
+  - Number of similar business(after wrangle)
+  
+  insert plot for dataset here
+
+
+## Dataset Overview
+- Census local area profile
+  - Population density
+  - Average household income
+  - Average age group
+  - Houshold size
+  - Ethnicity
+  
+  insert plot for dataset here
+  
+## Future dataset
+  - Franchise or not 
+  - Public transportation
+  - Parking space
+  - Construction
+  - Time taken to approve minor renovations
+  - Rent per sq./ft 
+  - Registered capital
+
+## Potential difficulties
+- Identify temporal autocorrelation between the variables
+- Current variables may be proxies 
 
 
 ## Final product
