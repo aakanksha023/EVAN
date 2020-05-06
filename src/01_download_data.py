@@ -15,8 +15,20 @@ Options:
 """
 
 # URLs to pass in for Deetken evan
-# [(licence_1997_2012.csv, https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B),
-# (licence_2013_current.csv, https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B)]
+# [(licence_1997_2012.csv, \
+# https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B), \
+# (licence_2013_current.csv, \
+# https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B), \
+# (census_2016.csv, \
+# https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2016.csv), \
+# (census_2011.csv, \
+# https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2011.csv), \
+# (census_2006.csv, \
+# https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2006.csv), \
+# (census_2001.csv, \
+# https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2001.csv), \
+# (local_area_boundary.geojson, \
+# https://opendata.vancouver.ca/explore/dataset/local-area-boundary/download/?format=geojson&timezone=America/Los_Angeles&lang=en)]
 
 from docopt import docopt
 import os

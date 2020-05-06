@@ -37,7 +37,20 @@ To replicate the analysis performed in this project, clone this GitHub repositor
 1. 01_download_data.py
 ```
 python src/01_download_data.py --file_path="data/raw" \
---urls="[(licence_1997_2012.csv, https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B),(licence_2013_current.csv, https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B)]"
+--urls="[(licence_1997_2012.csv, \
+https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B), \
+(licence_2013_current.csv, \
+https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B), \
+(census_2016.csv, \
+https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2016.csv), \
+(census_2011.csv, \
+https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2011.csv), \
+(census_2006.csv, \
+https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2006.csv), \
+(census_2001.csv, \
+https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2001.csv), \
+(local_area_boundary.geojson, \
+https://opendata.vancouver.ca/explore/dataset/local-area-boundary/download/?format=geojson&timezone=America/Los_Angeles&lang=en)]"
 
 ```
 
