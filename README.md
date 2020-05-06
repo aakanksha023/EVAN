@@ -23,7 +23,7 @@ Contribution will not be open to public. Contributors please feel free to [open 
 
 ## How to use this repository
 
-Navigations of files and descriptions of directory structure in the repository. Specific commands will be given in Usage section and example usage will be given in Examples section. 
+Navigation of files and descriptions of directory structure in the repository. Specific commands will be given in Usage section and example usage will be given in Examples section. 
 
 ## Data Requirements
 
@@ -36,11 +36,9 @@ To replicate the analysis performed in this project, clone this GitHub repositor
 
 1. 01_download_data.py
 ```
-python src/01_download_data.py --file_path="data/raw/" |
---filename_1="licence_1997_2012.csv" |
---url1="https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B" |
---filename_2="licence_2013_current.csv" |
---url2="https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B"
+python src/01_download_data.py --file_path="data/raw" \
+--urls="[(licence_1997_2012.csv, https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B),(licence_2013_current.csv, https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B)]"
+
 ```
 
 ## Data Products
@@ -52,7 +50,7 @@ Description or screenshot of end product(s) and where to find them.
 Specific illustration of how to use the end product.
 
 ## Package Dependencies
-### Python 3.7.3 and Python packages:
+### Python 3.7 and Python packages:
 
 - pandas 
 - docopt 
