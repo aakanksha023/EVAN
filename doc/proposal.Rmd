@@ -1,0 +1,31 @@
+---
+title: "Bussiness Revolution Forecast Capstone proposal"
+author: "Keanna Knebel, Xinwen Wang, Jasmine Qin, Aakanksha Dimri"
+date: "5/4/2020"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Research question
+- what's the main question
+- why it is important
+
+
+## Plan to address the research question
+
+## Dataset Overview
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+
+## Final product
+
+## Timeline
+
+
+

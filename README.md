@@ -1,4 +1,4 @@
-# Forecasting the Evolution of Vancouver's Business Landscape
+# Forecasting the evolution of Vancouver's business landscape
 
 `Evolving Vancouver Project`
 
