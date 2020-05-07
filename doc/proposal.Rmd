@@ -1,7 +1,7 @@
 ---
 title: "Forecasting the Evolution of Vancouver's Business Landscape"
 author: "Aakanksha Dimri, Jasmine Qin, Keanna Knebel, Xinwen Wang"
-date: "5/4/2020"
+date: "5/8/2020"
 output: ioslides_presentation
 ---
 
@@ -18,12 +18,11 @@ knitr::opts_chunk$set(echo = FALSE)
 - How long will a particular Vancouver based business stay in operation?
 
 ## Dataset Overview
-
 - Licence Dataset from 1997 to 2018
   - Business type 
   - Location
   - Number of employees
-  - Number of similar business(after wrangle)
+  - Number of similar business (after wrangle)
   
   **insert plot for dataset here**
 
@@ -68,7 +67,53 @@ knitr::opts_chunk$set(echo = FALSE)
 - A data Pipeline
 - A geospatial vizualisation over the map of Vancouver
 
-## Timeline
+## Timeline (Week 1 - 2)
+ 
+**Hackathon and Proposal**
 
+|Dates   |Deliverables   |Objectives   |
+|---|---|---|
+|May 4 - 8   |   |1. Prepare proposal presentation<br> 2. Setup GitHub repository, prepare data downloading script and data dictionary  |
+|May 8   |Proposal Presentation   |   |
+|May 11 - 15   |   |1. Prepare proposal report<br>2. EDA<br>3. Finalize form of final product   |
+|May 12   |Proposal Report to Mentor   |   |
+|May 15   |Proposal Report to Deetken   |   |
+
+## Timeline (Week 3 - 4)
+
+**Launch Project, Develop ML Model, and Build Visualization**
+
+|Dates   |Deliverables   |Objectives   |
+|---|---|---|
+|May 18 - 22   |   |1. Incorporate feedbacks from mentor and Deetken on proposal<br>2. Launch project (both modeling and visualization part)   |
+|May 20   |Meeting with Deetken   |   |
+|May 25 - 29   |   |Develop machine learning model and geo-spatial visualization   |
+
+
+## Timeline (Week 5 - 6)
+
+**Fine-tuning**
+
+|Dates   |Deliverables   |Objectives   |
+|---|---|---|
+|Jun 1 - 12   |   |1. Fine-tuning of model and visualization<br>2. Update documentations or user manual for the end product   |
+
+## Timeline (Week 7 - 9)
+
+**Final Stage**
+
+|Dates   |Deliverables   |Objectives   |
+|---|---|---|
+|Jun 15 - 19   |   |Prepare for final presentation   |
+|Jun 18 - 19   |Final Presentation   |   |
+|Jun 22 - 26   |   |Prepare final report and end data product   |
+|Jun 23   |Final report and Product to Mentor   |Modify based on feedbacks from mentor   |
+|Jun 29    | Final Report and Product to Deetken   |Final presentation to Deetken   |
+|Jun 30   |Teamwork Reflection   |   |
+
+
+## Thank you! 
+
+**Questions?**
 
 
