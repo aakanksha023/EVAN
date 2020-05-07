@@ -16,9 +16,10 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Research Question
 - How long will a particular Vancouver based business stay in operation?
+- Geospatial summary of Vancouver's business landscape
 
 ## Dataset Overview
-- Licence Dataset from 1997 to 2018
+- Licence dataset from 1997 to 2020
   - Business type 
   - Location
   - Number of employees
@@ -32,7 +33,7 @@ knitr::opts_chunk$set(echo = FALSE)
   - Population density
   - Average household income
   - Average age group
-  - Houshold size
+  - Household size
   - Ethnicity
   
   **insert plot for dataset here**
@@ -47,12 +48,12 @@ knitr::opts_chunk$set(echo = FALSE)
   - Franchise or not
   
 ## Data Science Technique(s)
-  - Wrangle and creat multiple database for Postgres
+  - Data wrangling and database creation using Postgres
   - Baseline model: 
     - Logistic regression
   - Advance modeling: 
-    - Random forest , Regularization
-  - Futher direction: 
+    - Random forest, Regularization
+  - Further direction: 
     - Survival analysis
   - Geospatial visualization:
     - Python and Altair/Leaflet
@@ -61,11 +62,15 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Potential difficulties
 - Identify and address any existing temporal correlation between the variables
 - Current variables may be proxies
+- Combine features from different data sources
 
 ## Final product
+- A data pipeline
+- A geospatial visualization of Vancouver's business landscape
 
-- A data Pipeline
-- A geospatial vizualisation over the map of Vancouver
+```{r, out.width = "800px"}
+knitr::include_graphics("../figures/end_prod_demo.png")
+```
 
 ## Timeline (Week 1 - 2)
  
