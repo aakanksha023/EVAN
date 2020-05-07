@@ -1,0 +1,44 @@
+---
+title: "Proposal"
+author: "Keanna Knebel, Xinwen Wang, Jasmine Qin, Aakanksha Dimri"
+date: "5/6/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The Business License dataset is appropriate for these data science techniques because it contains geospatial information as well as relevant features that can be used to predict the success of a business.
+
+The data will be used differently and separately to answer the two research questions. Specifically, for the descriptive research question, the whole dataset will be used to display all available information. However, for the modeling task, the business license data needs to be cleaned-up, wrangled, and then split into train and test sets to avoid violation of the golden rule.
+
+
+The Business License dataset alone only provides few factors that could contribute to business tenure. The Census Profile dataset includes multiple demographic factors that can also contribute to answering the research question.
+
+There are certainly difficulties in both preprocessing and training the data.  
+`1. How to clean and wrangle the data so that it fits into the modeling pipeline?`  
+The raw data contains chronological records for all businesses. In the 2013 to 2020 dataset, there are more than 500,000 observations but only around 90,000 unique businesses. A typical pattern for one business could look like:  
+
+|Business Name   |Status   |Year   | # Employees|
+|---|---|---|---|
+|UBC Dry Clean   |Issued   |2014   |5 |
+|UBC Dry Clean   |Canceled   |2015   |0 |
+|UBC Dry Clean Services   |Issued   |2016   |1 |
+|UBC Dry Clean Services  |Gone out of business   |2017   |0|
+
+Data wrangling might need to be done prior to train-test-split, because one year of record for a business can be lost, which defeats the purpose of predicting number of operating years. However, by aggregating the data, information such as number of employees for each year can also be gone.
+
+Another difficulty is how we process textual information like the business type in the dataset which is an important predictor. Basic one-hot-encoding technique will not presverse the information in the textual data. For example, the type restaurant should have a value similar to type cafe rather than type gas after processing. However, after one-hot-encoding such information is lost. Preserving this information requires more complex tool like word embedding which we might not have time to explore.
+
+The third difficulty lies in the concatenation of datasets. To concatenate the licenses and census data, we need a common factor which will be the business district to bind them together. However, the division of the districts might be different in two datasets.
+
+
+`2. Are there enough information included in the Business License dataset to build a valuable model?`  
+When a business owner tries to pick a store location, tons of other factors can be taken into consideration. One of the main focuses at the initial stage of modeling will be whether other publicly available Vancouver datasets are useful to build a better model? Examples include census data that contains demographics information, public transportation data, and safety data.
+
+`3. What platform and/or tools might be most appropriate to visualize the data?`  
+
+
+`4. How can new data be fed in to update visualization and model?`  
+Business Licenses can be issued every month, although majority of them are issued at the beginning or end of a year. This is not the case where new data can be added directly into train or test sets to feed the pipeline. Instead, new data needs to be carefully handled such as using it to update an existing observation. It can also be quite difficult yet challenging to update model on a monthly basis to incorporate the most up-to-date information as the database is monitored daily.
