@@ -30,7 +30,7 @@ all_licences
 
 # group by buisness name + location
 all_licences_group <- all_licences %>% 
-  group_by(BusinessName,PostalCode) %>% 
+  group_by(BusinessName,PostalCode,LocalArea,City) %>% 
   mutate(business_id = group_indices())
 
 # reorder columns
@@ -38,7 +38,7 @@ all_licences_group <- all_licences_group[, c(25, 1:24)]
 
 # arrange dataset by buisness_id
 all_licences_group <- all_licences_group %>% 
-  arrange(business_id) 
+  arrange(business_id,IssuedDate) 
 all_licences_group
 
 # save dataframe to csv

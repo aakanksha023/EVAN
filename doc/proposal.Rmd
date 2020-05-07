@@ -7,6 +7,7 @@ output: ioslides_presentation
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
 ```
 
 ## Goal of the project
@@ -24,6 +25,15 @@ knitr::opts_chunk$set(echo = FALSE)
   - Location
   - Number of employees
   - Number of similar business (after wrangle)
+  
+```{r, message=FALSE, comment=FALSE, echo=FALSE,warning=FALSE,error=FALSE}
+
+train <- read_csv("../data/processed/licence_train.csv")
+train %>% 
+  select(2,7,9,10,11,12,13,17,18,21,22,23) %>% 
+  head(8)
+```
+  
   
   **insert plot for dataset here**
 
