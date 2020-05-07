@@ -1,6 +1,6 @@
 ---
-title: "Bussiness Revolution Forecast Capstone proposal"
-author: "Keanna Knebel, Xinwen Wang, Jasmine Qin, Aakanksha Dimri"
+title: "Forecasting the Evolution of Vancouver's Business Landscape"
+author: "Aakanksha Dimri, Jasmine Qin, Keanna Knebel, Xinwen Wang"
 date: "5/4/2020"
 output: ioslides_presentation
 ---
@@ -9,21 +9,64 @@ output: ioslides_presentation
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## Research question
-- what's the main question
-- why it is important
+## Goal of the project
+- Understand how Vancouver business's have evolved in the past
+- How they may change in future?
+- Can this information be used to drive decision making?
 
-
-## Plan to address the research question
+## Research Question
+- How long will a particular Vancouver based business stay in operation?
 
 ## Dataset Overview
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+- Licence Dataset from 1997 to 2018
+  - Business type 
+  - Location
+  - Number of employees
+  - Number of similar business(after wrangle)
+  
+  **insert plot for dataset here**
 
+
+## Dataset Overview
+- Census local area profile
+  - Population density
+  - Average household income
+  - Average age group
+  - Houshold size
+  - Ethnicity
+  
+  **insert plot for dataset here**
+  
+## Potential future dataset(s)
+  - Access to public transportation 
+  - Parking space
+  - Rent per sq./ft 
+  - Construction in the neighbourhood
+  - Time taken to approve minor renovations
+  - Registered capital
+  - Franchise or not
+  
+## Data Science Technique(s)
+  - Wrangle and creat multiple database for Postgres
+  - Baseline model: 
+    - Logistic regression
+  - Advance modeling: 
+    - Random forest , Regularization
+  - Futher direction: 
+    - Survival analysis
+  - Geospatial visualization:
+    - Python and Altair/Leaflet
+  - Deploy with Dash on Heroku
+  
+## Potential difficulties
+- Identify and address any existing temporal correlation between the variables
+- Current variables may be proxies
 
 ## Final product
+
+- A data Pipeline
+- A geospatial vizualisation over the map of Vancouver
 
 ## Timeline
 
