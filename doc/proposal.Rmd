@@ -23,24 +23,64 @@ bus_licence_19_20_office <- rgdal::readOGR("../data/business_licence_pres.geojso
 - Geospatial summary of Vancouver's business landscape
 
 ## Dataset Overview
-- Licence dataset from 1997 to 2020
+- **Licence dataset from 1997 to 2020**
   - Business type 
   - Location
   - Number of employees
-  - Number of similar business (after wrangle)
-  
-  **insert plot for dataset here**
+
+```{r, message=FALSE, comment=FALSE, echo=FALSE, warning=FALSE, error=FALSE, fig.width=8, fig.height=3.5}
+
+#read in dataset
+all_licences_group <- read_csv("../data/processed/licences.csv")
+
+# filter for smaller dataset
+filtered_df <- all_licences_group %>% 
+  filter(BusinessType %in% c('Health Services', 'Landscape Gardener', 'Computer Services', 'Animal Services')) %>% 
+  filter(LocalArea %in% c('Arbutus-Ridge', 'Downtown', 'Fairview', 'Kitsilano'))
+
+# plot counts of business types by area
+filtered_df %>% ggplot() + 
+  geom_bar(aes(x=filtered_df$BusinessType, 
+               fill=filtered_df$BusinessType),
+           show.legend = FALSE) +
+    labs(x='Business Type', 
+       y='Count', 
+       title = "Counts of Business Types in Vancouver Neighbourhoods",
+       caption = "Data Source: opendata.vancouver.ca     ") +
+  facet_grid(.~filtered_df$LocalArea) +
+  theme(axis.text.x = element_text(angle = 25,hjust = 1),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black")) 
+```
+
+<div class="notes">
+- Our main dataset we will utilize in this project comes from the Vancouver Open Data Catalog
+- This dataset is spread across two files and consists of all Vancouver Business Licence 
+applications from 1997 to current
+- The most prominent features in this dataset are the business type, the business location, and number of employees
+- After wrangling the data, we also expect to extract additional features 
+such as, the number of similar business in the surrounding area 
+- The bar plot shown on this slide is from a small subset of the data, it visualizes the number of different businesses by type and neighbourhood
+</div>
 
 
 ## Dataset Overview
-- Census local area profile
+- **Census local area profile**
   - Population density
   - Average household income
   - Average age group
-  - Household size
   - Ethnicity
   
-  **insert plot for dataset here**
+```{r, out.height="280px",fig.align='center'}
+knitr::include_graphics("../figures/van_neighbourhoods.png")
+```
+<font size="2">
+  [Wikipedia Commons: Vancouver_2008.png](https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Stadtgliederung_Vancouver_2008.png/1200px-Stadtgliederung_Vancouver_2008.png)
+</font>
+
   
 ## Potential Future Dataset(s)
  

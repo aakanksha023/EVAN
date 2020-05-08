@@ -1,0 +1,85 @@
+---
+title: "Wrangling Licence Datasets"
+output:
+  github_document: default
+---
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+This file serves to combined the buisness licence data into a singular csv file and group by the buisness name + location. 
+
+```{r}
+# read in the 2013-2020 licence data
+licence_2013_cur <- read_delim('../data/raw/licence_2013_current.csv', delim=';')
+licence_2013_cur
+```
+
+```{r}
+
+# read in the 1997-2012 licence data
+licence_1997_2012 <- read_delim('../data/raw/licence_1997_2012.csv', delim=';')
+
+# combine the licence datasets
+all_licences <- licence_1997_2012 %>% rbind(licence_2013_cur)
+all_licences
+```
+```{r}
+
+# group by buisness name + location
+all_licences_group <- all_licences %>% 
+  group_by(BusinessName,PostalCode,LocalArea,City) %>% 
+  mutate(business_id = group_indices())
+
+# reorder columns
+all_licences_group <- all_licences_group[, c(25, 1:24)]
+
+# arrange dataset by buisness_id
+all_licences_group <- all_licences_group %>% 
+  arrange(business_id,IssuedDate) 
+all_licences_group
+
+# save dataframe to csv
+all_licences_group %>% write_csv("../data/processed/licences.csv")
+```
+
+```{r, fig.width=10, fig.height=5}
+
+#read in dataset
+all_licences_group <- read_csv("../data/processed/licences.csv")
+
+# filter for smaller dataset
+filtered_df <- all_licences_group %>% 
+  filter(BusinessType %in% c('Health Services', 'Landscape Gardener', 'Computer Services', 'Animal Services')) %>% 
+  filter(LocalArea %in% c('Arbutus-Ridge', 'Downtown', 'Fairview', 'Kitsilano'))
+
+# plot counts of business types by area
+filtered_df %>% ggplot() + 
+  geom_bar(aes(x=filtered_df$BusinessType, 
+               fill=filtered_df$BusinessType),
+           show.legend = FALSE) +
+  labs(x='Business Type', y='Count') +
+  facet_grid(.~filtered_df$LocalArea) +
+  theme(axis.text.x = element_text(angle = 45,hjust = 1),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black")) 
+
+```
+
+```{r}
+filtered_df <- all_licences_group %>% 
+  filter(BusinessType %in% c('Health Services', 'Landscape Gardener', 'Computer Services', 'Animal Services')) %>% 
+  filter(LocalArea %in% c('Arbutus-Ridge', 'Downtown', 'Fairview', 'Kitsilano'))
+filtered_df
+```
+
+```{r}
+all_licences_group$BusinessType
+```
+
