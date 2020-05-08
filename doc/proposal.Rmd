@@ -39,20 +39,18 @@ knitr::opts_chunk$set(echo = FALSE)
   **insert plot for dataset here**
   
 ## Potential future dataset(s)
-  - Access to public transportation 
-  - Parking space
-  - Rent per sq./ft 
-  - Construction in the neighbourhood
-  - Time taken to approve minor renovations
-  - Registered capital
-  - Franchise or not
+ 
+```{r, out.width = "800px"}
+knitr::include_graphics("../figures/flowchart.png")
+```  
   
 ## Data Science Technique(s)
-  - Data wrangling and database creation using Postgres
+  - Data synthesis
+  - Modeling using Postgres
   - Baseline model: 
     - Logistic regression
   - Advance modeling: 
-    - Random forest, Regularization
+    - Machine Learning and Simulations
   - Further direction: 
     - Survival analysis
   - Geospatial visualization:
@@ -60,8 +58,9 @@ knitr::opts_chunk$set(echo = FALSE)
   - Deploy with Dash on Heroku
   
 ## Potential difficulties
-- Identify and address any existing temporal correlation between the variables
+- Identify and address any existing geospatial and temporal correlation between the variables
 - Current variables may be proxies
+  - Number of employees -> Captial invested
 - Combine features from different data sources
 
 ## Final product
