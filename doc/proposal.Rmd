@@ -32,6 +32,10 @@ Agenda of the presentation
 - Individuals and Policy makers
 - Post COVID-19 economy
 
+ 
+```{r, out.width="100px"}
+knitr::include_graphics("../figures/vancouver_his.png")
+```  
 <div class="notes">
 - Data is used across the globe by industries to tackle everyday problems like; finding the quickest route home, tracking one's food deliveries etc.
 - Decisions and future planning for both individuals and policy makers can be approached in the same vein
@@ -56,6 +60,7 @@ Agenda of the presentation
   - Business type 
   - Location
   - Number of employees
+
 
 ```{r, message=FALSE, comment=FALSE, echo=FALSE, warning=FALSE, error=FALSE, fig.width=8, fig.height=3.5}
 
@@ -130,11 +135,27 @@ knitr::include_graphics("../figures/flowchart.png")
     - Python and Altair/Leaflet
   - Deploy with Dash on Heroku
   
+<div class="notes">
+the first step synthesize the data by combining different datasets, making sure they are on the same scale.
+wrangle the data so they are suitable for the machine learning model. Due to the size of our datasets, we will use Postgres to build a database. 
+After the data is ready, we will build a baseline model using logistic regression, we choose logistic regression because it can give us a probability for the prediction result which is useful for potential clients.One technique we will use is regularization because >
+If we still have time after the modeling, survival analysis.
+
+Besides building the predictive models, we will also create a visualization to display the geospatial business information. We will use Python and either altair or Leaflet package for the plot.
+The last step is to deploy our result with dash on heroku.
+</div>
+
+  
 ## Potential Difficulties
 - Identify and address any existing geospatial and temporal correlation between the variables
 - Current variables may be proxies
   - Number of employees -> Captial invested
 - Combine features from different data sources
+
+<div class="notes">
+The datasets pose some potential difficulties for us. First is that we need to identify and address any existing temporal and geospatial correlation between the variables.  Moreover, some variables in the model may be proxies for other factors that are not included in the model. For example, we have the number of employees in our dataset and we might find this factor to be significant in determining the renewal probability. However, it might be the capital invested that is actually causing this difference but it is not included in the model and it is correlated with the number of employees so that it seems like the number of employees is significant. So the number of employees is a proxy for the capital invested.  As mentioned in the previous slide, how to combine features from different data sources will also be challenging.
+</div>
+
 
 ## Final Product
 - A data pipeline
