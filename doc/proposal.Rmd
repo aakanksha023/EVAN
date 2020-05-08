@@ -12,15 +12,44 @@ library(leaflet)
 library(rgdal)
 bus_licence_19_20_office <- rgdal::readOGR("../data/business_licence_pres.geojson")
 ```
+## Next 12 mins
+- Why is this important
+- Research Question
+- Datset(s) Overview
+- Data Science Technique(s)
+- Potential Difficultie(s)
+- Final Product 
+- Timeline
 
-## Goal of the Project
-- Understand how Vancouver business's have evolved in the past
-- How they may change in future?
-- Can this information be used to drive decision making?
+<div class="notes">
+Agenda of the presentation
+  - We are going to introduce the problem statement and briefly emphasize the importance of the problem
+  - Next we will focus on the avaialble data to address said problem and discuss potential data science methods which can be utilised
+  - Lastly we will spend some time describing our Final deliverable(s) and the Timeline for the project
+</div>
 
-## Research Questions
-- How long will a particular Vancouver based business stay in operation?
+## Why is this important
+- Individuals and Policy makers
+- Post COVID-19 economy
+
+<div class="notes">
+- Data is used across the globe by industries to tackle everyday problems like; finding the quickest route home, tracking one's food deliveries etc.
+- Decisions and future planning for both individuals and policy makers can be approached in the same vein
+- With COVID-19 governing our economy and life, even more important to understand the evolution of the city and leverage that to predict potential future outcomes
+- Important to understand how the landscape of neigbourhoods have evolved over the past and may change in future
+- One way to gauge this, could be to track the evolution of business(s) in these neighbourhood(s), allocation of public funds etc.
+</div>
+
+## Research Question(s)
+- Will a business renew their license in the coming year?
+- How likely is it that a business will renew their license?
 - Geospatial summary of Vancouver's business landscape
+
+<div class="notes">
+- Will a business be able to renew their license in the coming year?
+- Numerous factor(s) like the type of the business, it's location, access to public trnasportation, scale of the business etc. affect this outcome
+- Geospatial summary of Vancouver's business landscape
+</div>
 
 ## Dataset Overview
 - **Licence dataset from 1997 to 2020**
