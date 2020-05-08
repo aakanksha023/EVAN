@@ -4,4 +4,4 @@
 # ignore data files
 *.csv
 *.json
-*.geojson
+#*.geojson
