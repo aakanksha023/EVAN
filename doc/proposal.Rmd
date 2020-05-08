@@ -32,6 +32,10 @@ Agenda of the presentation
 - Individuals and Policy makers
 - Post COVID-19 economy
 
+ 
+```{r, out.width="100px"}
+knitr::include_graphics("../figures/vancouver_his.png")
+```  
 <div class="notes">
 - Data is used across the globe by industries to tackle everyday problems like; finding the quickest route home, tracking one's food deliveries etc.
 - Decisions and future planning for both individuals and policy makers can be approached in the same vein
@@ -56,6 +60,7 @@ Agenda of the presentation
   - Business type 
   - Location
   - Number of employees
+
 
 ```{r, message=FALSE, comment=FALSE, echo=FALSE, warning=FALSE, error=FALSE, fig.width=8, fig.height=3.5}
 
