@@ -1,7 +1,7 @@
 ---
 title: "Forecasting the Evolution of Vancouver's Business Landscape"
 author: "Aakanksha Dimri, Jasmine Qin, Keanna Knebel, Xinwen Wang"
-date: "5/8/2020"
+date: "2020/5/8"
 output: ioslides_presentation
 ---
 
@@ -13,11 +13,11 @@ library(rgdal)
 bus_licence_19_20_office <- rgdal::readOGR("../data/business_licence_pres.geojson")
 ```
 ## Next 12 mins
-- Why is this important
-- Research Question
-- Datset(s) Overview
-- Data Science Technique(s)
-- Potential Difficultie(s)
+- Why is this Important?
+- Research Questions
+- Datasets Overview
+- Data Science Techniques
+- Potential Difficulties
 - Final Product 
 - Timeline
 
@@ -28,14 +28,18 @@ Agenda of the presentation
   - Lastly we will spend some time describing our Final deliverable(s) and the Timeline for the project
 </div>
 
-## Why is this important
+## Why is this Important?
 - Individuals and Policy makers
 - Post COVID-19 economy
 
- 
-```{r, out.width="100px"}
-knitr::include_graphics("../figures/vancouver_his.png")
+```{r, out.width="800px", fig.align='center'}
+knitr::include_graphics("../figures/vacouver_his.png")
 ```  
+
+<font size="2">
+  [Vancouver History](https://www.livabl.com/2013/07/vancouver-skyline.html)
+</font>
+
 <div class="notes">
 - Data is used across the globe by industries to tackle everyday problems like; finding the quickest route home, tracking one's food deliveries etc.
 - Decisions and future planning for both individuals and policy makers can be approached in the same vein
@@ -44,14 +48,13 @@ knitr::include_graphics("../figures/vancouver_his.png")
 - One way to gauge this, could be to track the evolution of business(s) in these neighbourhood(s), allocation of public funds etc.
 </div>
 
-## Research Question(s)
+## Research Questions
 - Will a business renew their license in the coming year?
-- How likely is it that a business will renew their license?
 - Geospatial summary of Vancouver's business landscape
 
 <div class="notes">
 - Will a business be able to renew their license in the coming year?
-- Numerous factor(s) like the type of the business, it's location, access to public trnasportation, scale of the business etc. affect this outcome
+- Numerous factor(s) like the type of the business, it's location, access to public transportation, scale of the business etc. affect this outcome
 - Geospatial summary of Vancouver's business landscape
 </div>
 
@@ -108,7 +111,7 @@ such as, the number of similar business in the surrounding area
   - Average age group
   - Ethnicity
   
-```{r, out.height="280px",fig.align='center'}
+```{r, out.height="280px", fig.align='center'}
 knitr::include_graphics("../figures/van_neighbourhoods.png")
 ```
 <font size="2">
@@ -116,7 +119,7 @@ knitr::include_graphics("../figures/van_neighbourhoods.png")
 </font>
 
   
-## Potential Future Dataset(s)
+## Potential Future Datasets
  
 ```{r, out.width = "800px"}
 knitr::include_graphics("../figures/flowchart.png")
@@ -147,9 +150,9 @@ The last step is to deploy our result with dash on heroku.
 
   
 ## Potential Difficulties
-- Identify and address any existing geospatial and temporal correlation between the variables
+- Geospatial and temporal correlation between the variables
 - Current variables may be proxies
-  - Number of employees -> Captial invested
+  - Number of employees -> Capital invested
 - Combine features from different data sources
 
 <div class="notes">
@@ -184,6 +187,7 @@ bus_licence_19_20_office %>%
 Final product will be designed to answer both research questions effectively.
   - Vancouver map to show all descriptive information
   - Side panel to show modeling results
+  - Given postal code/local area, our model will group things by neighbourhood/clusters, then produce a probability or binary variable of whether a business is going to renew a licence
 </div>
 
 ## Timeline (Week 1 - 2)
@@ -192,7 +196,7 @@ Final product will be designed to answer both research questions effectively.
 
 ```{r timeline12, warning = FALSE}
 week1_2 <- data.frame("Capstone_Dates" = c("May 4-8", "May 8", "May 11-15", "May 12", "May 15"),
-           "Deliverables" = c("", "Proposal Presentation", "", 
+           "Deliverable" = c("", "Proposal Presentation", "", 
                               "Proposal Report to Mentor",
                               "Proposal Report to Deetken"),
            "Objectives" = c("1. Prepare proposal presentation<br> 2. Setup GitHub repository",
@@ -216,8 +220,8 @@ EDA
 
 ```{r timeline34, warning = FALSE}
 week3_4 <- data.frame("Capstone_Dates" = c("May 18-22", "May 20", "May 25-29"),
-           "Deliverables" = c("", "Meeting with Deetken", ""),
-           "Objectives" = c("1. Incorporate feedbacks on proposal<br>2. Launch project (modeling and visualization)",
+           "Deliverable" = c("", "Meeting with Deetken", ""),
+           "Objectives" = c("1. Incorporate feedback on proposal<br>2. Launch project (modeling and visualization)",
                             "",
                             "1. Develop machine learning model <br>2. Develop geo-spatial visualization"))
 
@@ -226,7 +230,7 @@ knitr::kable(week3_4, format = "pandoc")
 
 <div class="notes">
 Launch project
-  - Incorporate feedbacks on proposal from both mentor and Deetken
+  - Incorporate feedback on proposal from both mentor and Deetken
   - Start building models and visualization
 </div>
 
@@ -236,14 +240,14 @@ Launch project
 
 ```{r timeline56, warning = FALSE}
 week5_6 <- data.frame("Capstone_Dates" = c("Jun 1-12"),
-           "Deliverables" = c(""),
+           "Deliverable" = c(""),
            "Objectives" = c("1. Fine-tuning of model and visualization<br>2. Update documentations or user manual for the end product"))
 
 knitr::kable(week5_6, format = "pandoc")
 ```
 
 <div class="notes">
-A crucial point to check what we have done, what we found difficult to do, decidie the direction to move forward and next steps to take for a better product.
+A crucial point to check what we have done, what we found difficult to do, decide the direction to move forward and next steps to take for a better product.
 </div>
 
 ## Timeline (Week 7 - 9)
@@ -252,11 +256,11 @@ A crucial point to check what we have done, what we found difficult to do, decid
 
 ```{r timeline79, warning = FALSE}
 week7_9 <- data.frame("Capstone_Dates" = c("Jun 18-19", "Jun 22-26", "Jun 23", "Jun 29", "Jun 30"),
-           "Deliverables" = c("Final Presentation", "", "Final Report and Product to Mentor",
+           "Deliverable" = c("Final Presentation", "", "Final Report and Product to Mentor",
                               "Final Report and Product to Deetken", "Teamwork Reflection"),
            "Objectives" = c("Prepare for final presentation",
                             "Prepare final report",
-                            "Modify based on feedbacks from mentor", 
+                            "Modify based on feedback from mentor", 
                             "Final presentation to Deetken", ""))
 
 knitr::kable(week7_9, format = "pandoc")
