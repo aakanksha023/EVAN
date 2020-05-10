@@ -10,7 +10,11 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(leaflet)
 library(rgdal)
-bus_licence_19_20_office <- rgdal::readOGR("../data/business_licence_pres.geojson")
+
+## In terminal, run:
+# python3 src/01_download_data.py --file_path="data/raw" --urls="[(business_licence_pres.geojson, https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=geojson&disjunctive.status=true&disjunctive.businesssubtype=true&refine.folderyear=19&refine.businesstype=Office&timezone=America/Los_Angeles&lang=en)]"
+
+bus_licence_19_20_office <- rgdal::readOGR("../data/raw/business_licence_pres.geojson")
 ```
 ## Next 12 mins
 - Why is this Important?
