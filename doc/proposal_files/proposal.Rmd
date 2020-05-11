@@ -1,0 +1,21 @@
+---
+title: "proposal"
+author: ", Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang"
+date: "5/11/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Executive summary
+
+
+##Introduction
+
+
+##Data Science Techniques
+
+
+##Timeline
