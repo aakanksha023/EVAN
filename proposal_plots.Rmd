@@ -10,6 +10,7 @@ library(ggplot2)
 library(lubridate)
 library(leaflet)
 library(rgdal)
+
 ```
 
 
@@ -67,8 +68,9 @@ pal <- colorFactor("Blues", NULL)
 
 my_map <- leaflet(van_neighbourhoods) %>% 
   addTiles() %>% 
-  addPolygons(stroke = TRUE,
-              weight = 2,
+  addPolygons(dashArray = 4,
+              stroke = TRUE,
+              weight = 3,
               color = 'white',
               smoothFactor = 0.3, 
               fillOpacity = 0.9,
