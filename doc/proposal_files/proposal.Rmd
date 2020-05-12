@@ -32,4 +32,16 @@ We propose to deliver the following data products :
 ##Data Science Techniques
 
 
+To answer our research question, the first step to take is data synthesis by combining different datasets. The difficulty of this step is that different datasets were collected to answer different questions so they are not on the same time scale. We need to think about which scale is meaningful to answer our research question. Another part of data synthesis is to wrangle the data so they are suitable for the machine learning model. Due to the size of our datasets, we will use Postgres to build a database. 
+
+After the data is ready, we will build a baseline model using logistic regression. We choose logistic regression because it can give us a probability for the prediction result which can be useful for potential clients. 
+One technique we will use after building the baseline model is regularization.  This is because some of the covariates might not be significant so we want to find out significant factors for our final model. Another potential technique we might  use is survival analysis. At the same time of building the predictive models, we will also create a visualization to display the geospatial business information. We will use Python and deploy our result with dash on heroku.
+
+The datasets pose some potential difficulties for us. First, we need to identify and address any existing temporal and geospatial correlation between the variables.  Moreover, some variables in the model may be proxies for other factors that are not included in the model. For example, we have the number of employees in our dataset and we might find this factor to be significant in determining the renewal probability. However, it might be the capital invested that is actually causing this difference which is not included in the model but correlated with the number of employees. Thus, the number of employees is a proxy for the capital invested.  As discussed before, how to combine features from different data sources will also be challenging.
+
+
+
+
+
+
 ##Timeline
