@@ -55,6 +55,9 @@ bus_licence_19_20_office %>%
 
 ## Data Science Techniques
 
+The primary dataset utilized in this project consists of all Vancouver Business Licence applications from 1997 to the current date. This data is made available as part of the city of Vancouver’s Open Data Portal and regulated under the terms of the Open Government Licence – Vancouver. The most pertinent features present in this dataset are the business type, the location of the business, and the number of employees.
+
+In addition to the business licence dataset, the Canadian census surveys provide another important source of data for this project. The census data is hosted on the Vancouver Open Data Portal and provides demographic information such as population density, average income, age distribution, and ethnicity. The current census dataset aggregates the demographic data by Vancouver neighbourhoods, [as shown on the map]. As the project progresses, we may choose to further refine our model by obtaining census data aggregated at the postal code level.
 
 To answer our research question, the first step to take is data synthesis by combining different datasets. The difficulty of this step is that different datasets were collected to answer different questions so they are not on the same time scale. We need to think about which scale is meaningful to answer our research question. Another part of data synthesis is to wrangle the data so they are suitable for the machine learning model. Due to the size of our datasets, we will use Postgres to build a database. 
 
