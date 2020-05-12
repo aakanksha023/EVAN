@@ -1,35 +1,59 @@
 ---
-title: "proposal"
-author: ", Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang"
-date: "5/11/2020"
+title: "Forecasting the Evolution of Vancouver's Business Landscape"
+author: "Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang"
+date: "2020/05/12"
 output: pdf_document
+geometry: "left=2cm,right=2cm,top=1cm,bottom=1.5cm"
+always_allow_html: yes
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(leaflet)
+library(rgdal)
+library(timevis)
+
+## Data set-up: in terminal, run:
+# python3 src/01_download_data.py --file_path="data/raw" --urls="[(business_licence_pres.geojson, https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=geojson&disjunctive.status=true&disjunctive.businesssubtype=true&refine.folderyear=19&refine.businesstype=Office&timezone=America/Los_Angeles&lang=en)]"
+
+bus_licence_19_20_office <- rgdal::readOGR("../../data/raw/business_licence_pres.geojson")
 ```
 
-##Executive summary
+## Executive summary
 
 
-##Introduction
+## Introduction
 
 In the continuing age of digital revolution, Data is used ubiquitously across Industries and by individuals to tackle everyday problems like; finding the quickest route home, tracking one’s food deliveries etc. Decisions and future planning regarding management of one’s assets and services be it on individual scale, industrial or by urban planners could also be approached in the same vein.
 
 With COVID-19 governing our economy and lifestyle, it is critical to understand the evolution of the city’s neighbourhoods and leverage that to predict potential future outcomes. One way to approach this problem, is to track the evolution of businesses in Vancouver’s diverse neighbourhoods and develop/extract meaningful insights. 
 
-To address this we have defined the following objectives for the project
-- Will a business renew their license in the coming year?
+To address this we have defined the following objectives for the project  
+- Will a business renew their license in the coming year?  
 - Geospatial summary of Vancouver's business landscape
 
 Apart from observing changes in the business landscape, several other factors say access to public transportation, demographics of the region, public fund allocation etc. also affect this decision. To integrate these, we plan to use several datasets from the Vancouver city’s open data catalogue.
 
-We propose to deliver the following data products :
-- A predictive model that forecasts whether a business would be able to renew their license
-- A geo-spatial visual summary of Vancouver’s business license history
+We propose to deliver the following data products :  
+- A predictive model that forecasts whether a business would be able to renew their license  
+- A geo-spatial visual summary of Vancouver’s business license history  
 - Final report
 
-##Data Science Techniques
+```{r end_prod, fig.cap="Descriptive and Simulated Information on Map", include=FALSE}
+bus_licence_19_20_office %>%
+  leaflet(width=800, height=400) %>%
+  addTiles() %>%
+  addMarkers(clusterOptions = markerClusterOptions()) %>%
+  addLayersControl(
+    baseGroups = c("Office", "Health Services", "Animal Services", "Retail Dealer", "Computer Services",
+                   "Financial Services", "Short-Term Rental", "One-Family Dwelling"),
+    overlayGroups = c("Downtown", "Kitsilano", "Fairview", "Mount Pleasant", "West End", "Oakridge"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+## Data Science Techniques
 
 
 To answer our research question, the first step to take is data synthesis by combining different datasets. The difficulty of this step is that different datasets were collected to answer different questions so they are not on the same time scale. We need to think about which scale is meaningful to answer our research question. Another part of data synthesis is to wrangle the data so they are suitable for the machine learning model. Due to the size of our datasets, we will use Postgres to build a database. 
@@ -40,8 +64,25 @@ One technique we will use after building the baseline model is regularization.  
 The datasets pose some potential difficulties for us. First, we need to identify and address any existing temporal and geospatial correlation between the variables.  Moreover, some variables in the model may be proxies for other factors that are not included in the model. For example, we have the number of employees in our dataset and we might find this factor to be significant in determining the renewal probability. However, it might be the capital invested that is actually causing this difference which is not included in the model but correlated with the number of employees. Thus, the number of employees is a proxy for the capital invested.  As discussed before, how to combine features from different data sources will also be challenging.
 
 
+## Timeline
 
+```{r timeline}
+timeline <- data.frame(
+  id = 1:11,
+  content = c("Build model and visualization", "Fine-tuning", "Final Stage",
+              "Proposal Report to Deetken", "Meeting with Deetken", "Final Report and Product to Deetken",
+              "Proposal Presentation", "Proposal Report to Mentor", "Final Presentation", "Final Report and Product to Mentor", "Teamwork Reflection"),
+  start = c("2020-05-15", "2020-06-01", "2020-06-15", "2020-05-15", "2020-05-20", 
+            "2020-06-29", "2020-05-08", "2020-05-12", "2020-06-18", "2020-06-23", "2020-06-30"),
+  end = c("2020-05-29", "2020-06-12", "2020-06-29", NA, NA, NA, NA, NA, NA, NA, NA),
+  group = c(3, 3, 3, 2, 2, 2, 3, 1, 1, 1, 1)
+)
 
+groups = data.frame(
+  id = c(1, 2, 3),
+  content = c("MDS", "Deetken", "Plan")
+)
 
+timevis(timeline, groups, showZoom = FALSE)
 
-##Timeline
+```
