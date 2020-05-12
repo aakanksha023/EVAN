@@ -30,7 +30,7 @@ In the continuing age of digital revolution, data is used ubiquitously among ind
 
 With COVID-19 governing our economy and lifestyle, it is critical to understand the evolution of the city’s neighbourhoods and leverage that to predict potential future outcomes. One way to approach this problem, is to track the evolution of businesses in Vancouver’s diverse neighbourhoods and develop/extract meaningful insights. 
 
-To address this we have defined the following research questions for the project  
+To address this we have defined the following research questions for the project:  
 - Will a business renew their license in the coming year?  
 - Geospatial summary of Vancouver's business landscape
 
