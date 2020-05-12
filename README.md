@@ -34,8 +34,10 @@ Describe the data we are using and what data sources they are coming from.
 
 To replicate the analysis performed in this project, clone this GitHub repository, install the required [dependencies](#package-dependencies) listed below, and run the following commands in your command line/terminal from the root directory of this project:
 
-1. 01_download_data.py
-```
+
+```{bash}
+# 1. 01_download_data.py
+
 python src/01_download_data.py --file_path="data/raw" \
 --urls="[(licence_1997_2012.csv, \
 https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B), \
@@ -51,6 +53,13 @@ https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2006.csv), 
 https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2001.csv), \
 (local_area_boundary.geojson, \
 https://opendata.vancouver.ca/explore/dataset/local-area-boundary/download/?format=geojson&timezone=America/Los_Angeles&lang=en)]"
+
+# 2. 02_process_data.R
+
+Rscript src/02_process_data.R --filepath_in="data/raw" \
+--filepath_out="data/processed" \
+--filename_1="licence_1997_2012.csv" \
+--filename_2="licence_2013_current.csv"
 
 ```
 
