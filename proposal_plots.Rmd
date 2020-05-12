@@ -1,0 +1,85 @@
+---
+title: "Proposal Plots"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(leaflet)
+library(rgdal)
+```
+
+
+
+```{r, fig.width=10, fig.height=5}
+
+#read in dataset
+licence_df <- read_csv("data/processed/train.csv")
+
+# filter for smaller dataset
+filtered_df <- licence_df %>% 
+  filter(BusinessType %in% c('Health Services', 'Landscape Gardener', 'Computer Services', 'Animal Services')) %>%
+  filter(LocalArea %in% c('Arbutus-Ridge', 'Downtown', 'Fairview', 'Kitsilano'))
+
+# plot counts of business types by area
+filtered_df %>% ggplot() + 
+  geom_bar(aes(x=filtered_df$BusinessType, 
+               fill=filtered_df$BusinessType),
+           show.legend = FALSE) +
+  labs(x='Business Type', y='Count') +
+  facet_grid(.~filtered_df$LocalArea) +
+  theme(axis.text.x = element_text(angle = 45,hjust = 1),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black")) 
+
+```
+
+```{r}
+# filter for smaller dataset
+filtered_df <- licence_df %>% 
+  filter(BusinessType %in% c('Health Services', 'Landscape Gardener', 'Computer Services', 'Retail Dealer - Food')) 
+
+# plot change in business overtime
+filtered_df %>% ggplot() + 
+  geom_line(stat='count',
+            aes(x=year(filtered_df$IssuedDate),
+                group=filtered_df$BusinessType,
+                color=filtered_df$BusinessType)) +
+  xlim(1997, 2019) +
+  labs(x='Year', y='Count') +
+  theme_classic()
+
+```
+
+```{r}
+licence_df %>% group_by(licence_df$BusinessType) %>% count()
+```
+
+```{r}
+van_neighbourhoods <- rgdal::readOGR("data/raw/local_area_boundary.geojson")
+pal <- colorFactor("Blues", NULL)
+
+my_map <- leaflet(van_neighbourhoods) %>% 
+  addTiles() %>% 
+  addPolygons(stroke = TRUE,
+              weight = 2,
+              color = 'white',
+              smoothFactor = 0.3, 
+              fillOpacity = 0.9,
+              fillColor = ~pal(van_neighbourhoods$name),
+              label=van_neighbourhoods$name,
+              labelOptions = labelOptions(textsize = "15px",
+              direction = "left"))
+my_map
+```
+
+```{r}
+names(van_neighbourhoods)
+```
+
