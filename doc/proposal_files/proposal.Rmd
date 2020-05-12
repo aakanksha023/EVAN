@@ -14,6 +14,20 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ##Introduction
 
+In the continuing age of digital revolution, Data is used ubiquitously across Industries and by individuals to tackle everyday problems like; finding the quickest route home, tracking one’s food deliveries etc. Decisions and future planning regarding management of one’s assets and services be it on individual scale, industrial or by urban planners could also be approached in the same vein.
+
+With COVID-19 governing our economy and lifestyle, it is critical to understand the evolution of the city’s neighbourhoods and leverage that to predict potential future outcomes. One way to approach this problem, is to track the evolution of businesses in Vancouver’s diverse neighbourhoods and develop/extract meaningful insights. 
+
+To address this we have defined the following objectives for the project
+- Will a business renew their license in the coming year?
+- Geospatial summary of Vancouver's business landscape
+
+Apart from observing changes in the business landscape, several other factors say access to public transportation, demographics of the region, public fund allocation etc. also affect this decision. To integrate these, we plan to use several datasets from the Vancouver city’s open data catalogue.
+
+We propose to deliver the following data products :
+- A predictive model that forecasts whether a business would be able to renew their license
+- A geo-spatial visual summary of Vancouver’s business license history
+- Final report
 
 ##Data Science Techniques
 
