@@ -40,6 +40,19 @@ We propose to deliver the following data products :
 - A geo-spatial visual summary of Vancouver’s business license history  
 - Final report
 
+```{r end_prod, fig.cap="Descriptive and Simulated Information on Map", include=FALSE}
+bus_licence_19_20_office %>%
+  leaflet(width=800, height=400) %>%
+  addTiles() %>%
+  addMarkers(clusterOptions = markerClusterOptions()) %>%
+  addLayersControl(
+    baseGroups = c("Office", "Health Services", "Animal Services", "Retail Dealer", "Computer Services",
+                   "Financial Services", "Short-Term Rental", "One-Family Dwelling"),
+    overlayGroups = c("Downtown", "Kitsilano", "Fairview", "Mount Pleasant", "West End", "Oakridge"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
 ## Data Science Techniques
 
 
