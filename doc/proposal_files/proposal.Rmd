@@ -26,7 +26,7 @@ Our proposal introduces the context of the capstone project provided by Deetken.
 
 ## Introduction
 
-In the continuing age of digital revolution, Data is used ubiquitously across Industries and by individuals to tackle everyday problems like; finding the quickest route home, tracking one’s food deliveries etc. Decisions and future planning regarding management of one’s assets and services be it on individual scale, industrial or by urban planners could also be approached in the same vein.
+In the continuing age of digital revolution, data is used ubiquitously among industries and individuals. Everyday problems, such as finding the quickest route home and tracking food deliveries, have been effectively tackled by data. The same approach could be implemented in the public sector, helping to inform policy decisions and future planning. 
 
 With COVID-19 governing our economy and lifestyle, it is critical to understand the evolution of the city’s neighbourhoods and leverage that to predict potential future outcomes. One way to approach this problem, is to track the evolution of businesses in Vancouver’s diverse neighbourhoods and develop/extract meaningful insights. 
 
