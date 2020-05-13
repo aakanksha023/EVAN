@@ -1,5 +1,7 @@
 <div align="center">
+
 # Forecasting the Evolution of <br> Vancouver's Business Landscape
+
 </div>
 
 ---
@@ -15,7 +17,6 @@ To address this we have defined the following research questions for the project
 * Will a business renew their license in the coming year?  
 * Geospatial summary of Vancouver's business landscape
 
----
 
 ## Table of Contents
 - [Contributing](#contributing)
@@ -28,7 +29,6 @@ To address this we have defined the following research questions for the project
 - [Package Dependencies](#package-dependencies)
 - [License](#license)
 
----
 
 ## Contributing
 
@@ -52,13 +52,11 @@ Deetken Team:
 * Tom Reimer
 * Kristiana Powell
 
----
 
 ## How to use this repository
 
 Navigation of files and descriptions of directory structure in the repository. Specific commands will be given in Usage section and example usage will be given in Examples section. 
 
----
 
 ## Data Requirements
 
@@ -66,7 +64,6 @@ The primary dataset utilized in this project consists of all Vancouver Business 
 
 In addition to the business licence dataset, the Canadian census surveys provide another important source of data for this project. The census data is hosted on the Vancouver Open Data Portal and provides demographic information, such as population density, average income, age distribution, and ethnicity. The current census dataset aggregates the demographic data by Vancouver neighbourhoods. As the project progresses, we may choose to further refine our model by obtaining census data aggregated at the postal code level.
 
----
 
 ## Usage
 
@@ -102,7 +99,6 @@ Rscript src/02_process_data.R --filepath_in="data/raw" \
 --filename_2="licence_2013_current.csv"
 
 ```
----
 
 ## Data Products
 
@@ -116,7 +112,6 @@ The proposed final product consists of a data pipeline, as well as, a geospatial
 
 *Specific illustration of how to use the end product*
 
----
 
 ## Package Dependencies
 
@@ -134,6 +129,5 @@ The proposed final product consists of a data pipeline, as well as, a geospatial
 - docopt
 - tidyverse
 
----
 
 ## License
