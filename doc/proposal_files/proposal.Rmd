@@ -4,7 +4,7 @@ author: "Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang"
 date: "2020/05/15"
 output: pdf_document
 geometry: "left=1.7cm,right=1.7cm,top=1cm,bottom=1.5cm"
-always_allow_html: yes
+linkcolor: "blue"
 ---
 
 ```{r setup, include=FALSE}
