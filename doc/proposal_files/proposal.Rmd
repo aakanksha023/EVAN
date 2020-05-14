@@ -84,16 +84,17 @@ Possible Data Sources
 
 | Data | Explanation | Spatial Scale | Temporal Scale |
 |-----|-----|-----|-----|
-| [Business License 1997-2012](https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012)  | Business information and its license status for business in Vancouver area  | Point location  | Annual  |
-| [Business License 2013-current](https://opendata.vancouver.ca/explore/dataset/business-licences)   | Business information and its license status for business in Vancouver area  | Point location  | Annual  |
-| [Census Local Area Profile 2016](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2016)   | Census information in Vancouver  | Local District  | Annual  |
-| [Census Local Area Profile 2011](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2011)   | Census information in Vancouver  | Local District  | Annual  |
-| [Census Local Area Profile 2006](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2006)  | Census information in Vancouver  | Local District  | Annual  |
-| [Census Local Area Profile 2001](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2001)   | Census information in Vancouver  | Local District  | Annual  |
-| [Local Area Boundary](https://opendata.vancouver.ca/explore/dataset/local-area-boundary)   | Geospatial boundary for Vancouver 22 local area  | Local District  |Not applicable  |
-| [Disablibity Parking](https://opendata.vancouver.ca/explore/dataset/disability-parking)   | Location for disability parking space  |Point Location  | Not Applicable  |
-| [Parking Meters](https://opendata.vancouver.ca/explore/dataset/parking-meters)  | Parking meters location and rate in Vancouver  |Point Location  | Not Applicable  |
-| [Business Improvement Area](https://opendata.vancouver.ca/explore/dataset/business-improvement-areas-bia) | Area where business join together to promote commercial viability of their district   | Local District  |Not Applicable |
+| [\underline{Business License 1997-2012}](https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012)| Business information and its license status for business in Vancouver area  | Point location  | Annual  |
+| [\underline{Business License 2013-current}](https://opendata.vancouver.ca/explore/dataset/business-licences)   | Business information and its license status for business in Vancouver area  | Point location  | Annual  |
+| [\underline{Census Local Area Profile 2016}](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2016)   | Census information in Vancouver  | Local District  | Annual  |
+| [\underline{Census Local Area Profile 2011}](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2011)   | Census information in Vancouver  | Local District  | Annual  |
+| [\underline{Census Local Area Profile 2006}](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2006)  | Census information in Vancouver  | Local District  | Annual  |
+| [\underline{Census Local Area Profile 2001}](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2001)   | Census information in Vancouver  | Local District  | Annual  |
+| [\underline{Local Area Boundary}](https://opendata.vancouver.ca/explore/dataset/local-area-boundary)   | Geospatial boundary for Vancouver 22 local area  | Local District  |Not Applicable  |
+| [\underline{Disablibity Parking}](https://opendata.vancouver.ca/explore/dataset/disability-parking)   | Location for disability parking space  |Point Location  | Not Applicable  |
+| [\underline{Parking Meters}](https://opendata.vancouver.ca/explore/dataset/parking-meters)  | Parking meters location and rate in Vancouver  |Point Location  | Not Applicable  |
+| [\underline{Business Improvement Area}](https://opendata.vancouver.ca/explore/dataset/business-improvement-areas-bia) | Area where business join together to promote commercial viability of their district   | Local District  |Not Applicable |
+
 
 
 ### Methodologies
