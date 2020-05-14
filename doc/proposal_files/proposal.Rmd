@@ -60,6 +60,22 @@ The primary dataset utilized in this project consists of all Vancouver Business 
 
 In addition to the business licence dataset, the Canadian census surveys provide another important source of data for this project. The census data is hosted on the Vancouver Open Data Portal and provides demographic information such as population density, average income, age distribution, and ethnicity. The current census dataset aggregates the demographic data by Vancouver neighbourhoods. As the project progresses, we may choose to further refine our model by obtaining census data aggregated at the postal code level.
 
+Possible Data Sources
+
+| Data | Explanation | Spatial Scale | Temporal Scale |
+|-----|-----|-----|-----|
+| [Business License 1997-2012](https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012)  | Business information and its license status for business in Vancouver area  | Point location  | Annual  |
+| [Business License 2013-current](https://opendata.vancouver.ca/explore/dataset/business-licences)   | Business information and its license status for business in Vancouver area  | Point location  | Annual  |
+| [Census Local Area Profile 2016](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2016)   | Census information in Vancouver  | Local District  | Annual  |
+| [Census Local Area Profile 2011](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2011)   | Census information in Vancouver  | Local District  | Annual  |
+| [Census Local Area Profile 2006](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2006)  | Census information in Vancouver  | Local District  | Annual  |
+| [Census Local Area Profile 2001](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2001)   | Census information in Vancouver  | Local District  | Annual  |
+| [Local Area Boundary](https://opendata.vancouver.ca/explore/dataset/local-area-boundary)   | Geospatial boundary for Vancouver 22 local area  | Local District  |Not applicable  |
+| [Disablibity Parking](https://opendata.vancouver.ca/explore/dataset/disability-parking)   | Location for disability parking space  |Point Location  | Not Applicable  |
+| [Parking Meters](https://opendata.vancouver.ca/explore/dataset/parking-meters)  | Parking meters location and rate in Vancouver  |Point Location  | Not Applicable  |
+| [Business Improvement Area](https://opendata.vancouver.ca/explore/dataset/business-improvement-areas-bia) | Area where business join together to promote commercial viability of their district   | Local District  |Not Applicable |
+
+
 ### Methodologies
 
 To answer the proposed research question, we will commence with an initial data synthesis stage. This stage consists of combining the aforementioned datasets and wrangling the data into a suitable format. The main difficulty we will need to address during data synthesis is the different temporal and spatial scales among the collected datasets. Additionally, due to the size of the datasets, we will use a Postgres database to store the processed data.  
