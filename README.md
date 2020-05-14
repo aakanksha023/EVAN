@@ -104,7 +104,7 @@ Rscript src/02_process_data.R --filepath_in="data/raw" \
 
 The proposed final product consists of a data pipeline, as well as, a geospatial visualization of Vancouver's business landscape. Users will be able to locate a specific zone on the interactive map and view relevant descriptive information, such as business type distribution and census data [**figure 1**]. The data pipeline will pass processed input data of a specific business to a machine learning model and produce a predicted renewal probability.
 
-![**Figure 1.** Simulated geospatial visualization of Vancouver's business landscape.](figures/end_prod_demo.png)
+![**Figure 1.** Simulated geospatial visualization of Vancouver's business landscape.](figures/end_prod_prop.png)
 
 ## Examples
 
@@ -126,6 +126,9 @@ The proposed final product consists of a data pipeline, as well as, a geospatial
 - data.table
 - docopt
 - tidyverse
+- rgdal
+- timevis
+- leaflet
 
 
 ## License
