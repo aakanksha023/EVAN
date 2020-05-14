@@ -13,6 +13,8 @@ library(tidyverse)
 library(leaflet)
 library(rgdal)
 library(timevis)
+library(png)
+library(grid)
 
 ## Data set-up: in terminal, run:
 # python3 src/01_download_data.py --file_path="data/raw" --urls="[(business_licence_pres.geojson, https://opendata.vancouver.ca/explore/dataset/business-licences/download/?format=geojson&disjunctive.status=true&disjunctive.businesssubtype=true&refine.folderyear=19&refine.businesstype=Office&timezone=America/Los_Angeles&lang=en)]"
@@ -122,6 +124,10 @@ groups = data.frame(
   content = c("MDS", "Deetken", "Plan")
 )
 
-timevis(timeline, groups, showZoom = FALSE)
+#timevis(timeline, groups, showZoom = FALSE)
 
+```
+```{r fig.width=25, fig.height=25, echo=FALSE}
+img <- readPNG("../../figures/timeline.png")
+grid.raster(img)
 ```
