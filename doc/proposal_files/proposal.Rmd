@@ -1,7 +1,7 @@
 ---
 title: "Forecasting the Evolution of Vancouver's Business Landscape"
 author: "Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang"
-date: "2020/05/12"
+date: "2020/05/15"
 output: pdf_document
 geometry: "left=1.7cm,right=1.7cm,top=1cm,bottom=1.5cm"
 always_allow_html: yes
@@ -38,17 +38,35 @@ Apart from observing changes in the business landscape, several other factors li
 
 The proposed final product consists of a data pipeline as well as a geospatial visualization of Vancouver's business landscape. Users will be able to locate a specific zone on the interactive map and view relevant descriptive information, such as business type distribution and census data [**figure 1**]. The data pipeline will pass processed input data of a specific business to a machine learning model and produce a predicted renewal probability.
 
-```{r end_prod, fig.cap="Descriptive and Simulated Information on Map", include=TRUE}
-bus_licence_19_20_office %>%
+```{r end_prod, fig.cap="Descriptive and Simulated Information on Map", include=TRUE, out.width="400px", out.height="200px",  fig.align="center"}
+content <- paste(sep = "<br/>",
+  "<b><a href='https://opendata.vancouver.ca/'>Input: </a></b> Health Services",
+  "Number of Employees: 3",
+  "Local Area: Dunbar-Southlands",
+  "Household Size:",
+  "2 persons: 2485",
+  "3 persons: 1445",
+  "4 persons: 1620",
+  "5+ persons: 495",
+  "<b><a href='https://opendata.vancouver.ca/'>Renewal Probability: </a></b> 0.75"
+)
+
+demo <- bus_licence_19_20_office %>%
   leaflet(width=800, height=400) %>%
   addTiles() %>%
   addMarkers(clusterOptions = markerClusterOptions()) %>%
   addLayersControl(
-    baseGroups = c("Office", "Health Services", "Animal Services", "Retail Dealer", "Computer Services",
+    baseGroups = c("Health Services", "Office", "Animal Services", "Retail Dealer", "Computer Services",
                    "Financial Services", "Short-Term Rental", "One-Family Dwelling"),
     overlayGroups = c("Downtown", "Kitsilano", "Fairview", "Mount Pleasant", "West End", "Oakridge"),
     options = layersControlOptions(collapsed = FALSE)
-  )
+  ) %>%
+  addPopups(-123.19, 49.24, content,
+    options = popupOptions(closeButton = FALSE)
+  ) %>% 
+  setView(-123.14, 49.25, 12)
+
+knitr::include_graphics("../../figures/end_prod_prop.png")
 ```
 
 
@@ -78,17 +96,16 @@ Possible Data Sources
 
 ### Methodologies
 
-To answer the proposed research question, we will commence with an initial data synthesis stage. This stage consists of combining the aforementioned datasets and wrangling the data into a suitable format. The main difficulty we will need to address during data synthesis is the different temporal and spatial scales among the collected datasets. Additionally, due to the size of the datasets, we will use a Postgres database to store the processed data.  
+Synthesizing information across different data sources is a crucial initial step shared by both proposed research questions. It can provide an integrated summary of the business landscape by adding demographics and other social components and allows us to build a more valuable predictive model for renewal probability. The main difficulty in this stage is the different temporal and spatial scales among the collected datasets. For example, licences are applied annually and locations can be pinpointed on map, whereas census profile is collected every 5 years and aggregated to neighbourhood level. The best solution is to interpolate census data for a given year and build spatial configuration around an individual business. Additionally, due to the size of the datasets, we will use a Postgres database to store the processed data.  
     
-After processing the data, we will proceed with building a baseline model using logistic regression. We choose logistic regression as it can produce a probability distribution of the predicted result, affording greater insight to the clients.  
-Once as the baseline model has been established, we will implement regularization techniques to mitigate overfitting and model complexity. We may also draw on techniques from survival analysis to examine business renewal over extended periods.  In parallel with the development of predictive models, we will also create a visualization to display geospatial business information. We will use Python and deploy our result with Dash on Heroku.
-    
-The datasets pose some potential difficulties for us. First, we need to identify and address any existing temporal and geospatial correlation between the variables. Moreover, some variables in the model may be proxies for other factors that are not included in the model. For example, we have the number of employees in our dataset and we might find this factor to be significant in determining the renewal probability. However, it might be the capital invested that is actually causing this difference which is not included in the model but correlated with the number of employees. Thus, the number of employees is a proxy for the capital invested.  As discussed before, how to combine features from different data sources will also be challenging.
+After processing the data, we will proceed with building a baseline model using logistic regression. We choose logistic regression as it can produce a probability distribution of the predicted result, affording greater insight to the clients. Once as the baseline model has been established, we will implement regularization techniques to mitigate overfitting and model complexity. We may also draw on techniques from survival analysis to examine business renewal over extended periods. In parallel with the development of predictive models, we will also create a visualization to display geospatial information using Python and deploy the result.
+
+The datasets pose some potential difficulties for us. First, we need to identify and address temporal and geospatial correlation between the variables. Moreover, some variables may be proxies for underlying factors that are not included in the model. For example, number of employees in the licence dataset might be a significant predictor. However, capital invested might actually be the lurking factor that is affecting both number of employees and success probability.
 
 
 ## Timeline
 
-```{r timeline}
+```{r timeline, out.width="700px", out.height="300px"}
 timeline <- data.frame(
   id = 1:11,
   content = c("Build model and visualization", "Fine-tuning", "Final Stage",
