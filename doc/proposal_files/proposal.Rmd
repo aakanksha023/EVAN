@@ -22,11 +22,7 @@ bus_licence_19_20_office <- rgdal::readOGR("../../data/raw/business_licence_pres
 
 ## Executive summary
 
-- **Rough draft**
-- **remove this completely?**(The digital revolution has made data ubiquitous in problem-solving, from route-finding to planning for human capital.) 
-
-Accessible public data repositories (e.g. Open Vancouver website) mean that in part, data science strategies can increasingly be used to tackle complex public policy concerns. In this project, our goal is to understand the evolution of business climate across Vancouver's diverse neighbourhoods. We will 
-
+The public sector of Vancouver is challenged with balancing tight budgetary constraints with an increasing demand for social services. With this project, our goal is to develop an understanding of the evolution of Vancouver’s business landscape to help mitigate this challenge and provide insight into the efficient allocation of city resources. To achieve the project goal, we will (1) develop a model to predict whether a business will renew its licence and (2) interpret the model output to provide a geospatial summary of the evolution of Vancouver’s business landscape. The baseline logistic regression model will be developed using features from a synthesis of business licence and census datasets. The final predictive model and geospatial visualization will be created with python and hosted on Heroku.
 
 ## Introduction
 
