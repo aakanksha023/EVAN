@@ -35,7 +35,7 @@ bus_licence_19_20_office <- rgdal::readOGR("../../data/raw/business_licence_pres
 
 ## Executive summary
 
-The public sector of Vancouver is challenged with balancing tight budgetary constraints with an increasing demand for social services. With this project, our goal is to provide data-driven strategies for individual businesses as well as a broader understanding of resource allocations in neighbourhoods. To achieve the project goal, we will use a wide range of machine learning methodologies to (1) develop a model to predict whether a business will renew its licence and (2) provide a geospatial summary of the evolution of Vancouver’s business landscape. 
+The public sector of Vancouver is challenged with balancing tight budgetary constraints with an increasing demand for social services. With this project, our goal is to provide data-driven strategies for individual businesses as well as a broader understanding of resource allocations in neighbourhoods. To achieve this, we will use a wide range of machine learning methodologies to (1) develop a model to predict whether a business will renew its licence and and (2) provide a geospatial summary of the business license history and the constructed forecast.
 
 ## Introduction
 
