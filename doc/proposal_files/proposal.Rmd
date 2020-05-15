@@ -22,7 +22,11 @@ bus_licence_19_20_office <- rgdal::readOGR("../../data/raw/business_licence_pres
 
 ## Executive summary
 
-Our proposal introduces the context of the capstone project provided by Deetken. The problem statement is refined into quantifiable data science research questions. We then further deep dive into relevant data sets, elaborate on analysis methodologies, and propose final deliverable.
+- **Rough draft**
+- **remove this completely?**(The digital revolution has made data ubiquitous in problem-solving, from route-finding to planning for human capital.) 
+
+Accessible public data repositories (e.g. Open Vancouver website) mean that in part, data science strategies can increasingly be used to tackle complex public policy concerns. In this project, our goal is to understand the evolution of business climate across Vancouver's diverse neighbourhoods. We will 
+
 
 ## Introduction
 
