@@ -82,7 +82,7 @@ In addition to the business licence dataset, the Canadian census surveys provide
 **Possible Data Sources**
 
 | Data | Explanation | Spatial Scale | Temporal Scale |
-|-----|-----|-----|-----|
+|-----|-----|--|--|
 | [Business License 1997-2012](https://opendata.vancouver.ca/explore/dataset/business-licences-1997-to-2012)| Business information and its license status for business in Vancouver area  | Point location  | Annual  |
 | [Business License 2013-current](https://opendata.vancouver.ca/explore/dataset/business-licences)   | Business information and its license status for business in Vancouver area  | Point location  | Annual  |
 | [Census Local Area Profile 2016](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-2016)   | Census information in Vancouver  | Local District  | Annual  |
@@ -125,6 +125,6 @@ groups = data.frame(
 )
 ```
 
-```{r timelineimage, fig.cap="Timeline", out.width="500px", out.height="300px", echo=FALSE}
+```{r timelineimage, fig.cap="Timeline for whole project(red line is current project stage)", out.width="500px", out.height="300px", echo=FALSE}
 knitr::include_graphics("../../figures/timeline.png")
 ```
