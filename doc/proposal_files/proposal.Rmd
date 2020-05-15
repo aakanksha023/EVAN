@@ -1,11 +1,25 @@
 ---
-title: "Forecasting the Evolution of Vancouver's Business Landscape"
-author: "Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang"
-date: "2020/05/15"
+title: |
+  | \vspace{5cm} \LARGE Forecasting the Evolution of Vancouver's Business Landscape
+  | \vspace{0.5cm}
+subtitle: |
+  | UBC MDS Capstone Project Proposal
+  | \vspace{0.5cm}
+author: |
+  | \vspace{0.5cm} Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang
+  | \vspace{0.5cm} Mentor: Simon Goring
+date: "Date: 2020/05/15"
 output: pdf_document
 geometry: "left=1.7cm,right=1.7cm,top=1cm,bottom=1.5cm"
 linkcolor: "blue"
+header-includes:
+  - \usepackage{titling}
+  - \pretitle{\begin{center}
+    \includegraphics[width=7in,height=9in]{../../figures/logo.png}\LARGE\\}
+  - \posttitle{\end{center}}
 ---
+
+\newpage
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
@@ -94,12 +108,13 @@ In addition to the business licence dataset, the Canadian census surveys provide
 
 ### Methodologies
 
-Synthesizing information across various data sources is a crucial initial step shared by the two research questions being proposed. It can provide an integrated summary of the business environment by adding demographics and other social components, and allows us to build a more valuable predictive model for the license renewal probability. At this point, the key difficulty is the different temporal and spatial scales among the collected datasets. For example, licences are applied annually and locations can be pinpointed on map, whereas census profile is collected every 5 years and aggregated at neighbourhood level. The best solution is to interpolate the census data for a given year and to construct spatial configuration around an individual business. Additionally, due to the size of the datasets, we will use a Postgres database to store the processed data.  
+Synthesizing information across various data sources is a crucial initial step shared by the two research questions being proposed. It can provide an integrated summary of the business environment by adding demographics and other social components, and allows us to build a more valuable predictive model for the license renewal probability. At this point, the key difficulty is the different temporal and spatial scales among the collected datasets. For example, licences are applied annually and locations can be pinpointed on map, whereas census profile is collected every 5 years and aggregated at neighbourhood level. The best solution is to interpolate the census data for a given year and to construct spatial configuration around an individual business.
     
-After the data is processed, we will use logistic regression to build a base line model. We choose logistic regression because it can produce a probability distribution of the predicted result, affording greater insight to the clients. Once we have developed the baseline model, we will implement regularization techniques to mitigate overfitting and model complexity. We may also draw on techniques from survival analysis to examine business renewal over extended periods. Parallel to the development of predictive models, we will also create a visualization to display geospatial information using Python and deploy the results.
+The next step is to build a baseline model using logistic regression with the processed data. Logistic regression is a powerful first attempt because it can produce a probability distribution, affording greater insight to the clients. Once we have developed the baseline model, we will implement regularization techniques to mitigate overfitting and model complexity. We may also draw on techniques from survival analysis to examine business renewal over extended periods. Parallel to the development of predictive models, we will also create a visualization to display geospatial information using Python and deploy the results.
 
-The datasets pose some possible difficulties for us. First, the temporal and geospatial correlation between the variables must be identified and addressed. In addition, some variables may serve as proxies for underlying factors not included in the model. For example, a significant indicator may be the number of employees in the license dataset. Capital spent, however, may in fact be the hidden factor that influences both the number of employees and the likelihood of success.
+The datasets pose some possible difficulties for us. First, due to the size of the datasets, it is more efficient to use a Postgres database to store the processed data. In addition, temporal dependence of a business renewed in consecutive years and geospatial correlation of clustered businesses must be addressed. Furthermore, some variables may serve as proxies for underlying factors not included in the model. For example, a significant indicator may be the number of employees in the license dataset. Capital spent, however, can in fact be the hidden factor that influences both the number of employees and the likelihood of success.
 
+\newpage
 
 ## Timeline
 
@@ -121,6 +136,6 @@ groups = data.frame(
 )
 ```
 
-```{r timelineimage, fig.cap="Timeline for whole project(red line is current project stage)", out.width="500px", out.height="300px", echo=FALSE}
+```{r timelineimage, fig.cap="Project Timeline (red line is current project stage)", out.width="500px", out.height="300px", echo=FALSE}
 knitr::include_graphics("../../figures/timeline.png")
 ```
