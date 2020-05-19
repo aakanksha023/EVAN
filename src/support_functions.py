@@ -56,3 +56,43 @@ def create_census_dict_2016(census_df):
         start = r+1
         
     return census_dict
+
+def create_census_dict_2011(census_df):
+    """
+    Cleans up CensusLocalAreaProfiles2011.xls data by splitting different tables on the same excel sheet 
+    into separate dataframes and stores the dataframes into a lookup dictionary.
+    
+    Parameters:
+    -----------
+    census_df: pandas.core.frame.DataFrame
+        The pandas dataframe to be performed data cleaning
+    
+    Returns:
+    -----------
+    dict: A lookup dictionary with the names given by first rows of the 'Variable' column in census_df as keys
+        and corresponding dataframe stored as values
+    """
+    # organize census dataframe
+    census_df = census_df.dropna(how='all')
+    census_df = census_df.rename(columns={census_df.columns[0]: "Variable" })
+    
+    # find rows with 'Variable' 0 leading space
+    pos = [len(s) - len(s.lstrip()) for s in census_df.Variable]
+    pos.append(0)
+    start = 0
+    census_dict = {}
+
+    # split at rows with 'Variable' 0 leading space
+    for r in range(1, len(pos)):
+        if pos[r] == 0:
+
+            # if name already exists, combine it with the second row
+            if census_df.loc[start].Variable in census_dict.keys():
+                name = census_df.loc[start].Variable + census_df.loc[start+1].Variable
+            else:
+                name = census_df.loc[start].Variable
+
+            census_dict[name] = census_df.loc[start:r-1]
+            start = r
+            
+    return census_dict
