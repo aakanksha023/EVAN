@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 
 
 def create_census_dict_2016(census_df):
@@ -104,6 +105,45 @@ def create_census_dict_2011(census_df):
 
     return census_dict
 
+
+def create_census_dict_2006(df):
+     """
+    Cleans up CensusLocalAreaProfiles2006.csv data by dsplitting different
+    tables on the same excel sheet into separate dataframes and stores the
+    dataframes into a lookup dictionary.
+
+    Parameters:
+    -----------
+    df: pandas.core.frame.DataFrame
+        The pandas dataframe to be performed data cleaning
+
+    Returns:
+    -----------
+    dict:
+        A lookup dictionary
+        keys are given by the first row of the 'Variable' column in census_df
+        and corresponding dataframe stored as values.
+    """
+
+
+    df = df.dropna(0,'all')
+    df = df.rename(columns={'Unnamed: 0': 'Variable'})
+    df.Variable = df.Variable.apply(lambda x: x.lstrip())
+
+    census_dict = {}
+    start = 0
+    re1 = ['Total.*by', 'Population.*by']
+    subgroup = list(df[df.Variable.str.contains('|'.join(re1), flags=re.IGNORECASE)].index)
+    subgroup = subgroup[1:]
+    
+    for s in subgroup:
+        sub_df = df.loc[start:s-1]
+        sub_df = sub_df.set_index('Variable').T.reset_index().rename(columns={'index': 'LocalArea'})
+        census_dict[df.Variable[start].rstrip().lstrip()] = sub_df
+        start = s
+
+
+    return census_dict
 
 def create_census_dict_2001(census_df):
     """
