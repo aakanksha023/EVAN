@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 
 
 def create_census_dict_2016(census_df):
@@ -103,42 +104,42 @@ def create_census_dict_2011(census_df):
             start = r
 
     return census_dict
-import pandas as pd
-import numpy as np
+
 
 def create_census_dict_2006():
      """
-    Cleans up CensusLocalAreaProfiles2006.csv data by droping the rows where 
-    there is no entry. Transpose the dataframe so that local area is the index.
-    
+    Cleans up CensusLocalAreaProfiles2006.csv data by dsplitting different
+    tables on the same excel sheet into separate dataframes and stores the
+    dataframes into a lookup dictionary.
+
     Returns:
     -----------
-    final_df:
-    The clean version of the dataframe with local area as index, different varable as column
+    dict:
+        A lookup dictionary
+        keys are given by the first row of the 'Variable' column in census_df
+        and corresponding dataframe stored as values.
     """
 
     df =pd.read_csv('CensusLocalAreaProfiles2006.csv',skiprows=3,header=1, encoding='latin-1')
 
-    #split them into sub-tables by empty space, 4 tables
-    df_list = np.split(df, df[df.isnull().all(1)].index) 
-    #first three sub-tables contains age information, pretty clean, 
-    #forth one contains most of the info
+    df = df.dropna(0,'all')
+    df = df.rename(columns={'Unnamed: 0': 'Variable'})
+    df.Variable = df.Variable.apply(lambda x: x.lstrip())
 
-    #drop all the null rows(this will drop language with no user)
-    table_4 =df_list[3]
-    table_4.dropna(inplace=True)
-    table_4 = table_4.set_index('Unnamed: 0')
-    #use Nan to replace ' -   ' and drop all those rows
-    table_4 = table_4.replace(' -   ', np.nan)
-    table_4.dropna(inplace=True)
+    census_dict = {}
+    start = 0
+    re1 = ['Total.*by', 'Population.*by']
+    subgroup = list(df[df.Variable.str.contains('|'.join(re1), flags=re.IGNORECASE)].index)
+    subgroup = subgroup[1:]
+    
+    for s in subgroup:
+        sub_df = df.loc[start:s-1]
+        sub_df = sub_df.set_index('Variable').T.reset_index().rename(columns={'index': 'LocalArea'})
+        census_dict[df.Variable[start].rstrip().lstrip()] = sub_df
+        start = s
 
-    age_df = pd.concat([df_list[0],df_list[1],df_list[2]])
 
-    age_df = age_df.set_index('Unnamed: 0')
-    age_df = age_df.transpose()
-    final_df = pd.concat([age_df, table_4.transpose()],axis=1)
-
-    return final_df
+    return census_dict
 
 def create_census_dict_2001(census_df):
     """
