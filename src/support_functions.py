@@ -64,7 +64,7 @@ def create_census_dict_2016(census_df):
 
 def create_census_dict_2011(census_df):
     """
-    Cleans up CensusLocalAreaProfiles2011.xls data by splitting different
+    Cleans up CensusLocalAreaProfiles2011.csv data by splitting different
     tables on the same excel sheet into separate dataframes and stores the
     dataframes into a lookup dictionary.
 
@@ -80,29 +80,29 @@ def create_census_dict_2011(census_df):
         keys are given by the first row of the 'Variable' column in census_df
         and corresponding dataframe stored as values.
     """
-    # organize census dataframe
+    # Rename dataframe columns and remove leading whitespace
     census_df = census_df.dropna(how='all')
     census_df = census_df.rename(columns={census_df.columns[0]: "Variable"})
-
-    # find rows with 'Variable' 0 leading space
-    pos = [len(s) - len(s.lstrip()) for s in census_df.Variable]
-    pos.append(0)
-    start = 0
+    census_df.Variable = census_df.Variable.apply(lambda x: x.lstrip())
+    
+    # Initialise variables for the lookup dictionary
     census_dict = {}
-
-    # split at rows with 'Variable' 0 leading space
-    for r in range(1, len(pos)):
-        if pos[r] == 0:
-
-            # if name already exists, combine it with the second row
-            if census_df.loc[start].Variable in census_dict.keys():
-                name = census_df.loc[start].Variable + census_df.loc[start+1].Variable
-            else:
-                name = census_df.loc[start].Variable
-
-            census_dict[name] = census_df.loc[start:r-1]
-            start = r
-
+    start = 0
+    
+    # create a separate dataframe for first word starts with: Total, Median, Average
+    re1 = ['total', 'median', 'average']
+    subgroup = list(census_df[census_df.Variable.str.contains('|'.join(re1), flags=re.IGNORECASE)].index)
+    subgroup = subgroup[1:]
+    
+    for s in subgroup:
+        sub_df = census_df.loc[start:s-1]
+        # transpose dataframe and rename column
+        sub_df = sub_df.set_index('Variable').T.reset_index().rename(columns={'index': 'LocalArea'})
+        
+        # clean up names and store dataframes into the dictionary
+        census_dict[census_df.Variable[start].rstrip().lstrip()] = sub_df
+        start = s
+    
     return census_dict
 
 
