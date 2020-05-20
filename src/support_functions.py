@@ -106,11 +106,16 @@ def create_census_dict_2011(census_df):
     return census_dict
 
 
-def create_census_dict_2006():
+def create_census_dict_2006(df):
      """
     Cleans up CensusLocalAreaProfiles2006.csv data by dsplitting different
     tables on the same excel sheet into separate dataframes and stores the
     dataframes into a lookup dictionary.
+
+    Parameters:
+    -----------
+    df: pandas.core.frame.DataFrame
+        The pandas dataframe to be performed data cleaning
 
     Returns:
     -----------
@@ -120,7 +125,6 @@ def create_census_dict_2006():
         and corresponding dataframe stored as values.
     """
 
-    df =pd.read_csv('CensusLocalAreaProfiles2006.csv',skiprows=3,header=1, encoding='latin-1')
 
     df = df.dropna(0,'all')
     df = df.rename(columns={'Unnamed: 0': 'Variable'})
