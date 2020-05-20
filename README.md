@@ -96,6 +96,12 @@ Rscript src/02_process_data.R --filepath_in="data/raw" \
 --filename_1="licence_1997_2012.csv" \
 --filename_2="licence_2013_current.csv"
 
+
+# 3. 03_clean_wrangle.py
+
+python3 src/03_clean_wrangle.py --file_path="data/processed/train.csv" --save_to="data/processed/train_cleaned.csv"
+python3 src/03_clean_wrangle.py --file_path="data/processed/validate.csv" --save_to="data/processed/validate_cleaned.csv"
+python3 src/03_clean_wrangle.py --file_path="data/processed/test.csv" --save_to="data/processed/test_cleaned.csv"
 ```
 
 ## Data Products
