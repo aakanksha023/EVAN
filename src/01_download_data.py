@@ -28,7 +28,11 @@ Options:
 # (census_2001.csv, \
 # https://webtransfer.vancouver.ca/opendata/csv/CensusLocalAreaProfiles2001.csv), \
 # (local_area_boundary.geojson, \
-# https://opendata.vancouver.ca/explore/dataset/local-area-boundary/download/?format=geojson&timezone=America/Los_Angeles&lang=en)]
+# https://opendata.vancouver.ca/explore/dataset/local-area-boundary/download/?format=geojson&timezone=America/Los_Angeles&lang=en),\
+# (parking-meters.csv, \
+# https://opendata.vancouver.ca/explore/dataset/parking-meters/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B),\
+# (disability-parking.csv, \
+# https://opendata.vancouver.ca/explore/dataset/disability-parking/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B)]
 
 from docopt import docopt
 import os
