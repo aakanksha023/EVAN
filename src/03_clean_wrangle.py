@@ -26,7 +26,8 @@ opt = docopt(__doc__)
 
 def main(file_path, save_to):
 
-    df = pd.read_csv(file_path, low_memory=False)
+    df = pd.read_csv(file_path, low_memory=False, dtype={
+                     'NumberofEmployees': 'object'})
 
     #############
     # Cleaning  #
@@ -41,21 +42,25 @@ def main(file_path, save_to):
     df['City'] = ['vancouver' if str(
         c).lower() in city_list else c for c in df.City]
 
-    # 2. remove null FOLDERYEAR with warning
+    # 2. replace '000' values in NumberofEmployees to NA
+    df = df.replace({'NumberofEmployees': {"000": None}})
+    df["NumberofEmployees"] = df.NumberofEmployees.astype(float)
+
+    # 3. remove null FOLDERYEAR with warning
     if len(df[df.FOLDERYEAR.isnull()]) != 0:
         warnings.warn("Removing more than one nan FOLDERYEAR")
 
     df = df.loc[df.FOLDERYEAR.notnull()]
 
-    # 3. organize years
+    # 4. organize years
     df['FOLDERYEAR'] = [y + 2000 if y >= 0 and y <
                         90 else y + 1900 for y in df.FOLDERYEAR]
 
-    # 4. convert dates to datetime objects
+    # 5. convert dates to datetime objects
     df['ExtractDate'] = [datetime.strptime(
         d, "%Y-%m-%dT%H:%M:%SZ") for d in df.ExtractDate]
 
-    # 5. sort by ExtractDate the keep the latest entry
+    # 6. sort by ExtractDate the keep the latest entry
     df = df.sort_values(by=['business_id', 'FOLDERYEAR', 'ExtractDate'])
     df = df[df.groupby(['business_id'])['FOLDERYEAR'].apply(
         lambda x: ~(x.duplicated(keep='last')))]
