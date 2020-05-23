@@ -91,11 +91,11 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, save_to):
     #synthesis
     
     #combine two parking
-    final_parking_df = meter_count_df.merge(area_count_df, on = 'Geo Local Area')
+    final_parking_df = meter_count_df.merge(area_count_df, on = 'Geo Local Area', how = 'outer')
     
     #combine with licence
     licence_df.rename(columns = {'LocalArea':'Geo Local Area'}, inplace = True)
-    licence_df = licence_df.merge(final_parking_df, on = 'Geo Local Area')
+    licence_df = licence_df.merge(final_parking_df, on = 'Geo Local Area', how = 'left')
 
     #change folderyear to be int
     licence_df = licence_df.astype({'FOLDERYEAR': 'int'})
