@@ -92,7 +92,7 @@ https://opendata.vancouver.ca/explore/dataset/local-area-boundary/download/?form
 https://opendata.vancouver.ca/explore/dataset/parking-meters/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B),\
 (disability-parking.csv, \
 https://opendata.vancouver.ca/explore/dataset/disability-parking/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B),\
-(14100096-eng.zip(, \
+(14100096-eng.zip, \
 https://www150.statcan.gc.ca/n1/tbl/csv/14100096-eng.zip),\
 (14100327-eng.zip, \
 https://www150.statcan.gc.ca/n1/tbl/csv/14100327-eng.zip),\
