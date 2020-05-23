@@ -26,7 +26,9 @@ Options:
 from docopt import docopt
 import pandas as pd
 import numpy as np
+import zipfile
 import warnings
+
 
 
 opt = docopt(__doc__)
@@ -37,11 +39,18 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, save_to):
     parking_meters_df = pd.read_csv(file_path1,sep=';')
     disability_parking_df = pd.read_csv(file_path2,sep=';')
     licence_df =  pd.read_csv(file_path3,low_memory=False)
-    bc_employment = pd.read_csv(file_path4, sep=',')
-    vancouver_employment = pd.read_csv(file_path5, sep=',')
 
+    #read from zip file
+    vancouver_zip_path = file_path4
+    with zipfile.ZipFile(vancouver_zip_path,"r") as z:
+        with z.open("14100096.csv") as f:
+            vancouver_employment = pd.read_csv(f, header=0, delimiter=",")
 
-    
+    bc_zip_path = file_path5
+    with zipfile.ZipFile(bc_zip_path,"r") as z:
+        with z.open("14100327.csv") as f:
+            bc_employment = pd.read_csv(f, header=0, delimiter=",")
+        
     #clean
 
     #only keeping Geom, and Geo Local Area column 
@@ -61,28 +70,37 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, save_to):
 
 
     #Clean bc employmentd data, only need 1997-2000 as subsitude for vancouver
-    bc_unemployment = bc_employment[(bc_employment['REF_DATE']<2001) &(1996<bc_employment['REF_DATE']) 
-              & (bc_employment['UOM']=='Percentage') & (bc_employment['Sex']=='Both sexes') ][['REF_DATE','VALUE']]
+    bc_unemployment = bc_employment[(bc_employment['GEO']=='British Columbia')&
+                  (bc_employment['Labour force characteristics'] == 'Unemployment rate') &
+                  (bc_employment['REF_DATE']<2001) &(1996<bc_employment['REF_DATE']) &
+                  (bc_employment['UOM']=='Percentage') &
+                  (bc_employment['Age group'] == '15 years and over')&
+                  (bc_employment['Sex']=='Both sexes') ][['REF_DATE','VALUE']]
 
     #clean Vancouver data, since BC level only have unemployment, use unemployment rate
     #note unemployment+employment !=1 
-    vancouver_unemployment = vancouver_employment[vancouver_employment['Labour force characteristics']
-                                         =='Unemployment rate'][['REF_DATE','VALUE']]
+    vancouver_unemployment = vancouver_employment[(vancouver_employment['GEO'] == 'Vancouver, British Columbia') & 
+                     (vancouver_employment['Labour force characteristics'] == 'Unemployment rate') &
+                     (vancouver_employment['Sex'] == 'Both sexes') &
+                     (vancouver_employment['UOM'] == 'Percentage') &
+                     (vancouver_employment['Age group'] == '15 years and over')][['REF_DATE','VALUE']]
+
+    
     unemployment_rate = pd.concat([bc_unemployment, vancouver_unemployment])
 
     #synthesis
     
     #combine two parking
-    final_parking_df = meter_count_df.merge(area_count_df, on = 'Geo Local Area')
+    final_parking_df = meter_count_df.merge(area_count_df, on = 'Geo Local Area', how = 'outer')
     
     #combine with licence
     licence_df.rename(columns = {'LocalArea':'Geo Local Area'}, inplace = True)
-    licence_df = licence_df.merge(final_parking_df, on = 'Geo Local Area')
+    licence_df = licence_df.merge(final_parking_df, on = 'Geo Local Area', how = 'left')
 
     #change folderyear to be int
     licence_df = licence_df.astype({'FOLDERYEAR': 'int'})
     unemployment_rate.rename(columns = {'REF_DATE':'FOLDERYEAR','VALUE':'Unemployment_rate'}, inplace = True)
-    licence_df = licence_df.merge(unemployment_rate, on = 'FOLDERYEAR')
+    licence_df = licence_df.merge(unemployment_rate, on = 'FOLDERYEAR', how ='left')
 
     # save to a new csv
     licence_df.to_csv(save_to, index=False)
