@@ -112,10 +112,10 @@ Rscript src/02_process_data.R --filepath_in="data/raw" \
 python3 src/03_clean_wrangle.py --file_path="data/processed/train.csv" --save_to="data/processed/train_cleaned.csv"
 python3 src/03_clean_wrangle.py --file_path="data/processed/validate.csv" --save_to="data/processed/validate_cleaned.csv"
 python3 src/03_clean_wrangle.py --file_path="data/processed/test.csv" --save_to="data/processed/test_cleaned.csv"
-# python3 src/03_clean_wrangle.py --file_path="data/processed/combined_licences.csv" --save_to="data/processed/combined_licences_cleaned.csv"
+python3 src/03_clean_wrangle.py --file_path="data/processed/combined_licences.csv" --save_to="data/processed/combined_licences_cleaned.csv"
 
 # 4. 04_wrangle_synthesis.py
-python3 src/04_wrangle_synthesis.py --file_path1="data/raw/disability-parking.csv" --file_path2="data/raw/parking-meters.csv" --file_path3="data/processed/train_cleaned.csv" --file_path4="data/raw/14100096-eng.zip" --file_path5="data/raw/14100327-eng.zip" --save_to="data/processed/combined_train.csv"
+python3 src/04_wrangle_synthesis.py --file_path1="data/raw/disability-parking.csv" --file_path2="data/raw/parking-meters.csv" --file_path3="data/processed/train_cleaned.csv" --file_path4="data/raw/14100096-eng.zip" --file_path5="data/raw/14100327-eng.zip"  --save_to1="data/processed/combined_train.csv" --save_to2="data/processed/parking_meter_vis.csv" --save_to3="data/processed/disability_parking_vis.csv" --save_to4="data/processed/licence_vis.csv"
 ```
 
 ## Data Products
