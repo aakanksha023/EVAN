@@ -6,3 +6,8 @@
 *.csv
 *.json
 *.geojson
+*.zip
+*.dbf
+*.prj
+*.shp
+*.shx
