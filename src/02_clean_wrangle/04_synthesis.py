@@ -7,7 +7,7 @@ and saves it to a specified file path. The input licence data needs to
 be the output of 03_clean_wrangle.py script. The ouput will be feeding into
 machine learning algorithm and visualization.
 
-Usage: src/04_wrangle_sythesis.py --file_path1=<file_path1> --file_path2=<file_path2> --file_path3=<file_path3> --file_path4=<file_path4> --file_path5=<file_path5> --save_to1=<save_to1> --save_to2=<save_to2> --save_to3=<save_to3> --save_to4=<save_to4>
+Usage: src/02_clean_wrangle/04_sythesis.py --file_path1=<file_path1> --file_path2=<file_path2> --file_path3=<file_path3> --file_path4=<file_path4> --file_path5=<file_path5> --save_to1=<save_to1> --save_to2=<save_to2> --save_to3=<save_to3> --save_to4=<save_to4>
 
 Options:
 --file_path1=<file_path1>        This is the file path for the raw
