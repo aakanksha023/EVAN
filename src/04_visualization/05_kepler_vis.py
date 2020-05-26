@@ -5,7 +5,7 @@
 This script performs will create a visualization using Kepler and save
 the visualization into a html file. 
 
-Usage: src/04_kepler_vis.py --file_path1=<file_path1> --file_path2=<file_path2> --file_path3=<file_path3> 
+Usage: src/04_visualization/05_kepler_vis.py --file_path1=<file_path1> --file_path2=<file_path2> --file_path3=<file_path3> 
 
 Options:
 --file_path1=<file_path1>        This is the file path for the licence_vis.csv

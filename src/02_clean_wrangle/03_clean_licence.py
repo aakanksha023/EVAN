@@ -5,7 +5,7 @@
 This script performs data cleaning and wrangling for a specified csv
 and saves it to a specified file path
 
-Usage: src/03_data_cleaning.py --file_path=<file_path> --save_to=<save_to>
+Usage: src/02_clean_wrangle/03_clean_licence.py --file_path=<file_path> --save_to=<save_to>
 
 Options:
 --file_path=<file_path>        This is the file path of the csv
