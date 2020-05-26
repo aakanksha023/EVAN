@@ -9,7 +9,7 @@
  takes a file_path from which to read the .csv data files, a filepath to write 
  the processed .csv file, and the 2 filenames for the unprocessed data.
  
-Usage: scripts/02_process_data.R --filepath_in=<filepath_in> --filepath_out=<filepath_out> --filename_1=<filename_1> --filename_2=<filename_2>
+Usage: scripts/02_clean_wrangle/02_split_licence.R --filepath_in=<filepath_in> --filepath_out=<filepath_out> --filename_1=<filename_1> --filename_2=<filename_2>
 
 Options:
 --filepath_in=<filepath_in>     Path to raw data directory
@@ -42,7 +42,7 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
 
   # group by business name + location
   combined_grouped_df <- combined_df %>%
-    group_by(BusinessName, PostalCode, LocalArea, City) %>%
+    group_by(BusinessName, PostalCode, LocalArea, City, BusinessTradeName) %>%
     mutate(business_id = group_indices())
 
   # reorder columns

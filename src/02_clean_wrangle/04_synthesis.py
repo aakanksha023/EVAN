@@ -7,7 +7,7 @@ and saves it to a specified file path. The input licence data needs to
 be the output of 03_clean_wrangle.py script. The ouput will be feeding into
 machine learning algorithm and visualization.
 
-Usage: src/04_wrangle_sythesis.py --file_path1=<file_path1> --file_path2=<file_path2> --file_path3=<file_path3> --file_path4=<file_path4> --file_path5=<file_path5> --save_to1=<save_to1> --save_to2=<save_to2> --save_to3=<save_to3> --save_to4=<save_to4>
+Usage: src/02_clean_wrangle/04_sythesis.py --file_path1=<file_path1> --file_path2=<file_path2> --file_path3=<file_path3> --file_path4=<file_path4> --file_path5=<file_path5> --save_to1=<save_to1> --save_to2=<save_to2> --save_to3=<save_to3> --save_to4=<save_to4>
 
 Options:
 --file_path1=<file_path1>        This is the file path for the raw
@@ -35,6 +35,8 @@ import pandas as pd
 import numpy as np
 import zipfile
 import json
+from datetime import date
+from datetime import datetime
 import warnings
 
 
@@ -96,14 +98,21 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, save_to1, s
     
     unemployment_rate = pd.concat([bc_unemployment, vancouver_unemployment])
 
-    # wrangle for visualization
+    #wrangle for visualization
+    
+    #wangle the issueddate into datetime format
+    licence_vis_df = licence_df[~licence_df['IssuedDate'].isnull()]
+    date_format = '%Y-%m-%d'
+    licence_vis_df['IssuedDate'] = licence_vis_df['IssuedDate'].apply(lambda p: datetime.strptime(p, date_format).strftime("%Y-%m-%d %H:%M:%S"))
+
+    #wrangle the Geom into coordinates
     parking_meters_df["coord-x"] = parking_meters_df['Geom'].apply(lambda p: json.loads(p)['coordinates'][0])
     parking_meters_df["coord-y"] = parking_meters_df['Geom'].apply(lambda p: json.loads(p)['coordinates'][1])
     disability_parking_df["coord-x"] = disability_parking_df['Geom'].apply(lambda p: json.loads(p)['coordinates'][0])
     disability_parking_df["coord-y"] = disability_parking_df['Geom'].apply(lambda p: json.loads(p)['coordinates'][1])
 
     #filter out point without Geom location
-    licence_vis_df = licence_df[~licence_df['Geom'].isnull()]
+    licence_vis_df = licence_vis_df[~licence_vis_df['Geom'].isnull()]
     licence_vis_df["coord-x"] = licence_vis_df['Geom'].apply(lambda p: json.loads(p)['coordinates'][0])
     licence_vis_df["coord-y"] = licence_vis_df['Geom'].apply(lambda p: json.loads(p)['coordinates'][1])
 
