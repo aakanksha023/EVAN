@@ -42,7 +42,7 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
 
   # group by business name + location
   combined_grouped_df <- combined_df %>%
-    group_by(BusinessName, PostalCode, LocalArea, City) %>%
+    group_by(BusinessName, PostalCode, LocalArea, City, BusinessTradeName) %>%
     mutate(business_id = group_indices())
 
   # reorder columns
