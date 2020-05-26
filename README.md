@@ -65,7 +65,7 @@ In addition to the business licence dataset, the Canadian census surveys provide
 
 ## Usage
 
-To replicate the analysis performed in this project, clone this GitHub repository, install the required [dependencies](#package-dependencies) listed below, and follow the commands included in the README of the [source folder](https://github.com/deetken/evan/tree/master/src) in your command line/terminal from the root directory of this project.
+To replicate the analysis performed in this project, clone this GitHub repository, install the required [dependencies](#package-dependencies) listed below, and follow the commands included in the README of the [source folder](https://github.com/deetken/evan/tree/master/src#usage) in your command line/terminal from the root directory of this project.
 
 
 
