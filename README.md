@@ -120,6 +120,9 @@ python3 src/03_clean_wrangle.py --file_path="data/processed/combined_licences.cs
 
 # 4. 04_wrangle_synthesis.py
 python3 src/04_wrangle_synthesis.py --file_path1="data/raw/disability-parking.csv" --file_path2="data/raw/parking-meters.csv" --file_path3="data/processed/train_cleaned.csv" --file_path4="data/raw/14100096-eng.zip" --file_path5="data/raw/14100327-eng.zip"  --save_to1="data/processed/combined_train.csv" --save_to2="data/processed/parking_meter_vis.csv" --save_to3="data/processed/disability_parking_vis.csv" --save_to4="data/processed/licence_vis.csv"
+
+# 5. 05_kepler_vis.py
+python3 src/05_kepler_vis.py --file_path1="data/processed/licence_vis.csv" --file_path2="data/processed/disability_parking_vis.csv" --file_path3="data/processed/paking_meter_vis.csv" 
 ```
 
 ## Data Products
