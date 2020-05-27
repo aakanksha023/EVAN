@@ -26,10 +26,14 @@ Rscript src/02_clean_wrangle/02_split_licence.R --filepath_in="data/raw" \
 
 # 3. 03_clean_licence.py
 
-python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/train.csv" --save_to="data/processed/train_cleaned.csv"
-python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/validate.csv" --save_to="data/processed/validate_cleaned.csv"
-python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/test.csv" --save_to="data/processed/test_cleaned.csv"
-python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/combined_licences.csv" --save_to="data/processed/combined_licences_cleaned.csv"
+python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/train.csv" \
+--save_to="data/processed/train_cleaned.csv"
+python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/validate.csv" \
+--save_to="data/processed/validate_cleaned.csv"
+python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/test.csv" \
+--save_to="data/processed/test_cleaned.csv"
+python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/combined_licences.csv" \
+--save_to="data/processed/combined_licences_cleaned.csv"
 
 # 4. 04_synthesis.py
 
