@@ -7,7 +7,7 @@ and saves it to a specified file path. The input licence data needs to
 be the output of 03_clean_wrangle.py script. The ouput will be feeding into
 machine learning algorithm and visualization.
 
-Usage: src/02_clean_wrangle/04_sythesis.py --file_path1=<file_path1> --file_path2=<file_path2> --file_path3=<file_path3> --file_path4=<file_path4> --file_path5=<file_path5> --save_to1=<save_to1> --save_to2=<save_to2> --save_to3=<save_to3> --save_to4=<save_to4>
+Usage: src/02_clean_wrangle/04_sythesis.py --file_path1=<file_path1> --file_path2=<file_path2> --file_path3=<file_path3> --file_path4=<file_path4> --file_path5=<file_path5> --file_path6=<file_path6> --file_path7=<file_path7> --file_path8=<file_path8> --file_path9=<file_path9> --file_path10=<file_path10> --file_path11=<file_path11> --file_path12=<file_path12> --file_path13=<file_path13> --file_path14=<file_path14> --file_path15=<file_path15> --file_path16=<file_path16> --file_path17=<file_path17> --file_path18=<file_path18> --file_path19=<file_path19> --file_path20=<file_path20> --file_path21=<file_path21> --save_to1=<save_to1> --save_to2=<save_to2> --save_to3=<save_to3> --save_to4=<save_to4>
 
 Options:
 --file_path1=<file_path1>        This is the file path for the raw
@@ -44,11 +44,37 @@ import warnings
 opt = docopt(__doc__)
 
 
-def main(file_path1, file_path2, file_path3, file_path4, file_path5, save_to1, save_to2, save_to3, save_to4):
+def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6, file_path7, file_path8,
+         file_path9, file_path10, file_path11, file_path12, file_path13, file_path14, file_path15, file_path16,
+         file_path17, file_path18, file_path19, file_path20, file_path21, save_to1, save_to2, save_to3, save_to4):
     
     parking_meters_df = pd.read_csv(file_path1,sep=';')
     disability_parking_df = pd.read_csv(file_path2,sep=';')
     licence_df =  pd.read_csv(file_path3,low_memory=False)
+
+    #census
+    family_2001 = pd.read_csv(file_path6)
+    family_2006 = pd.read_csv(file_path7)
+    family_2011 = pd.read_csv(file_path8)
+    family_2016 = pd.read_csv(file_path9)
+    language_2001 = pd.read_csv(file_path10)
+    language_2006 = pd.read_csv(file_path11)
+    language_2011 = pd.read_csv(file_path12)
+    language_2016 = pd.read_csv(file_path13)
+    marital_2001 = pd.read_csv(file_path14)
+    marital_2006 = pd.read_csv(file_path15)
+    marital_2011 = pd.read_csv(file_path16)
+    marital_2016 = pd.read_csv(file_path17)
+    population_2001 = pd.read_csv(file_path18)
+    population_2006 = pd.read_csv(file_path19)
+    population_2011 = pd.read_csv(file_path20)
+    population_2016 = pd.read_csv(file_path21)
+
+
+
+
+    #suppress warning
+    pd.options.mode.chained_assignment = None
 
     #read from zip file
     vancouver_zip_path = file_path4
@@ -98,6 +124,147 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, save_to1, s
     
     unemployment_rate = pd.concat([bc_unemployment, vancouver_unemployment])
 
+    #for census data
+
+     def fill_missing_year(df, start_year, end_year):
+    """
+    This function will repeat the dataframe and fill the year
+    from the start to end
+    Args:
+        df (pandas dataframe): The dataframe 
+        start_year (int): The four digit strat year
+        end_year (int): The four digit end year, note end year not included
+
+    Returns:
+        df: The expanded dataframe
+
+    """
+    year_lis = list(range(start_year, end_year))
+    df = pd.concat([df]*len(year_lis))
+    df.reset_index(drop = True, inplace = True)
+    df['Year'] = 0
+    i = 0
+    for year in year_lis:
+        df.iloc[i:i+24]['Year'] = year
+        i+=24
+    return df
+
+    # for family sub-data
+    def clean_family(family, start_year, end_year):
+    """
+    This function cleans the family census data
+    Args:
+        family (pandas dataframe): The dataframe for family data
+        start_year (int): The four digit strat year
+        end_year (int): The four digit end year, note end year not included
+        
+    Returns:
+        family: A cleaned pandas dataframe
+
+    """
+    family = family[family['Type'] == 'total couples']
+    family.drop(columns = ['Unnamed: 0','Type'], inplace = True)
+    family = fill_missing_year(family , start_year, end_year)
+    return family
+
+
+    family_2001 = clean_family(family_2001, 1997, 2002)
+    family_2006 = clean_family(family_2006, 2002, 2007)
+    family_2011 = clean_family(family_2011, 2007, 2012)
+    family_2016 = clean_family(family_2016, 2012, 2020)
+
+    family = pd.concat([family_2001, family_2006, family_2011, family_2016])
+    family.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+    licence_df = licence_df.merge(family, on = ['Geo Local Area','FOLDERYEAR'], how = 'left')
+
+
+    #for language sub-data
+    
+    def clean_language(language, start_year, end_year):
+    """
+    This function cleans the language census data
+    Args:
+        language (pandas dataframe): The dataframe for language data
+        start_year (int): The four digit strat year
+        end_year (int): The four digit end year, note end year not included
+
+    Returns:
+        language: A cleaned pandas dataframe
+
+    """
+    # only keeping their mother tongue
+    language = language[language['Type']=='mother tongue - total']
+    language.drop(columns = ['Unnamed: 0','Type', 'Total'], inplace = True)
+    language = fill_missing_year(language, start_year, end_year)
+    return language
+
+    language_2001 = clean_language(language_2001, 1997, 2002)
+    language_2006 = clean_language(language_2006, 2002, 2007)
+    language_2011 = clean_language(language_2011, 2007, 2012)
+    language_2016 = clean_language(language_2016, 2012, 2020)
+
+    language = pd.concat([language_2001, language_2006, language_2011, language_2016])
+    language.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+    #filter out nan values
+    language.dropna(axis = 1, inplace = True)
+    licence_df = licence_df.merge(language, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+
+    #for marital sub-data
+    def clean_marital(marital, start_year, end_year):
+    """
+    This function cleans the marital census data
+    Args:
+        marital (pandas dataframe): The dataframe for language data
+        start_year (int): The four digit strat year
+        end_year (int): The four digit end year, note end year not included
+
+    Returns:
+        marital: A cleaned pandas dataframe
+
+    """
+   
+    marital.drop(columns = ['Unnamed: 0'], inplace = True)
+    marital = fill_missing_year(marital, start_year, end_year)
+    return marital
+
+    
+    marital_2001 = clean_marital(marital_2001, 1997, 2002)
+    marital_2006 = clean_marital(marital_2006, 2002, 2007)
+    marital_2011 = clean_marital(marital_2011, 2007, 2012)
+    marital_2016 = clean_marital(marital_2016, 2012, 2020)
+
+    marital = pd.concat([marital_2001, marital_2006, marital_2011, marital_2016])
+    marital.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+    licence_df = licence_df.merge(marital, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+
+    #for population sub-data
+    def clean_age_sex(age, start_year, end_year):
+    """
+    This function cleans the marital census data
+    Args:
+        age (pandas dataframe): The dataframe for population data
+        start_year (int): The four digit strat year
+        end_year (int): The four digit end year, note end year not included
+
+    Returns:
+        age: A cleaned pandas dataframe
+
+    """
+    age = age[age['Type']== 'total']
+    age.drop(columns = ['Unnamed: 0', 'Type'], inplace = True)
+    age = fill_missing_year(age, start_year, end_year)
+    return age
+
+    population_2001 = clean_age_sex(population_2001, 1997, 2002)
+    population_2006 = clean_age_sex(population_2006, 2002, 2007)
+    population_2011 = clean_age_sex(population_2011, 2007, 2012)
+    population_2016 = clean_age_sex(population_2016, 2012, 2020)
+
+    population = pd.concat([population_2001, population_2006, population_2011, population_2016])
+    population .rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+    licence_df = licence_df.merge(population, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+
+
     #wrangle for visualization
     
     #wangle the issueddate into datetime format
@@ -139,4 +306,4 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, save_to1, s
 
 
 if __name__ == "__main__":
-    main(opt["--file_path1"], opt["--file_path2"], opt["--file_path3"], opt["--file_path4"], opt["--file_path5"], opt["--save_to1"], opt["--save_to2"], opt["--save_to3"], opt["--save_to4"])
+    main(opt["--file_path1"], opt["--file_path2"], opt["--file_path3"], opt["--file_path4"], opt["--file_path5"], opt["--file_path6"], opt["--file_path7"], opt["--file_path8"], opt["--file_path9"], opt["--file_path10"], opt["--file_path11"], opt["--file_path12"], opt["--file_path13"], opt["--file_path14"], opt["--file_path15"], opt["--file_path16"], opt["--file_path17"], opt["--file_path18"], opt["--file_path19"], opt["--file_path20"], opt["--file_path21"], opt["--save_to1"], opt["--save_to2"], opt["--save_to3"], opt["--save_to4"])
