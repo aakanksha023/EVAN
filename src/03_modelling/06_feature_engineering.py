@@ -15,38 +15,41 @@ Options:
 """
 
 # load packages
-
+from docopt import docopt
+import pandas as pd
+from collections import defaultdict, Counter
 
 opt = docopt(__doc__)
 
+
 def historic_mapping(df, col='BusinessType'):
     """
-    This function creates mapping rules for historic 
-    BusinessType and BusinessSubType. 
-    
+    This function creates mapping rules for historic
+    BusinessType and BusinessSubType.
+
     Parameters:
     -----------
     df: pandas.core.frame.DataFrame
         The dataframe used to set-up mapping rules
-    
+
     col: str
         The column where historic types need to be cleaned
-        
+
     Returns:
     -----------
     dict: A look-up dictionary
     """
-    
     df = df.copy(deep=True).dropna(subset=[col])
-    
+
     contain_historic = df.groupby('BusinessName')[col].apply(
-    lambda x: list(x) if x.str.contains('\*').any() else False)
+        lambda x: list(x) if x.str.contains(r'\*').any() else False)
 
     contain_historic_list = [
-        list(set(i)) for i in contain_historic[~(contain_historic == False)].tolist()]
-    
+        list(set(i)) for i in contain_historic[~(
+            contain_historic == False)].tolist()]
+
     historic_lookup_all = defaultdict(Counter)
-    
+
     for items in contain_historic_list:
         new_types, historic_types = [], []
         for bt in items:
@@ -57,11 +60,12 @@ def historic_mapping(df, col='BusinessType'):
         for h in historic_types:
             for n in new_types:
                 historic_lookup_all[h][n] += 1
-                
+
+    # create dictionary for mapping
     historic_lookup = {}
-    for key,value in historic_lookup_all.items():
+    for key, value in historic_lookup_all.items():
         historic_lookup[key] = value.most_common()[0][0]
-        
+
     return historic_lookup
 
 
@@ -70,25 +74,32 @@ def main(file_path, save_to):
     Feature engineering main function.
     """
 
-    df = pd.read_csv(file_path, low_memory=False)
-    
+    # feautures
+    num_vars = ['NumberofEmployees', 'FeePaid', 'Parking meters',
+                'Disability parking', 'Unemployment_rate']
+    cat_vars = ['FOLDERYEAR', 'BusinessType', 'BusinessSubType', 'LocalArea']
+    label = ['label']
+
+    df = pd.read_csv(file_path, low_memory=False).rename(
+        columns={'Geo Local Area': 'LocalArea'})
+
     # 1. Remove missing LocalArea
     df = df[df.LocalArea.notnull()]
-    
+
     # 2. Remove previous status != Issued
     df = df[df.Status == 'Issued']
 
     # 3. Map historic types to current ones
     df = df.replace({'BusinessType': historic_mapping(
         df), 'BusinessSubType': historic_mapping(df, col='BusinessSubType')})
-    
+
     # 4. Group business types
     # INSERT CODE HERE
-    
-    df = df[num_vars+cat_vars+label]
-    
-    return df.drop(columns=label), df['label']
 
-    
+    df = df[num_vars+cat_vars+label]
+
+    df.to_csv(save_to, index=False)
+
+
 if __name__ == "__main__":
     main(opt["--file_path"], opt["--save_to"])
