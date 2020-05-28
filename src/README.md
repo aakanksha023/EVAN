@@ -43,6 +43,7 @@ python3 src/02_clean_wrangle/04_synthesis.py --file_path="src/02_clean_wrangle/s
 **Part 3: Modelling**
 
 ```{bash}
+python3 src/03_modelling/06_feature_engineering.py --file_path="data/processed/combined_train.csv" --mapping_csv="src/01_download/business_mapping_dictionary.csv" --save_to="data/processed/combined_train_processed.csv"
 
 ```
 
