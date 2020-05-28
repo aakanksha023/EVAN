@@ -10,7 +10,7 @@
 (data/processed/census_detailed_language_2001.csv),
 (data/processed/census_detailed_language_2006.csv),
 (data/processed/census_detailed_language_2011.csv),
-(data/processed/census_detailed_language_2016.csv,)
+(data/processed/census_detailed_language_2016.csv),
 (data/processed/census_marital_status_2001.csv),
 (data/processed/census_marital_status_2006.csv),
 (data/processed/census_marital_status_2011.csv),

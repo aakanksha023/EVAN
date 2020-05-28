@@ -64,7 +64,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     family_2006 = pd.read_csv(file_lis[6])
     family_2011 = pd.read_csv(file_lis[7])
     family_2016 = pd.read_csv(file_lis[8])
-    language_2001 = pd.read_csv(file_lis[9])
+    #language_2001 = pd.read_csv(file_lis[9])
     language_2006 = pd.read_csv(file_lis[10])
     language_2011 = pd.read_csv(file_lis[11])
     language_2016 = pd.read_csv(file_lis[12])
@@ -147,15 +147,15 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         
         """
 
-    year_lis = list(range(start_year, end_year))
-    df = pd.concat([df]*len(year_lis))
-    df.reset_index(drop = True, inplace = True)
-    df['Year'] = 0
-    i = 0
-    for year in year_lis:
-        df.iloc[i:i+24]['Year'] = year
-        i+=24
-    return df
+        year_lis = list(range(start_year, end_year))
+        df = pd.concat([df]*len(year_lis))
+        df.reset_index(drop = True, inplace = True)
+        df['Year'] = 0
+        i = 0
+        for year in year_lis:
+            df.iloc[i:i+24]['Year'] = year
+            i+=24
+        return df
 
     # for family sub-data
     def clean_family(family, start_year, end_year):
@@ -170,20 +170,17 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
             family: A cleaned pandas dataframe
 
         """
-    family = family[family['Type'] == 'total couples']
-    family.drop(columns = ['Unnamed: 0','Type'], inplace = True)
-    family = fill_missing_year(family , start_year, end_year)
-    return family
+        family = family[family['Type'] == 'total couples']
+        family.drop(columns = ['Unnamed: 0','Type'], inplace = True)
+        family = fill_missing_year(family , start_year, end_year)
+        
+        return family
 
 
     family_2001 = clean_family(family_2001, 1997, 2002)
     family_2006 = clean_family(family_2006, 2002, 2007)
     family_2011 = clean_family(family_2011, 2007, 2012)
     family_2016 = clean_family(family_2016, 2012, 2020)
-
-    family = pd.concat([family_2001, family_2006, family_2011, family_2016])
-    family.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(family, on = ['Geo Local Area','FOLDERYEAR'], how = 'left')
 
 
     #for language sub-data
@@ -200,23 +197,18 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
             language: A cleaned pandas dataframe
 
         """
-    # only keeping their mother tongue
-    language = language[language['Type']=='mother tongue - total']
-    language.drop(columns = ['Unnamed: 0','Type', 'Total'], inplace = True)
-    language = fill_missing_year(language, start_year, end_year)
-    return language
+        # only keeping their mother tongue
+        language = language[language['Type']=='mother tongue - total']
+        language.drop(columns = ['Unnamed: 0','Type', 'Total'], inplace = True)
+        language = fill_missing_year(language, start_year, end_year)
+        return language
 
-    language_2001 = clean_language(language_2001, 1997, 2002)
+    #language_2001 = clean_language(language_2001, 1997, 2002)
     language_2006 = clean_language(language_2006, 2002, 2007)
     language_2011 = clean_language(language_2011, 2007, 2012)
     language_2016 = clean_language(language_2016, 2012, 2020)
 
-    language = pd.concat([language_2001, language_2006, language_2011, language_2016])
-    language.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    #filter out nan values
-    language.dropna(axis = 1, inplace = True)
-    licence_df = licence_df.merge(language, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
-
+    
     #for marital sub-data
     def clean_marital(marital, start_year, end_year):
         """
@@ -231,9 +223,9 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
         """
    
-    marital.drop(columns = ['Unnamed: 0'], inplace = True)
-    marital = fill_missing_year(marital, start_year, end_year)
-    return marital
+        marital.drop(columns = ['Unnamed: 0'], inplace = True)
+        marital = fill_missing_year(marital, start_year, end_year)
+        return marital
 
     
     marital_2001 = clean_marital(marital_2001, 1997, 2002)
@@ -241,10 +233,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     marital_2011 = clean_marital(marital_2011, 2007, 2012)
     marital_2016 = clean_marital(marital_2016, 2012, 2020)
 
-    marital = pd.concat([marital_2001, marital_2006, marital_2011, marital_2016])
-    marital.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(marital, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
-
+    
     #for population sub-data
     def clean_age_sex(age, start_year, end_year):
         """
@@ -258,20 +247,17 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
             age: A cleaned pandas dataframe
 
         """
-    age = age[age['Type']== 'total']
-    age.drop(columns = ['Unnamed: 0', 'Type'], inplace = True)
-    age = fill_missing_year(age, start_year, end_year)
-    return age
+        age = age[age['Type']== 'total']
+        age.drop(columns = ['Unnamed: 0', 'Type'], inplace = True)
+        age = fill_missing_year(age, start_year, end_year)
+        return age
 
     population_2001 = clean_age_sex(population_2001, 1997, 2002)
     population_2006 = clean_age_sex(population_2006, 2002, 2007)
     population_2011 = clean_age_sex(population_2011, 2007, 2012)
     population_2016 = clean_age_sex(population_2016, 2012, 2020)
 
-    population = pd.concat([population_2001, population_2006, population_2011, population_2016])
-    population.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(population, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
-
+    
 
     #wrangle for visualization
     
@@ -304,6 +290,26 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     licence_df = licence_df.astype({'FOLDERYEAR': 'int'})
     unemployment_rate.rename(columns = {'REF_DATE':'FOLDERYEAR','VALUE':'Unemployment_rate'}, inplace = True)
     licence_df = licence_df.merge(unemployment_rate, on = 'FOLDERYEAR', how ='left')
+    
+    #census data
+    family = pd.concat([family_2001, family_2006, family_2011, family_2016])
+    family.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+    licence_df = licence_df.merge(family, on = ['Geo Local Area','FOLDERYEAR'], how = 'left')
+
+    #language = pd.concat([language_2001, language_2006, language_2011, language_2016])
+    language = pd.concat([language_2006, language_2011, language_2016])
+    language.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+    #filter out nan values
+    language.dropna(axis = 1, inplace = True)
+    licence_df = licence_df.merge(language, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+
+    marital = pd.concat([marital_2001, marital_2006, marital_2011, marital_2016])
+    marital.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+    licence_df = licence_df.merge(marital, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+    
+    population = pd.concat([population_2001, population_2006, population_2011, population_2016])
+    population.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+    licence_df = licence_df.merge(population, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
 
 
     # save to a new csv
