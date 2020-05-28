@@ -5,11 +5,13 @@
 This script performs feature engineering for a specified csv
 and saves it to a specified file path.
 
-Usage: src/03_modelling/06_feature_engineering.py --file_path=<file_path> --save_to=<save_to>
+Usage: src/03_modelling/06_feature_engineering.py --file_path=<file_path> --mapping_csv=<mapping_csv> --save_to=<save_to>
 
 Options:
 --file_path=<file_path>        This is the file path of the csv
                                to be performed feature engineering
+--mapping_csv=<mapping_csv>    A csv file mapping the BusinessType to
+                               NAICS Canada 2017 Industry classification
 --save_to=<save_to>            This is the file path the processed
                                csv will be saved to
 """
@@ -17,6 +19,7 @@ Options:
 # load packages
 from docopt import docopt
 import pandas as pd
+import csv
 from collections import defaultdict, Counter
 
 opt = docopt(__doc__)
@@ -69,19 +72,39 @@ def historic_mapping(df, col='BusinessType'):
     return historic_lookup
 
 
-def main(file_path, save_to):
+def main(file_path, new_csv, save_to):
     """
     Feature engineering main function.
-    """
+    """  
+    # create empty dictionary
+    my_dict = {' ': ' '}
 
+    # Read csv and write to dictionary
+    with open(new_csv, mode='r') as csv_file:
+        csv_reader = csv.reader(csv_file)
+        for row in csv_reader:
+            my_dict[row[0]] = row[1]
+
+    # Remove additional key value pair
+    my_dict.pop(' ')
+    my_dict.pop('BusinessType')
+
+    # Read data frame
+    df = pd.read_csv(file_path, low_memory=False).rename(
+        columns={'Geo Local Area': 'LocalArea'})
+
+    # Add BusinessIndustry column
+    df['BusinessIndustry'] = df['BusinessType'].map(my_dict)
+
+    # Remove 2010 Winter games : Outlier
+    df = df[df.BusinessIndustry != 'Historic']
+
+    
     # feautures
     num_vars = ['NumberofEmployees', 'FeePaid', 'Parking meters',
                 'Disability parking', 'Unemployment_rate']
     cat_vars = ['FOLDERYEAR', 'BusinessType', 'BusinessSubType', 'LocalArea']
     label = ['label']
-
-    df = pd.read_csv(file_path, low_memory=False).rename(
-        columns={'Geo Local Area': 'LocalArea'})
 
     # 1. Remove missing LocalArea
     df = df[df.LocalArea.notnull()]
@@ -90,8 +113,8 @@ def main(file_path, save_to):
     df = df[df.Status == 'Issued']
 
     # 3. Map historic types to current ones
-    df = df.replace({'BusinessType': historic_mapping(
-        df), 'BusinessSubType': historic_mapping(df, col='BusinessSubType')})
+    # df = df.replace({'BusinessType': historic_mapping(
+    #     df), 'BusinessSubType': historic_mapping(df, col='BusinessSubType')})
 
     # 4. Group business types
     # INSERT CODE HERE
@@ -102,4 +125,4 @@ def main(file_path, save_to):
 
 
 if __name__ == "__main__":
-    main(opt["--file_path"], opt["--save_to"])
+    main(opt["--file_path"], opt["--mapping_csv"] , opt["--save_to"])
