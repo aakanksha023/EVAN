@@ -84,7 +84,7 @@ def main(file_path, save_to):
     df_shifted = df.sort_values(
         ['business_id', 'FOLDERYEAR']).shift(periods=-1)
     df['business_id_lag1'] = df_shifted.business_id
-    df['status_lag1'] = df_shifted.Status
+    df['NextYearStatus'] = df_shifted.Status
     df['folderyear_lag1'] = df_shifted.FOLDERYEAR
 
     # 2. remove different id caused by shifting
@@ -93,11 +93,10 @@ def main(file_path, save_to):
 
     # 3. define conditions to label 1 (sucesss)
     #       current year = Issued, no matter what status in last year
-    df['label'] = np.where(df.status_lag1 == 'Issued', 1, 0)
+    df['label'] = np.where(df.NextYearStatus == 'Issued', 1, 0)
 
     # drop columns
-    df = df.drop(columns=['business_id_lag1',
-                          'status_lag1', 'folderyear_lag1'])
+    df = df.drop(columns=['business_id_lag1', 'folderyear_lag1'])
 
     # save to a new csv
     df.to_csv(save_to, index=False)
