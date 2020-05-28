@@ -5,8 +5,7 @@
 This script performs feature engineering for a specified csv
 and saves it to a specified file path.
 
-Usage: src/03_modelling/06_feature_engineering.py
---file_path=<file_path> --save_to=<save_to>
+Usage: src/03_modelling/06_feature_engineering.py --file_path=<file_path> --save_to=<save_to>
 
 Options:
 --file_path=<file_path>        This is the file path of the csv
@@ -20,15 +19,7 @@ from docopt import docopt
 import pandas as pd
 from collections import defaultdict, Counter
 
-
 opt = docopt(__doc__)
-
-
-# feautures
-num_vars = ['NumberofEmployees', 'FeePaid', 'Parking meters',
-            'Disability parking', 'Unemployment_rate']
-cat_vars = ['FOLDERYEAR', 'BusinessType', 'BusinessSubType', 'LocalArea']
-label = ['label']
 
 
 def historic_mapping(df, col='BusinessType'):
@@ -55,7 +46,7 @@ def historic_mapping(df, col='BusinessType'):
 
     contain_historic_list = [
         list(set(i)) for i in contain_historic[~(
-            contain_historic is False)].tolist()]
+            contain_historic == False)].tolist()]
 
     historic_lookup_all = defaultdict(Counter)
 
@@ -83,7 +74,14 @@ def main(file_path, save_to):
     Feature engineering main function.
     """
 
-    df = pd.read_csv(file_path, low_memory=False)
+    # feautures
+    num_vars = ['NumberofEmployees', 'FeePaid', 'Parking meters',
+                'Disability parking', 'Unemployment_rate']
+    cat_vars = ['FOLDERYEAR', 'BusinessType', 'BusinessSubType', 'LocalArea']
+    label = ['label']
+
+    df = pd.read_csv(file_path, low_memory=False).rename(
+        columns={'Geo Local Area': 'LocalArea'})
 
     # 1. Remove missing LocalArea
     df = df[df.LocalArea.notnull()]
@@ -100,7 +98,7 @@ def main(file_path, save_to):
 
     df = df[num_vars+cat_vars+label]
 
-    return df.drop(columns=label), df['label']
+    df.to_csv(save_to, index=False)
 
 
 if __name__ == "__main__":
