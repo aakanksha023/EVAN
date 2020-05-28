@@ -7,18 +7,11 @@ and saves it to a specified file path. The input licence data needs to
 be the output of 03_clean_wrangle.py script. The ouput will be feeding into
 machine learning algorithm and visualization.
 
-Usage: src/02_clean_wrangle/04_sythesis.py --file_path1=<file_path1> --file_path2=<file_path2> --file_path3=<file_path3> --file_path4=<file_path4> --file_path5=<file_path5> --file_path6=<file_path6> --file_path7=<file_path7> --file_path8=<file_path8> --file_path9=<file_path9> --file_path10=<file_path10> --file_path11=<file_path11> --file_path12=<file_path12> --file_path13=<file_path13> --file_path14=<file_path14> --file_path15=<file_path15> --file_path16=<file_path16> --file_path17=<file_path17> --file_path18=<file_path18> --file_path19=<file_path19> --file_path20=<file_path20> --file_path21=<file_path21> --save_to1=<save_to1> --save_to2=<save_to2> --save_to3=<save_to3> --save_to4=<save_to4>
+Usage: src/02_clean_wrangle/04_sythesis.py --file_path=<file_path>  --save_to1=<save_to1> --save_to2=<save_to2> --save_to3=<save_to3> --save_to4=<save_to4>
 
 Options:
---file_path1=<file_path1>        This is the file path for the raw
-                                parking meter dataset
---file_path2=<file_path2>        This is the file path of the raw
-                                disability parking dataset
---file_path3=<file_path3>        This is the file path for the cleaned
-                                licence dataset
---file_path4=<file_path4>       This is the file path for the raw bc employment
---file_path5=<file_path5>       This is the file path for the raw
-                                Vancouver employment data 
+--file_path=<file_path>        A txt file storing two-dimensional array, 
+                               specifing the file path for input dataset.
 --save_to1=<save_to1>           This is the file path the processed training
                                csv will be saved to
 --save_to2=<save_to2>           This is the file path the parking meters for visualization
@@ -35,6 +28,7 @@ import pandas as pd
 import numpy as np
 import zipfile
 import json
+import re
 from datetime import date
 from datetime import datetime
 import warnings
@@ -44,31 +38,44 @@ import warnings
 opt = docopt(__doc__)
 
 
-def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6, file_path7, file_path8,
-         file_path9, file_path10, file_path11, file_path12, file_path13, file_path14, file_path15, file_path16,
-         file_path17, file_path18, file_path19, file_path20, file_path21, save_to1, save_to2, save_to3, save_to4):
+def main(file_path, save_to1, save_to2, save_to3, save_to4):
     
-    parking_meters_df = pd.read_csv(file_path1,sep=';')
-    disability_parking_df = pd.read_csv(file_path2,sep=';')
-    licence_df =  pd.read_csv(file_path3,low_memory=False)
+    #read files
+
+    with open(file_path, 'r') as file:
+        file_path = file.read().replace('\n', '')
+    
+    file_path = file_path.strip('[]')
+    file_path = re.findall(r'\([^\)\(]*\)', file_path)
+
+    file_lis=[]
+
+    for file in file_path:
+        file_name = file.strip('()')
+        file_lis.append(file_name)
+    
+    disability_parking_df = pd.read_csv(file_lis[0],sep=';')
+    parking_meters_df = pd.read_csv(file_lis[1],sep=';')
+    
+    licence_df =  pd.read_csv(file_lis[2],low_memory=False)
 
     #census
-    family_2001 = pd.read_csv(file_path6)
-    family_2006 = pd.read_csv(file_path7)
-    family_2011 = pd.read_csv(file_path8)
-    family_2016 = pd.read_csv(file_path9)
-    language_2001 = pd.read_csv(file_path10)
-    language_2006 = pd.read_csv(file_path11)
-    language_2011 = pd.read_csv(file_path12)
-    language_2016 = pd.read_csv(file_path13)
-    marital_2001 = pd.read_csv(file_path14)
-    marital_2006 = pd.read_csv(file_path15)
-    marital_2011 = pd.read_csv(file_path16)
-    marital_2016 = pd.read_csv(file_path17)
-    population_2001 = pd.read_csv(file_path18)
-    population_2006 = pd.read_csv(file_path19)
-    population_2011 = pd.read_csv(file_path20)
-    population_2016 = pd.read_csv(file_path21)
+    family_2001 = pd.read_csv(file_lis[5])
+    family_2006 = pd.read_csv(file_lis[6])
+    family_2011 = pd.read_csv(file_lis[7])
+    family_2016 = pd.read_csv(file_lis[8])
+    language_2001 = pd.read_csv(file_lis[9])
+    language_2006 = pd.read_csv(file_lis[10])
+    language_2011 = pd.read_csv(file_lis[11])
+    language_2016 = pd.read_csv(file_lis[12])
+    marital_2001 = pd.read_csv(file_lis[13])
+    marital_2006 = pd.read_csv(file_lis[14])
+    marital_2011 = pd.read_csv(file_lis[15])
+    marital_2016 = pd.read_csv(file_lis[16])
+    population_2001 = pd.read_csv(file_lis[17])
+    population_2006 = pd.read_csv(file_lis[18])
+    population_2011 = pd.read_csv(file_lis[19])
+    population_2016 = pd.read_csv(file_lis[20])
 
 
 
@@ -77,12 +84,12 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6,
     pd.options.mode.chained_assignment = None
 
     #read from zip file
-    vancouver_zip_path = file_path4
+    vancouver_zip_path = file_lis[3]
     with zipfile.ZipFile(vancouver_zip_path,"r") as z:
         with z.open("14100096.csv") as f:
             vancouver_employment = pd.read_csv(f, header=0, delimiter=",")
 
-    bc_zip_path = file_path5
+    bc_zip_path = file_lis[4]
     with zipfile.ZipFile(bc_zip_path,"r") as z:
         with z.open("14100327.csv") as f:
             bc_employment = pd.read_csv(f, header=0, delimiter=",")
@@ -126,19 +133,20 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6,
 
     #for census data
 
-     def fill_missing_year(df, start_year, end_year):
-    """
-    This function will repeat the dataframe and fill the year
-    from the start to end
-    Args:
-        df (pandas dataframe): The dataframe 
-        start_year (int): The four digit strat year
-        end_year (int): The four digit end year, note end year not included
+    def fill_missing_year(df, start_year, end_year):
+        """
+        This function will repeat the dataframe and fill the year
+        from the start to end
+        Args:
+            df (pandas dataframe): The dataframe 
+            start_year (int): The four digit strat year
+            end_year (int): The four digit end year, note end year not included
 
-    Returns:
-        df: The expanded dataframe
+        Returns:
+            df: The expanded dataframe
+        
+        """
 
-    """
     year_lis = list(range(start_year, end_year))
     df = pd.concat([df]*len(year_lis))
     df.reset_index(drop = True, inplace = True)
@@ -151,17 +159,17 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6,
 
     # for family sub-data
     def clean_family(family, start_year, end_year):
-    """
-    This function cleans the family census data
-    Args:
-        family (pandas dataframe): The dataframe for family data
-        start_year (int): The four digit strat year
-        end_year (int): The four digit end year, note end year not included
-        
-    Returns:
-        family: A cleaned pandas dataframe
+        """
+        This function cleans the family census data
+        Args:
+            family (pandas dataframe): The dataframe for family data
+            start_year (int): The four digit strat year
+            end_year (int): The four digit end year, note end year not included
+            
+        Returns:
+            family: A cleaned pandas dataframe
 
-    """
+        """
     family = family[family['Type'] == 'total couples']
     family.drop(columns = ['Unnamed: 0','Type'], inplace = True)
     family = fill_missing_year(family , start_year, end_year)
@@ -181,17 +189,17 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6,
     #for language sub-data
     
     def clean_language(language, start_year, end_year):
-    """
-    This function cleans the language census data
-    Args:
-        language (pandas dataframe): The dataframe for language data
-        start_year (int): The four digit strat year
-        end_year (int): The four digit end year, note end year not included
+        """
+        This function cleans the language census data
+        Args:
+            language (pandas dataframe): The dataframe for language data
+            start_year (int): The four digit strat year
+            end_year (int): The four digit end year, note end year not included
 
-    Returns:
-        language: A cleaned pandas dataframe
+        Returns:
+            language: A cleaned pandas dataframe
 
-    """
+        """
     # only keeping their mother tongue
     language = language[language['Type']=='mother tongue - total']
     language.drop(columns = ['Unnamed: 0','Type', 'Total'], inplace = True)
@@ -211,17 +219,17 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6,
 
     #for marital sub-data
     def clean_marital(marital, start_year, end_year):
-    """
-    This function cleans the marital census data
-    Args:
-        marital (pandas dataframe): The dataframe for language data
-        start_year (int): The four digit strat year
-        end_year (int): The four digit end year, note end year not included
+        """
+        This function cleans the marital census data
+        Args:
+            marital (pandas dataframe): The dataframe for language data
+            start_year (int): The four digit strat year
+            end_year (int): The four digit end year, note end year not included
 
-    Returns:
-        marital: A cleaned pandas dataframe
+        Returns:
+            marital: A cleaned pandas dataframe
 
-    """
+        """
    
     marital.drop(columns = ['Unnamed: 0'], inplace = True)
     marital = fill_missing_year(marital, start_year, end_year)
@@ -239,17 +247,17 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6,
 
     #for population sub-data
     def clean_age_sex(age, start_year, end_year):
-    """
-    This function cleans the marital census data
-    Args:
-        age (pandas dataframe): The dataframe for population data
-        start_year (int): The four digit strat year
-        end_year (int): The four digit end year, note end year not included
+        """
+        This function cleans the marital census data
+        Args:
+            age (pandas dataframe): The dataframe for population data
+            start_year (int): The four digit strat year
+            end_year (int): The four digit end year, note end year not included
 
-    Returns:
-        age: A cleaned pandas dataframe
+        Returns:
+            age: A cleaned pandas dataframe
 
-    """
+        """
     age = age[age['Type']== 'total']
     age.drop(columns = ['Unnamed: 0', 'Type'], inplace = True)
     age = fill_missing_year(age, start_year, end_year)
@@ -261,7 +269,7 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6,
     population_2016 = clean_age_sex(population_2016, 2012, 2020)
 
     population = pd.concat([population_2001, population_2006, population_2011, population_2016])
-    population .rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+    population.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
     licence_df = licence_df.merge(population, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
 
 
@@ -306,4 +314,4 @@ def main(file_path1, file_path2, file_path3, file_path4, file_path5, file_path6,
 
 
 if __name__ == "__main__":
-    main(opt["--file_path1"], opt["--file_path2"], opt["--file_path3"], opt["--file_path4"], opt["--file_path5"], opt["--file_path6"], opt["--file_path7"], opt["--file_path8"], opt["--file_path9"], opt["--file_path10"], opt["--file_path11"], opt["--file_path12"], opt["--file_path13"], opt["--file_path14"], opt["--file_path15"], opt["--file_path16"], opt["--file_path17"], opt["--file_path18"], opt["--file_path19"], opt["--file_path20"], opt["--file_path21"], opt["--save_to1"], opt["--save_to2"], opt["--save_to3"], opt["--save_to4"])
+    main(opt["--file_path"], opt["--save_to1"], opt["--save_to2"], opt["--save_to3"], opt["--save_to4"])
