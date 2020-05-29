@@ -37,12 +37,13 @@ python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/com
 
 # 4. 04_synthesis.py
 
-python3 src/02_clean_wrangle/04_synthesis.py --file_path1="data/raw/disability-parking.csv" --file_path2="data/raw/parking-meters.csv" --file_path3="data/processed/train_cleaned.csv" --file_path4="data/raw/14100096-eng.zip" --file_path5="data/raw/14100327-eng.zip"  --save_to1="data/processed/combined_train.csv" --save_to2="data/processed/parking_meter_vis.csv" --save_to3="data/processed/disability_parking_vis.csv" --save_to4="data/processed/licence_vis.csv"
+python3 src/02_clean_wrangle/04_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" --save_to1="data/processed/combined_train.csv" --save_to2="data/processed/paking_meter_vis.csv" --save_to3="data/processed/disability_parking_vis.csv" --save_to4="data/processed/licence_vis.csv"
 ```
 
 **Part 3: Modelling**
 
 ```{bash}
+python3 src/03_modelling/06_feature_engineering.py --file_path="data/processed/combined_train.csv" --mapping_csv="src/01_download/business_mapping_dictionary.csv" --save_to="data/processed/combined_train_processed.csv"
 
 ```
 
