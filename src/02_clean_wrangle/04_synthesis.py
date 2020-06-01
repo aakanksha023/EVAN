@@ -392,6 +392,15 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
     #synthesis
     
+    def merge_data(df1, df2, df3, df4, licence_df):
+        
+        whole = pd.concat([df1, df2, df3, df4])
+        whole.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+        licence_df = licence_df.merge(whole, on = ['Geo Local Area','FOLDERYEAR'], how = 'left')
+
+        return licence_df
+
+
     #combine two parking
     final_parking_df = meter_count_df.merge(area_count_df, on = 'Geo Local Area', how = 'outer')
     
@@ -405,9 +414,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     licence_df = licence_df.merge(unemployment_rate, on = 'FOLDERYEAR', how ='left')
     
     #census data
-    family = pd.concat([family_2001, family_2006, family_2011, family_2016])
-    family.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(family, on = ['Geo Local Area','FOLDERYEAR'], how = 'left')
+    licence_df = merge_data(family_2001, family_2006, family_2011, family_2016, licence_df)
 
     #language = pd.concat([language_2001, language_2006, language_2011, language_2016])
     language = pd.concat([language_2006, language_2011, language_2016])
@@ -416,33 +423,20 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     language.dropna(axis = 1, inplace = True)
     licence_df = licence_df.merge(language, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
 
-    marital = pd.concat([marital_2001, marital_2006, marital_2011, marital_2016])
-    marital.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(marital, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+
+    licence_df = merge_data(marital_2001, marital_2006, marital_2011, marital_2016, licence_df)
     
-    population = pd.concat([population_2001, population_2006, population_2011, population_2016])
-    population.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(population, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+    licence_df = merge_data(population_2001, population_2006, population_2011, population_2016, licence_df)
 
-    minority = pd.concat([minority_2001, minority_2006, minority_2011, minority_2016])
-    minority.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(minority, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+    licence_df = merge_data(minority_2001, minority_2006, minority_2011, minority_2016, licence_df)
 
-    dwelling = pd.concat([dwelling_2001, dwelling_2006, dwelling_2011, dwelling_2016])
-    dwelling.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(dwelling, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
-    
-    shelter = pd.concat([shelter_2001, shelter_2006, shelter_2011, shelter_2016])
-    shelter.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(shelter, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+    licence_df = merge_data(dwelling_2001, dwelling_2006, dwelling_2011, dwelling_2016, licence_df)
+   
+    licence_df = merge_data(shelter_2001, shelter_2006, shelter_2011, shelter_2016, licence_df)
 
-    lone_parent = pd.concat([lone_parent_2001, lone_parent_2006, lone_parent_2011, lone_parent_2016])
-    lone_parent.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(lone_parent, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+    licence_df = merge_data(lone_parent_2001, lone_parent_2006, lone_parent_2011, lone_parent_2016,licence_df)
 
-    imgra_period = pd.concat([imgra_period_2001, imgra_period_2006, imgra_period_2011, imgra_period_2016])
-    imgra_period .rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(imgra_period, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+    licence_df = merge_data(imgra_period_2001, imgra_period_2006, imgra_period_2011, imgra_period_2016,licence_df)
 
 
 
