@@ -64,37 +64,47 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     family_2006 = pd.read_csv(file_lis[6])
     family_2011 = pd.read_csv(file_lis[7])
     family_2016 = pd.read_csv(file_lis[8])
-    language_2006 = pd.read_csv(file_lis[9])
-    language_2011 = pd.read_csv(file_lis[10])
-    language_2016 = pd.read_csv(file_lis[11])
-    marital_2001 = pd.read_csv(file_lis[12])
-    marital_2006 = pd.read_csv(file_lis[13])
-    marital_2011 = pd.read_csv(file_lis[14])
-    marital_2016 = pd.read_csv(file_lis[15])
-    population_2001 = pd.read_csv(file_lis[16])
-    population_2006 = pd.read_csv(file_lis[17])
-    population_2011 = pd.read_csv(file_lis[18])
-    population_2016 = pd.read_csv(file_lis[19])
-    minority_2001 = pd.read_csv(file_lis[20])
-    minority_2006 = pd.read_csv(file_lis[21])
-    minority_2011 = pd.read_csv(file_lis[22])
-    minority_2016 = pd.read_csv(file_lis[23])
-    dwelling_2001 = pd.read_csv(file_lis[24])
-    dwelling_2006 = pd.read_csv(file_lis[25])
-    dwelling_2011 = pd.read_csv(file_lis[26])
-    dwelling_2016 = pd.read_csv(file_lis[27])
-    shelter_2001 = pd.read_csv(file_lis[28])
-    shelter_2006 = pd.read_csv(file_lis[29])
-    shelter_2011 = pd.read_csv(file_lis[30])
-    shelter_2016 = pd.read_csv(file_lis[31])
-    lone_parent_2001 = pd.read_csv(file_lis[32])
-    lone_parent_2006 = pd.read_csv(file_lis[33])
-    lone_parent_2011 = pd.read_csv(file_lis[34])
-    lone_parent_2016 = pd.read_csv(file_lis[35])
-    imgra_period_2001 = pd.read_csv(file_lis[36])
-    imgra_period_2006 = pd.read_csv(file_lis[37])
-    imgra_period_2011 = pd.read_csv(file_lis[38])
-    imgra_period_2016 = pd.read_csv(file_lis[39])
+    language_2001 = pd.read_csv(file_lis[9])
+    language_2006 = pd.read_csv(file_lis[10])
+    language_2011 = pd.read_csv(file_lis[11])
+    language_2016 = pd.read_csv(file_lis[12])
+    marital_2001 = pd.read_csv(file_lis[13])
+    marital_2006 = pd.read_csv(file_lis[14])
+    marital_2011 = pd.read_csv(file_lis[15])
+    marital_2016 = pd.read_csv(file_lis[16])
+    population_2001 = pd.read_csv(file_lis[17])
+    population_2006 = pd.read_csv(file_lis[18])
+    population_2011 = pd.read_csv(file_lis[19])
+    population_2016 = pd.read_csv(file_lis[20])
+    minority_2001 = pd.read_csv(file_lis[21])
+    minority_2006 = pd.read_csv(file_lis[22])
+    minority_2011 = pd.read_csv(file_lis[23])
+    minority_2016 = pd.read_csv(file_lis[24])
+    dwelling_2001 = pd.read_csv(file_lis[25])
+    dwelling_2006 = pd.read_csv(file_lis[26])
+    dwelling_2011 = pd.read_csv(file_lis[27])
+    dwelling_2016 = pd.read_csv(file_lis[28])
+    shelter_2001 = pd.read_csv(file_lis[29])
+    shelter_2006 = pd.read_csv(file_lis[30])
+    shelter_2011 = pd.read_csv(file_lis[31])
+    shelter_2016 = pd.read_csv(file_lis[32])
+    lone_parent_2001 = pd.read_csv(file_lis[33])
+    lone_parent_2006 = pd.read_csv(file_lis[34])
+    lone_parent_2011 = pd.read_csv(file_lis[35])
+    lone_parent_2016 = pd.read_csv(file_lis[36])
+    imgra_period_2001 = pd.read_csv(file_lis[37])
+    imgra_period_2006 = pd.read_csv(file_lis[38])
+    imgra_period_2011 = pd.read_csv(file_lis[39])
+    imgra_period_2016 = pd.read_csv(file_lis[40])
+    citizen_2001 = pd.read_csv(file_lis[41])
+    citizen_2006 = pd.read_csv(file_lis[42])
+    citizen_2011 = pd.read_csv(file_lis[43])
+    citizen_2016 = pd.read_csv(file_lis[44])
+    generation_2001 = pd.read_csv(file_lis[45])
+    generation_2006 = pd.read_csv(file_lis[46])
+    generation_2011 = pd.read_csv(file_lis[47])
+    generation_2016 = pd.read_csv(file_lis[48])
+
 
 
 
@@ -338,38 +348,55 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     #for immigrates_period
     def clean_imgra_period(im_p, start_year, end_year):
         # please note that start year should only be 1997 or 2002 or 2007 or 2012
-        im_p.rename(columns = {'Total population':'Total immigration population'}, inplace = True)
         if start_year == 1997:
-            col_names = ['Total immigration population', 'Non-immigrants', 
-                        'Non-permanent residents', '1991 to 2000']
+            col_names = ['LocalArea', 'Total immigrant population', '1996 to 2001']
             im_p = im_p[col_names]
             im_p.rename(columns = {'1991 to 2000':'Immigrates'}, inplace = True)
         elif start_year == 2002:
-            col_names = ['Total immigration population', 'Non-immigrants', 
-                        'Non-permanent residents', '2001 to 2005']
+            col_names = ['LocalArea','Total immigrant population', '2001 to 2006']
             im_p = im_p[col_names]
             im_p.rename(columns = {'2001 to 2005':'Immigrates'}, inplace = True)
         elif start_year == 2007:
-            col_names = ['Total immigration population', 'Non-immigrants', 
-                        'Non-permanent residents', '2006 to 2010']
+            col_names = ['LocalArea', 'Immigrants', '2006 to 2010']
             im_p = im_p[col_names]
-            im_p.rename(columns = {'2006 to 2010':'Immigrates'}, inplace = True)
+            im_p.rename(columns = {'Immigrants':'Total immigrant population',
+                                '2006 to 2010':'Immigrates'}, inplace = True)
         elif start_year == 2012:
-            col_names = ['Total immigration population', 'Non-immigrants', 
-                        'Non-permanent residents', '2011 to 2016']
+            col_names = ['LocalArea', 'Immigrants', '2011 to 2016']
             im_p = im_p[col_names]
-            im_p.rename(columns = {'2011 to 2016':'Immigrates'}, inplace = True)
+            im_p.rename(columns = {'Immigrants':'Total immigrant population',
+                                '2011 to 2016':'Immigrates'}, inplace = True)
         else:
             print('Invalid start year. A valid start year should be 1997 or 2002 or 2007 or 2012')
         
         
         im_p = fill_missing_year(im_p, start_year, end_year)
         return im_p
+        
     
     imgra_period_2001 = clean_imgra_period(imgra_period_2001, 1997, 2002)
     imgra_period_2006 = clean_imgra_period(imgra_period_2006, 2002, 2007)
-    imgra_period_2011 = clean_imgra_period(imgra_period_2011, 2007, 2012)
+    #note this is not an error, intentional using 2016
+    imgra_period_2011 = clean_imgra_period(imgra_period_2016, 2007, 2012)
     imgra_period_2016 = clean_imgra_period(imgra_period_2016, 2012, 2020)
+    
+    #citizenship
+    def clean_citizen(citizen, start_year, end_year):
+        citizen.drop(columns = ['Unnamed: 0'], inplace = True)
+        citizen = fill_missing_year(citizen, start_year, end_year)
+        return citizen
+    
+    citizen_2001 = clean_citizen(citizen_2001, 1997, 2002)
+    citizen_2006 = clean_citizen(citizen_2006, 2002, 2007)
+    citizen_2011 = clean_citizen(citizen_2011, 2007, 2012)
+    citizen_2016 = clean_citizen(citizen_2016, 2012, 2020)
+
+    #generation status can be cleaned the same way
+    generation_2001 = clean_citizen(generation_2001, 1997, 2002)
+    generation_2006 = clean_citizen(generation_2006, 2002, 2007)
+    generation_2011 = clean_citizen(generation_2011, 2007, 2012)
+    generation_2016 = clean_citizen(generation_2016, 2012, 2020)
+
 
     #wrangle for visualization(might delete it)
     
