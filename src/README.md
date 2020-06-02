@@ -46,25 +46,41 @@ python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/com
 --mapping_csv="src/01_download/business_mapping_dictionary.csv" \
 --save_to="data/processed/03_combined_licences_cleaned.csv"
 
-# 4. 04_synthesis.py
+# 4. 04_clean_nhs.py
+
+python3 src/02_clean_wrangle/04_clean_nhs.py --nhs_zip="data/raw/nhs_census_2011.zip" \
+--ct_bound_zip="data/raw/census_boundaries_2011.zip" \
+--nhs_file="99-004-XWE2011001-401-BC.csv" \
+--ct_file="data/raw/gct_000b11a_e.shp" \
+--area_file="data/raw/local_area_boundary.geojson" \
+--file_path="data/processed/nhs/"
+
+# 5. 04_synthesis.py
 
 # train set
-python3 src/02_clean_wrangle/04_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" --save_to1="data/processed/04_combined_train.csv" --save_to2="data/processed/paking_meter_vis.csv" --save_to3="data/processed/disability_parking_vis.csv" --save_to4="data/processed/train_licence_vis.csv"
+python3 src/02_clean_wrangle/04_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
+--save_to1="data/processed/04_combined_train.csv" \
+--save_to2="data/processed/paking_meter_vis.csv" \
+--save_to3="data/processed/disability_parking_vis.csv" \
+--save_to4="data/processed/train_licence_vis.csv"
 ```
 
 **Part 3: Modelling**
 
 ```{bash}
-# 5. 05_feature_engineering.py
+# 6. 05_feature_engineering.py
 
 # train set
-python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_train.csv" --save_to="data/processed/05_feat_eng_train.csv"
+python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_train.csv" \
+--save_to="data/processed/05_feat_eng_train.csv"
 
 # validation set
-python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_validation.csv" --save_to="data/processed/05_feat_eng_validation.csv"
+python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_validation.csv" \
+--save_to="data/processed/05_feat_eng_validation.csv"
 
 # test set
-python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_test.csv" --save_to="data/processed/05_feat_eng_test.csv"
+python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_test.csv" \
+--save_to="data/processed/05_feat_eng_test.csv"
 ```
 
 **Part 4: Visualization**
