@@ -144,6 +144,14 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     workplace_2006 = pd.read_csv(file_lis[86])
     workplace_2011 = pd.read_csv(file_lis[87])
     workplace_2016 = pd.read_csv(file_lis[88])
+    education_2001 = pd.read_csv(file_lis[89])
+    education_2006 = pd.read_csv(file_lis[90])
+    education_2011 = pd.read_csv(file_lis[91])
+    education_2016 = pd.read_csv(file_lis[92])
+    im_birth_2001 = pd.read_csv(file_lis[93])
+    im_birth_2006 = pd.read_csv(file_lis[94])
+    im_birth_2011 = pd.read_csv(file_lis[95])
+    im_birth_2016 = pd.read_csv(file_lis[96])
 
 
 
@@ -444,8 +452,13 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
                             '3 persons': '3 persons household', '4 persons':'4 persons household',
                             '5 or more persons': '5 or more persons household'}, inplace = True)
         house_size.drop(columns = ['Unnamed: 0'], inplace = True)
+        col_lis = list(house_size.columns)[2:7]
+        for col in col_lis:
+            house_size[col] = house_size[col]/house_size['Total households']
+            
         house_size = fill_missing_year(house_size, start_year, end_year)
         return house_size
+        
 
     household_size_2001 = clean_household_size(household_size_2001, 1997, 2002)
     household_size_2006 = clean_household_size(household_size_2006, 2002, 2007)
@@ -470,6 +483,11 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         if start_year == 2007:
             img_age = img_age[img_age['Type']=='Total']
             img_age.drop(columns = ['Type'], inplace = True)
+        
+        col_lis = list(img_age.columns)[2:]
+        for col in col_lis:
+            img_age[col] = img_age[col]/img_age['Total immigrant population']
+            
         img_age = fill_missing_year(img_age, start_year, end_year)
         return img_age
     
@@ -527,6 +545,39 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     workplace_2006 = clean_labour_force(workplace_2006, 2002, 2007)
     workplace_2011 = clean_labour_force(workplace_2011, 2007, 2012)
     workplace_2016 = clean_labour_force(workplace_2016, 2012, 2020)
+
+    #education
+    def clean_education(education, start_year, end_year):
+        education['Total number of education'] = np.sum(education, axis =1)
+        col_lis = list(education.columns)[2:]
+        for col in col_lis:
+            education[col] = education[col]/education['Total number of education']
+            
+        education.drop(columns = ['Unnamed: 0'], inplace = True)
+        education = fill_missing_year(education, start_year, end_year)
+        return education
+    
+    education_2001 = clean_education(education_2001, 1997, 2002)
+    education_2006 = clean_education(education_2006, 2002, 2007)
+    education_2011 = clean_education(education_2011, 2007, 2012)
+    education_2016 = clean_education(education_2016, 2012, 2020)
+
+    #birth place
+    def clean_im_birth(im_birth, start_year, end_year):
+    
+        col_lis = list(im_birth.columns)[3:]
+        for col in col_lis:
+            im_birth[col] = im_birth[col]/im_birth['Total population']
+        
+        im_birth.drop(columns = ['Unnamed: 0', 'Total population'], inplace = True)
+        im_birth = fill_missing_year(im_birth, start_year, end_year)
+        return im_birth
+    
+    im_birth_2001 = clean_im_birth(im_birth_2001, 1997, 2002)
+    im_birth_2006 = clean_im_birth(im_birth_2006, 2002, 2007)
+    im_birth_2011 = clean_im_birth(im_birth_2011, 2007, 2012)
+    im_birth_2016 = clean_im_birth(im_birth_2016, 2012, 2020)
+
 
     #wrangle for visualization(might delete it)
     
@@ -607,6 +658,8 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     licence_df = merge_data(time_worked_2001 , time_worked_2006, time_worked_2011, time_worked_2016, licence_df)
     licence_df = merge_data(transport_2001 , transport_2006, transport_2011, transport_2016, licence_df)
     licence_df = merge_data(workplace_2001 , workplace_2006, workplace_2011, workplace_2016, licence_df)
+    licence_df = merge_data(education_2001 , education_2006, education_2011, education_2016, licence_df)
+    licence_df = merge_data(im_birth_2001 , im_birth_2006, im_birth_2011, im_birth_2016, licence_df)
 
 
     # save to a new csv

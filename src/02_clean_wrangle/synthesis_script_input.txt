@@ -1,6 +1,6 @@
 [(data/raw/disability-parking.csv),
 (data/raw/parking-meters.csv)，
-(data/processed/03_train_cleaned.csv),
+(data/processed/train_cleaned.csv),
 (data/raw/14100096-eng.zip),
 (data/raw/14100327-eng.zip),
 (data/processed/census_2001/couples_family_structure.csv),
@@ -86,4 +86,12 @@
 (data/processed/census_2001/workplace_status.csv),
 (data/processed/census_2006/workplace_status.csv), 
 (data/processed/census_2011/workplace_status.csv),
-(data/processed/census_2016/workplace_status.csv)]
+(data/processed/census_2016/workplace_status.csv),
+(data/processed/census_2001/education.csv),
+(data/processed/census_2006/education.csv), 
+(data/processed/census_2011/education.csv),
+(data/processed/census_2016/education.csv),
+(data/processed/census_2001/immigration_birth_place.csv),
+(data/processed/census_2006/immigration_birth_place.csv), 
+(data/processed/census_2011/immigration_birth_place.csv),
+(data/processed/census_2016/immigration_birth_place.csv)]
