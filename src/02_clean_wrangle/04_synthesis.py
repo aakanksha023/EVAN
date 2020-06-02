@@ -64,7 +64,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     family_2006 = pd.read_csv(file_lis[6])
     family_2011 = pd.read_csv(file_lis[7])
     family_2016 = pd.read_csv(file_lis[8])
-    #language_2001 = pd.read_csv(file_lis[9])
+    language_2001 = pd.read_csv(file_lis[9])
     language_2006 = pd.read_csv(file_lis[10])
     language_2011 = pd.read_csv(file_lis[11])
     language_2016 = pd.read_csv(file_lis[12])
@@ -76,6 +76,35 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     population_2006 = pd.read_csv(file_lis[18])
     population_2011 = pd.read_csv(file_lis[19])
     population_2016 = pd.read_csv(file_lis[20])
+    minority_2001 = pd.read_csv(file_lis[21])
+    minority_2006 = pd.read_csv(file_lis[22])
+    minority_2011 = pd.read_csv(file_lis[23])
+    minority_2016 = pd.read_csv(file_lis[24])
+    dwelling_2001 = pd.read_csv(file_lis[25])
+    dwelling_2006 = pd.read_csv(file_lis[26])
+    dwelling_2011 = pd.read_csv(file_lis[27])
+    dwelling_2016 = pd.read_csv(file_lis[28])
+    shelter_2001 = pd.read_csv(file_lis[29])
+    shelter_2006 = pd.read_csv(file_lis[30])
+    shelter_2011 = pd.read_csv(file_lis[31])
+    shelter_2016 = pd.read_csv(file_lis[32])
+    lone_parent_2001 = pd.read_csv(file_lis[33])
+    lone_parent_2006 = pd.read_csv(file_lis[34])
+    lone_parent_2011 = pd.read_csv(file_lis[35])
+    lone_parent_2016 = pd.read_csv(file_lis[36])
+    imgra_period_2001 = pd.read_csv(file_lis[37])
+    imgra_period_2006 = pd.read_csv(file_lis[38])
+    imgra_period_2011 = pd.read_csv(file_lis[39])
+    imgra_period_2016 = pd.read_csv(file_lis[40])
+    citizen_2001 = pd.read_csv(file_lis[41])
+    citizen_2006 = pd.read_csv(file_lis[42])
+    citizen_2011 = pd.read_csv(file_lis[43])
+    citizen_2016 = pd.read_csv(file_lis[44])
+    generation_2001 = pd.read_csv(file_lis[45])
+    generation_2006 = pd.read_csv(file_lis[46])
+    generation_2011 = pd.read_csv(file_lis[47])
+    generation_2016 = pd.read_csv(file_lis[48])
+
 
 
 
@@ -258,8 +287,118 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     population_2016 = clean_age_sex(population_2016, 2012, 2020)
 
     
+    #for visible minority
+    def clean_minority(mino, start_year, end_year):
+    
+        #convert the number of minority into porpotion
+        col_lis = list(mino.columns)[5:]
+        for col in col_lis:
+            mino[col] = mino[col]/mino['Total visible minority population']
+            
+        mino.drop(columns = ['Unnamed: 0'], inplace = True)
+        mino = fill_missing_year(mino, start_year, end_year)
+        return mino
 
-    #wrangle for visualization
+    minority_2001 = clean_minority(minority_2001, 1997, 2002)
+    minority_2006 = clean_minority(minority_2006, 2002, 2007)
+    minority_2011 = clean_minority(minority_2011, 2007, 2012)
+    minority_2016 = clean_minority(minority_2016, 2012, 2020)
+    
+    # for dwelling
+    def clean_dwelling(dwel, start_year, end_year):
+        dwel.rename(columns = {'Total':'Total number of dwelling'}, inplace = True)
+        dwel.drop(columns = ['Unnamed: 0'], inplace = True)
+        dwel = fill_missing_year(dwel, start_year, end_year)
+        return dwel
+        
+        
+    dwelling_2001 = clean_dwelling(dwelling_2001, 1997, 2002)
+    dwelling_2006 = clean_dwelling(dwelling_2006, 2002, 2007)
+    dwelling_2011 = clean_dwelling(dwelling_2011, 2007, 2012)
+    dwelling_2016 = clean_dwelling(dwelling_2016, 2012, 2020)
+
+    #shelter tenure
+    def clean_shelter(shel, start_year, end_year):
+    
+        shel.rename(columns = {'Owned':'Owned shelter', 'Rented':'Rented shelter',
+                            'Band housing':'Band housing shelter'}, inplace = True)
+        shel.drop(columns = ['Unnamed: 0'], inplace = True)
+        shel = fill_missing_year(shel, start_year, end_year)
+        return shel
+    
+    shelter_2001 = clean_shelter(shelter_2001, 1997, 2002)
+    shelter_2006 = clean_shelter(shelter_2006, 2002, 2007)
+    shelter_2011 = clean_shelter(shelter_2011, 2007, 2012)
+    shelter_2016 = clean_shelter(shelter_2016, 2012, 2020)
+
+    #lone parent
+    def clean_lone_parent(lone, start_year, end_year):
+        lone.rename(columns = {'1 child':'1 child lone parent', '2 children': '2 children lone parent',
+                            '3 or more children': '3 or more children lone parent'}, inplace = True)
+        lone.drop(columns = ['Unnamed: 0'], inplace = True)
+        lone = fill_missing_year(lone, start_year, end_year)
+        return lone
+    
+    lone_parent_2001 = clean_lone_parent(lone_parent_2001, 1997, 2002)
+    lone_parent_2006 = clean_lone_parent(lone_parent_2006, 2002, 2007)
+    lone_parent_2011 = clean_lone_parent(lone_parent_2011, 2007, 2012)
+    lone_parent_2016 = clean_lone_parent(lone_parent_2016, 2012, 2020)
+    
+
+    #for immigrates_period
+    def clean_imgra_period(im_p, start_year, end_year):
+        # please note that start year should only be 1997 or 2002 or 2007 or 2012
+        if start_year == 1997:
+            col_names = ['LocalArea', 'Total immigrant population', '1996 to 2001']
+            im_p = im_p[col_names]
+            im_p.rename(columns = {'1991 to 2000':'Immigrates'}, inplace = True)
+        elif start_year == 2002:
+            col_names = ['LocalArea','Total immigrant population', '2001 to 2006']
+            im_p = im_p[col_names]
+            im_p.rename(columns = {'2001 to 2005':'Immigrates'}, inplace = True)
+        elif start_year == 2007:
+            col_names = ['LocalArea', 'Immigrants', '2006 to 2010']
+            im_p = im_p[col_names]
+            im_p.rename(columns = {'Immigrants':'Total immigrant population',
+                                '2006 to 2010':'Immigrates'}, inplace = True)
+        elif start_year == 2012:
+            col_names = ['LocalArea', 'Immigrants', '2011 to 2016']
+            im_p = im_p[col_names]
+            im_p.rename(columns = {'Immigrants':'Total immigrant population',
+                                '2011 to 2016':'Immigrates'}, inplace = True)
+        else:
+            print('Invalid start year. A valid start year should be 1997 or 2002 or 2007 or 2012')
+        
+        
+        im_p = fill_missing_year(im_p, start_year, end_year)
+        return im_p
+        
+    
+    imgra_period_2001 = clean_imgra_period(imgra_period_2001, 1997, 2002)
+    imgra_period_2006 = clean_imgra_period(imgra_period_2006, 2002, 2007)
+    #note this is not an error, intentional using 2016
+    imgra_period_2011 = clean_imgra_period(imgra_period_2016, 2007, 2012)
+    imgra_period_2016 = clean_imgra_period(imgra_period_2016, 2012, 2020)
+    
+    #citizenship
+    def clean_citizen(citizen, start_year, end_year):
+        citizen.drop(columns = ['Unnamed: 0'], inplace = True)
+        citizen = fill_missing_year(citizen, start_year, end_year)
+        return citizen
+    
+    citizen_2001 = clean_citizen(citizen_2001, 1997, 2002)
+    citizen_2006 = clean_citizen(citizen_2006, 2002, 2007)
+    citizen_2011 = clean_citizen(citizen_2011, 2007, 2012)
+    citizen_2016 = clean_citizen(citizen_2016, 2012, 2020)
+
+    #generation status can be cleaned the same way
+    generation_2001 = clean_citizen(generation_2001, 1997, 2002)
+    generation_2006 = clean_citizen(generation_2006, 2002, 2007)
+    generation_2011 = clean_citizen(generation_2011, 2007, 2012)
+    generation_2016 = clean_citizen(generation_2016, 2012, 2020)
+
+
+    #wrangle for visualization(might delete it)
     
     #wangle the issueddate into datetime format
     licence_vis_df = licence_df[~licence_df['IssuedDate'].isnull()]
@@ -279,6 +418,15 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
     #synthesis
     
+    def merge_data(df1, df2, df3, df4, licence_df):
+        
+        whole = pd.concat([df1, df2, df3, df4])
+        whole.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
+        licence_df = licence_df.merge(whole, on = ['Geo Local Area','FOLDERYEAR'], how = 'left')
+
+        return licence_df
+
+
     #combine two parking
     final_parking_df = meter_count_df.merge(area_count_df, on = 'Geo Local Area', how = 'outer')
     
@@ -292,9 +440,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     licence_df = licence_df.merge(unemployment_rate, on = 'FOLDERYEAR', how ='left')
     
     #census data
-    family = pd.concat([family_2001, family_2006, family_2011, family_2016])
-    family.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(family, on = ['Geo Local Area','FOLDERYEAR'], how = 'left')
+    licence_df = merge_data(family_2001, family_2006, family_2011, family_2016, licence_df)
 
     #language = pd.concat([language_2001, language_2006, language_2011, language_2016])
     language = pd.concat([language_2006, language_2011, language_2016])
@@ -303,13 +449,22 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     language.dropna(axis = 1, inplace = True)
     licence_df = licence_df.merge(language, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
 
-    marital = pd.concat([marital_2001, marital_2006, marital_2011, marital_2016])
-    marital.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(marital, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+
+    licence_df = merge_data(marital_2001, marital_2006, marital_2011, marital_2016, licence_df)
     
-    population = pd.concat([population_2001, population_2006, population_2011, population_2016])
-    population.rename(columns = {'LocalArea': 'Geo Local Area', 'Year':'FOLDERYEAR'}, inplace = True)
-    licence_df = licence_df.merge(population, on = ['Geo Local Area','FOLDERYEAR'], how ='left')
+    licence_df = merge_data(population_2001, population_2006, population_2011, population_2016, licence_df)
+
+    licence_df = merge_data(minority_2001, minority_2006, minority_2011, minority_2016, licence_df)
+
+    licence_df = merge_data(dwelling_2001, dwelling_2006, dwelling_2011, dwelling_2016, licence_df)
+   
+    licence_df = merge_data(shelter_2001, shelter_2006, shelter_2011, shelter_2016, licence_df)
+
+    licence_df = merge_data(lone_parent_2001, lone_parent_2006, lone_parent_2011, lone_parent_2016,licence_df)
+
+    licence_df = merge_data(imgra_period_2001, imgra_period_2006, imgra_period_2011, imgra_period_2016,licence_df)
+
+
 
 
     # save to a new csv
