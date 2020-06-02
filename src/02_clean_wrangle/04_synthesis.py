@@ -104,6 +104,55 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     generation_2006 = pd.read_csv(file_lis[46])
     generation_2011 = pd.read_csv(file_lis[47])
     generation_2016 = pd.read_csv(file_lis[48])
+    household_size_2001 = pd.read_csv(file_lis[49])
+    household_size_2006 = pd.read_csv(file_lis[50])
+    household_size_2011 = pd.read_csv(file_lis[51])
+    household_size_2016 = pd.read_csv(file_lis[52])
+    household_type_2001 = pd.read_csv(file_lis[53])
+    household_type_2006 = pd.read_csv(file_lis[54])
+    household_type_2011  = pd.read_csv(file_lis[55])
+    household_type_2016 = pd.read_csv(file_lis[56])
+    imgra_age_2001  = pd.read_csv(file_lis[57])
+    imgra_age_2006 = pd.read_csv(file_lis[58])
+    imgra_age_2011 = pd.read_csv(file_lis[59])
+    imgra_age_2016 = pd.read_csv(file_lis[60])
+    industry_2001 = pd.read_csv(file_lis[61])
+    industry_2006 = pd.read_csv(file_lis[62])
+    industry_2011 = pd.read_csv(file_lis[63])
+    industry_2016 = pd.read_csv(file_lis[64])
+    labour_2001 = pd.read_csv(file_lis[65])
+    labour_2006 = pd.read_csv(file_lis[66])
+    labour_2011 = pd.read_csv(file_lis[67])
+    labour_2016 = pd.read_csv(file_lis[68])
+    mobility_2001 = pd.read_csv(file_lis[69])
+    mobility_2006 = pd.read_csv(file_lis[70])
+    mobility_2011 = pd.read_csv(file_lis[71])
+    mobility_2016 = pd.read_csv(file_lis[72])
+    occupation_2001 = pd.read_csv(file_lis[73])
+    occupation_2006 = pd.read_csv(file_lis[74])
+    occupation_2011 = pd.read_csv(file_lis[75]) 
+    occupation_2016 = pd.read_csv(file_lis[76])
+    time_worked_2001 = pd.read_csv(file_lis[77])
+    time_worked_2006 = pd.read_csv(file_lis[78]) 
+    time_worked_2011 = pd.read_csv(file_lis[79])
+    time_worked_2016 = pd.read_csv(file_lis[80])
+    transport_2001 = pd.read_csv(file_lis[81])
+    transport_2006 = pd.read_csv(file_lis[82])
+    transport_2011 = pd.read_csv(file_lis[83])
+    transport_2016 = pd.read_csv(file_lis[84])
+    workplace_2001  = pd.read_csv(file_lis[85])
+    workplace_2006 = pd.read_csv(file_lis[86])
+    workplace_2011 = pd.read_csv(file_lis[87])
+    workplace_2016 = pd.read_csv(file_lis[88])
+    education_2001 = pd.read_csv(file_lis[89])
+    education_2006 = pd.read_csv(file_lis[90])
+    education_2011 = pd.read_csv(file_lis[91])
+    education_2016 = pd.read_csv(file_lis[92])
+    im_birth_2001 = pd.read_csv(file_lis[93])
+    im_birth_2006 = pd.read_csv(file_lis[94])
+    im_birth_2011 = pd.read_csv(file_lis[95])
+    im_birth_2016 = pd.read_csv(file_lis[96])
+
 
 
 
@@ -232,7 +281,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         language = fill_missing_year(language, start_year, end_year)
         return language
 
-    #language_2001 = clean_language(language_2001, 1997, 2002)
+    language_2001 = clean_language(language_2001, 1997, 2002)
     language_2006 = clean_language(language_2006, 2002, 2007)
     language_2011 = clean_language(language_2011, 2007, 2012)
     language_2016 = clean_language(language_2016, 2012, 2020)
@@ -391,11 +440,143 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     citizen_2011 = clean_citizen(citizen_2011, 2007, 2012)
     citizen_2016 = clean_citizen(citizen_2016, 2012, 2020)
 
-    #generation status can be cleaned the same way
+    #generation status can be cleaned the same way as citizen
     generation_2001 = clean_citizen(generation_2001, 1997, 2002)
     generation_2006 = clean_citizen(generation_2006, 2002, 2007)
     generation_2011 = clean_citizen(generation_2011, 2007, 2012)
     generation_2016 = clean_citizen(generation_2016, 2012, 2020)
+
+    #household type
+    def clean_household_size(house_size, start_year, end_year):
+        house_size.rename(columns = {'1 person':'1 person household', '2 persons': '2 persons household',
+                            '3 persons': '3 persons household', '4 persons':'4 persons household',
+                            '5 or more persons': '5 or more persons household'}, inplace = True)
+        house_size.drop(columns = ['Unnamed: 0'], inplace = True)
+        col_lis = list(house_size.columns)[2:7]
+        for col in col_lis:
+            house_size[col] = house_size[col]/house_size['Total households']
+            
+        house_size = fill_missing_year(house_size, start_year, end_year)
+        return house_size
+        
+
+    household_size_2001 = clean_household_size(household_size_2001, 1997, 2002)
+    household_size_2006 = clean_household_size(household_size_2006, 2002, 2007)
+    household_size_2011 = clean_household_size(household_size_2011, 2007, 2012)
+    household_size_2016 = clean_household_size(household_size_2016, 2012, 2020)
+    
+    #household type can be cleaned the same way as citizen
+    household_type_2001 = clean_citizen(household_type_2001, 1997, 2002)
+    household_type_2006 = clean_citizen(household_type_2006, 2002, 2007)
+    household_type_2011 = clean_citizen(household_type_2011, 2007, 2012)
+    household_type_2016 = clean_citizen(household_type_2016, 2012, 2020)
+
+
+    # immigration age
+    def clean_imgra_age(img_age, start_year, end_year):
+        img_age.rename(columns = {'Under 5 years':'Immigrants under 5 years', 
+                                    '5 to 14 years': 'Immigrants 5 to 14 years',
+                                    '15 to 24 years': 'Immigrants 15 to 24 years', 
+                                    '25 to 44 years':'Immigrants 25 to 44 years',
+                                    '45 years and over': 'Immigrants 45 years and over'}, inplace = True)
+        img_age.drop(columns = ['Unnamed: 0'], inplace = True)
+        if start_year == 2007:
+            img_age = img_age[img_age['Type']=='Total']
+            img_age.drop(columns = ['Type'], inplace = True)
+        
+        col_lis = list(img_age.columns)[2:]
+        for col in col_lis:
+            img_age[col] = img_age[col]/img_age['Total immigrant population']
+            
+        img_age = fill_missing_year(img_age, start_year, end_year)
+        return img_age
+    
+    imgra_age_2001 = clean_imgra_age(imgra_age_2001, 1997, 2002)
+    imgra_age_2006 = clean_imgra_age(imgra_age_2006, 2002, 2007)
+    imgra_age_2011 = clean_imgra_age(imgra_age_2011, 2007, 2012)
+    imgra_age_2016 = clean_imgra_age(imgra_age_2016, 2012, 2020)
+
+    #industry can be process the same as citizen
+    industry_2001 = clean_citizen(industry_2001, 1997, 2002)
+    industry_2006 = clean_citizen(industry_2006, 2002, 2007)
+    industry_2011 = clean_citizen(industry_2011, 2007, 2012)
+    industry_2016 = clean_citizen(industry_2016, 2012, 2020)
+
+    #labour
+    def clean_labour_force(labour, start_year, end_year):
+        labour = labour[labour['Type']=='Total']
+        labour.drop(columns = ['Type','Unnamed: 0'], inplace = True)
+        labour = fill_missing_year(labour, start_year, end_year)
+        return labour
+
+    labour_2001 = clean_labour_force(labour_2001, 1997, 2002)
+    labour_2006 = clean_labour_force(labour_2006, 2002, 2007)
+    labour_2011 = clean_labour_force(labour_2011, 2007, 2012)
+    labour_2016 = clean_labour_force(labour_2016, 2012, 2020)
+
+    #mobility
+    mobility_2001 = clean_citizen(mobility_2001, 1997, 2002)
+    mobility_2006 = clean_citizen(mobility_2006, 2002, 2007)
+    mobility_2011 = clean_citizen(mobility_2011, 2007, 2012)
+    mobility_2016 = clean_citizen(mobility_2016, 2012, 2020)
+
+    #occupation
+    occupation_2001 = clean_labour_force(occupation_2001, 1997, 2002)
+    occupation_2006 = clean_labour_force(occupation_2006, 2002, 2007)
+    occupation_2011 = clean_labour_force(occupation_2011, 2007, 2012)
+    occupation_2016 = clean_labour_force(occupation_2016, 2012, 2020)
+
+    #time_worked
+    time_worked_2001 = clean_labour_force(time_worked_2001, 1997, 2002)
+    time_worked_2006 = clean_labour_force(time_worked_2006, 2002, 2007)
+    time_worked_2011 = clean_labour_force(time_worked_2011, 2007, 2012)
+    time_worked_2016 = clean_labour_force(time_worked_2016, 2012, 2020)
+    
+    #transit
+    transport_2001 = clean_labour_force(transport_2001, 1997, 2002)
+    transport_2006 = clean_labour_force(transport_2006, 2002, 2007)
+    transport_2011 = clean_labour_force(transport_2011, 2007, 2012)
+    transport_2016 = clean_labour_force(transport_2016, 2012, 2020)
+
+    #ignore worker class, don't know the meaning
+
+    #workplace
+    workplace_2001 = clean_labour_force(workplace_2001, 1997, 2002)
+    workplace_2006 = clean_labour_force(workplace_2006, 2002, 2007)
+    workplace_2011 = clean_labour_force(workplace_2011, 2007, 2012)
+    workplace_2016 = clean_labour_force(workplace_2016, 2012, 2020)
+
+    #education
+    def clean_education(education, start_year, end_year):
+        education['Total number of education'] = np.sum(education, axis =1)
+        col_lis = list(education.columns)[2:]
+        for col in col_lis:
+            education[col] = education[col]/education['Total number of education']
+            
+        education.drop(columns = ['Unnamed: 0'], inplace = True)
+        education = fill_missing_year(education, start_year, end_year)
+        return education
+    
+    education_2001 = clean_education(education_2001, 1997, 2002)
+    education_2006 = clean_education(education_2006, 2002, 2007)
+    education_2011 = clean_education(education_2011, 2007, 2012)
+    education_2016 = clean_education(education_2016, 2012, 2020)
+
+    #birth place
+    def clean_im_birth(im_birth, start_year, end_year):
+    
+        col_lis = list(im_birth.columns)[3:]
+        for col in col_lis:
+            im_birth[col] = im_birth[col]/im_birth['Total population']
+        
+        im_birth.drop(columns = ['Unnamed: 0', 'Total population'], inplace = True)
+        im_birth = fill_missing_year(im_birth, start_year, end_year)
+        return im_birth
+    
+    im_birth_2001 = clean_im_birth(im_birth_2001, 1997, 2002)
+    im_birth_2006 = clean_im_birth(im_birth_2006, 2002, 2007)
+    im_birth_2011 = clean_im_birth(im_birth_2011, 2007, 2012)
+    im_birth_2016 = clean_im_birth(im_birth_2016, 2012, 2020)
 
 
     #wrangle for visualization(might delete it)
@@ -462,9 +643,23 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
     licence_df = merge_data(lone_parent_2001, lone_parent_2006, lone_parent_2011, lone_parent_2016,licence_df)
 
-    licence_df = merge_data(imgra_period_2001, imgra_period_2006, imgra_period_2011, imgra_period_2016,licence_df)
+    licence_df = merge_data(imgra_period_2001, imgra_period_2006, imgra_period_2011, imgra_period_2016, licence_df)
+   
+    licence_df = merge_data(citizen_2001, citizen_2006, citizen_2011, citizen_2016, licence_df)
 
-
+    licence_df = merge_data(generation_2001, generation_2006, generation_2011, generation_2016, licence_df)
+    licence_df = merge_data(household_size_2001, household_size_2006, household_size_2011, household_size_2016, licence_df)
+    licence_df = merge_data(household_type_2001, household_type_2006, household_type_2011 , household_type_2016 , licence_df)
+    licence_df = merge_data(imgra_age_2001 , imgra_age_2006, imgra_age_2011, imgra_age_2016, licence_df)
+    licence_df = merge_data(industry_2001 , industry_2006, industry_2011, industry_2016, licence_df)
+    licence_df = merge_data(labour_2001 , labour_2006, labour_2011, labour_2016, licence_df)
+    licence_df = merge_data(mobility_2001 , mobility_2006, mobility_2011, mobility_2016, licence_df)
+    licence_df = merge_data(occupation_2001 , occupation_2006, occupation_2011, occupation_2016, licence_df)
+    licence_df = merge_data(time_worked_2001 , time_worked_2006, time_worked_2011, time_worked_2016, licence_df)
+    licence_df = merge_data(transport_2001 , transport_2006, transport_2011, transport_2016, licence_df)
+    licence_df = merge_data(workplace_2001 , workplace_2006, workplace_2011, workplace_2016, licence_df)
+    licence_df = merge_data(education_2001 , education_2006, education_2011, education_2016, licence_df)
+    licence_df = merge_data(im_birth_2001 , im_birth_2006, im_birth_2011, im_birth_2016, licence_df)
 
 
     # save to a new csv
