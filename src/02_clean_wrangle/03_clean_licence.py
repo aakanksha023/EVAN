@@ -1,15 +1,18 @@
-# author: Jasmine Qin
-# date: 2020-05-19
+# author: Aakanksha Dimri and Jasmine Qin
+# date: 2020-06-01
 
 """
 This script performs data cleaning and wrangling for a specified csv
 and saves it to a specified file path
 
-Usage: src/02_clean_wrangle/03_clean_licence.py --file_path=<file_path> --save_to=<save_to>
+Usage: src/02_clean_wrangle/03_clean_licence.py --file_path=<file_path> \
+--mapping_csv=<mapping_csv> --save_to=<save_to>
 
 Options:
 --file_path=<file_path>        This is the file path of the csv
                                to be cleaned and wrangled
+--mapping_csv=<mapping_csv>    A csv file mapping the BusinessType to
+                               NAICS Canada 2017 Industry classification
 --save_to=<save_to>            This is the file path the processed
                                csv will be saved to
 """
@@ -19,11 +22,12 @@ from docopt import docopt
 import pandas as pd
 import numpy as np
 import warnings
+import csv
 
 opt = docopt(__doc__)
 
 
-def main(file_path, save_to):
+def main(file_path, mapping_csv, save_to):
 
     df = pd.read_csv(file_path, low_memory=False, dtype={
                      'NumberofEmployees': 'object'})
@@ -98,9 +102,31 @@ def main(file_path, save_to):
     # drop columns
     df = df.drop(columns=['business_id_lag1', 'folderyear_lag1'])
 
+    ####################
+    # Industry Mapping #
+    ####################
+
+    mapping_dict = {' ': ' '}
+
+    # Read csv and write to dictionary
+    with open(mapping_csv, mode='r') as csv_file:
+        csv_reader = csv.reader(csv_file)
+        for row in csv_reader:
+            mapping_dict[row[0]] = row[1]
+
+    # Remove additional key value pair
+    mapping_dict.pop(' ')
+    mapping_dict.pop('BusinessType')
+
+    # Add BusinessIndustry column
+    df['BusinessIndustry'] = df['BusinessType'].map(mapping_dict)
+
+    # Remove 2010 Winter games : Outlier
+    df = df[df.BusinessIndustry != 'Historic']
+
     # save to a new csv
     df.to_csv(save_to, index=False)
 
 
 if __name__ == "__main__":
-    main(opt["--file_path"], opt["--save_to"])
+    main(opt["--file_path"], opt["--mapping_csv"], opt["--save_to"])

@@ -26,37 +26,57 @@ Rscript src/02_clean_wrangle/02_split_licence.R --filepath_in="data/raw" \
 
 # 3. 03_clean_licence.py
 
+# train set
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/train.csv" \
---save_to="data/processed/train_cleaned.csv"
+--mapping_csv="src/01_download/business_mapping_dictionary.csv" \
+--save_to="data/processed/03_train_cleaned.csv"
+
+# validation set
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/validate.csv" \
---save_to="data/processed/validate_cleaned.csv"
+--mapping_csv="src/01_download/business_mapping_dictionary.csv" \
+--save_to="data/processed/03_validate_cleaned.csv"
+
+# test set
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/test.csv" \
---save_to="data/processed/test_cleaned.csv"
+--mapping_csv="src/01_download/business_mapping_dictionary.csv" \
+--save_to="data/processed/03_test_cleaned.csv"
+
+# combined dataset (train+validation+test)
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/combined_licences.csv" \
---save_to="data/processed/combined_licences_cleaned.csv"
+--mapping_csv="src/01_download/business_mapping_dictionary.csv" \
+--save_to="data/processed/03_combined_licences_cleaned.csv"
 
 # 4. 04_synthesis.py
 
-python3 src/02_clean_wrangle/04_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" --save_to1="data/processed/combined_train.csv" --save_to2="data/processed/paking_meter_vis.csv" --save_to3="data/processed/disability_parking_vis.csv" --save_to4="data/processed/licence_vis.csv"
+# train set
+python3 src/02_clean_wrangle/04_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" --save_to1="data/processed/04_combined_train.csv" --save_to2="data/processed/paking_meter_vis.csv" --save_to3="data/processed/disability_parking_vis.csv" --save_to4="data/processed/train_licence_vis.csv"
 ```
 
 **Part 3: Modelling**
 
 ```{bash}
-python3 src/03_modelling/06_feature_engineering.py --file_path="data/processed/combined_train.csv" --mapping_csv="src/01_download/business_mapping_dictionary.csv" --save_to="data/processed/combined_train_processed.csv"
+# 5. 05_feature_engineering.py
 
+# train set
+python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_train.csv" --save_to="data/processed/05_feat_eng_train.csv"
+
+# validation set
+python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_validation.csv" --save_to="data/processed/05_feat_eng_validation.csv"
+
+# test set
+python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_test.csv" --save_to="data/processed/05_feat_eng_test.csv"
 ```
 
 **Part 4: Visualization**
 ```{bash}
-# 5. 05_kepler_vis.py
-python3 src/04_visualization/05_kepler_vis.py --file_path1="data/processed/licence_vis.csv" --file_path2="data/processed/disability_parking_vis.csv" --file_path3="data/processed/paking_meter_vis.csv" 
+
 ```
 
 ## Package Dependencies
 
 ### Python 3.7 and Python packages:
 
+- csv
 - datetime
 - docopt
 - eli5
