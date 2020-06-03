@@ -6,11 +6,12 @@ This script downloads files and saves them to the file_path provided. This
 script takes an array of urls specifying the files to download, and a local
 file path as arguments.
 
-Usage: src/01_download/01_download_data.py --file_path=<file_path> --urls=<urls>
+Usage: src/01_download/01_download_data.py --file_path=<file_path> \
+    --urls=<urls>
 
 Options:
 --file_path=<file_path>      Path to the exported files.
---urls=<urls>                A txt file storing two-dimensional array, 
+--urls=<urls>                A txt file storing two-dimensional array,
                              specifing the file name(s)
                              and the URL(s) of file(s) to download.
 """
@@ -31,7 +32,7 @@ def main(file_path, urls):
     # format urls input
     with open(urls, 'r') as file:
         urls = file.read().replace('\n', '')
-    
+
     urls = urls.strip('[]')
     urls = re.findall(r'\([^\)\(]*\)', urls)
 

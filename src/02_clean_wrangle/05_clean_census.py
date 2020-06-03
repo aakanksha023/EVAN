@@ -7,13 +7,14 @@ the file_path provided. This script takes the census year and the csv file
 containing the census data as arguments.
 
 Usage: src/02_clean_wrangle/05_clean_census.py --census_file=<census_file> \
-    --year=<year>
+    --year=<year> \
+    --file_path=<file_path>
 
 Options:
 --census_file=<census_file>  csv file containing census data,
                              including file path.
 --year=<year>                census year.
-
+--file_path=<file_path>      Path to the exported files folder.
 """
 
 from docopt import docopt
@@ -22,67 +23,6 @@ import os
 import re
 
 opt = docopt(__doc__)
-
-
-def main(census_file, year):
-
-    col_names = ['Variable', 'Arbutus-Ridge', 'Downtown',
-                 'Dunbar-Southlands', 'Fairview', 'Grandview-Woodland',
-                 'Hastings-Sunrise', 'Kensington-Cedar Cottage',
-                 'Kerrisdale', 'Killarney', 'Kitsilano', 'Marpole',
-                 'Mount Pleasant', 'Oakridge', 'Renfrew-Collingwood',
-                 'Riley Park', 'Shaughnessy', 'South Cambie', 'Strathcona',
-                 'Sunset', 'Victoria-Fraserview', 'West End',
-                 'West Point Grey', 'Vancouver CSD', 'Vancouver CMA']
-
-    # read in csv file as dataframe
-    df = pd.read_csv(census_file, encoding='latin-1', skiprows=4)
-
-    # remove 'ID' column if present
-    df.drop(columns='ID', inplace=True, errors='ignore')
-
-    # rename columns
-    df.set_axis(col_names, axis=1, inplace=True)
-
-    # remove empty rows
-    df.dropna(0, 'all', inplace=True)
-
-    # remove whitespace from variables
-    df.Variable = df.Variable.apply(lambda x: (x.lstrip()).rstrip())
-    df.drop(df[df.Variable.str.contains('20%.*data')].index, inplace=True)
-
-    # convert numeric data to float type
-    df.iloc[:, 1:25] = df.iloc[:, 1:25].applymap(lambda x: str(x) if x == x else x)
-    df.iloc[:, 1:25] = df.iloc[:, 1:25].applymap(lambda x: re.sub("[-]", "0", x) if x == x else x)
-    df.iloc[:, 1:25] = df.iloc[:, 1:25].applymap(lambda x: float(re.sub("[,$]", "", x)) if x == x else x)
-
-    # Create the census subdirectory for given year if it doesn't exist
-    os.makedirs('../../data/processed/census_' + str(year), exist_ok=True)
-
-    # divide the census datasets into subgroups
-    census_dict = create_subgroup_dict(df, year)
-
-    # clean the datatables by topics
-    helper_func = [clean_age, clean_marital_status,
-                   clean_couple_fam_structure, clean_language_detailed,
-                   clean_official_language, clean_structural_dwelling_type,
-                   clean_household_size, clean_lone_parent,
-                   clean_immigration_age, clean_immigration_period,
-                   clean_birth_place, clean_shelter_tenure,
-                   clean_visible_minority, clean_education,
-                   clean_household_type, clean_citizenship,
-                   clean_worker_class, clean_time_worked,
-                   clean_generation_status, clean_industry,
-                   clean_labour_force_status, clean_mobility,
-                   clean_transport_mode, clean_occupation,
-                   clean_workplace_status]
-
-    for func in helper_func:
-        census_dict = func(census_dict, year)
-
-
-if __name__ == "__main__":
-    main(opt["--census_file"], opt["--year"])
 
 
 def create_subgroup_dict(df, year):
@@ -137,7 +77,7 @@ def create_subgroup_dict(df, year):
 ###########################################################################
 
 
-def clean_age(census_dict, year):
+def clean_age(census_dict, year, file_path):
 
     if year == 2001:
         col_names = ['LocalArea', 'Type', 'Total', '0 to 4 years',
@@ -228,14 +168,14 @@ def clean_age(census_dict, year):
 
     merged.sort_values(by=['LocalArea', 'Type'], inplace=True)
     census_dict['population by age and sex'] = merged
-    merged.to_csv('../../data/processed/census_' + str(year) + '/population_age_sex.csv')
+    merged.to_csv(file_path + '/population_age_sex.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_marital_status(census_dict, year):
+def clean_marital_status(census_dict, year, file_path):
 
     if year in [2001, 2006]:
         col_names = ['LocalArea', 'Total population 15 years and over',
@@ -290,13 +230,13 @@ def clean_marital_status(census_dict, year):
         merged.sort_values(by=['LocalArea', 'Type'], inplace=True)
 
     census_dict['marital status'] = merged
-    merged.to_csv('../../data/processed/census_' + str(year) + '/marital_status.csv')
+    merged.to_csv(file_path + '/marital_status.csv')
     return census_dict
 
 ###############################################################################
 
 
-def clean_couple_fam_structure(census_dict, year):
+def clean_couple_fam_structure(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Type', 'Total', 'Without children at home',
                  'With children at home', '1 child', '2 children',
@@ -308,7 +248,7 @@ def clean_couple_fam_structure(census_dict, year):
         total.set_axis(col_names, axis=1, inplace=True)
 
         census_dict['couples - family structure'] = total
-        total.to_csv('../../data/processed/census_' + str(year) + '/couples_family_structure.csv')
+        total.to_csv(file_path + '/couples_family_structure.csv')
 
     else:
         if year in [2011, 2006]:
@@ -340,14 +280,14 @@ def clean_couple_fam_structure(census_dict, year):
 
         merged.sort_values(by=['LocalArea', 'Type'], inplace=True)
         census_dict['couples - family structure'] = merged
-        merged.to_csv('../../data/processed/census_' + str(year) + '/couples_family_structure.csv')
+        merged.to_csv(file_path + '/couples_family_structure.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_language_detailed(census_dict, year):
+def clean_language_detailed(census_dict, year, file_path):
 
     if year == 2006:
         mt_total = census_dict['Total population by mother tongue']
@@ -357,10 +297,14 @@ def clean_language_detailed(census_dict, year):
 
         mt_total.rename(columns={mt_total.columns[1]: 'Total'}, inplace=True)
         mt_total.insert(1, 'Type', 'mother tongue - total')
-        home_total.rename(columns={home_total.columns[1]: 'Total'}, inplace=True)
-        home_total.insert(1, 'Type', 'language most often spoken at home - total')
-        work_total.rename(columns={work_total.columns[1]: 'Total'}, inplace=True)
-        work_total.insert(1, 'Type', 'language most often spoken at work - total')
+        home_total.rename(columns={home_total.columns[1]: 'Total'},
+                          inplace=True)
+        home_total.insert(1, 'Type',
+                          'language most often spoken at home - total')
+        work_total.rename(columns={work_total.columns[1]: 'Total'},
+                          inplace=True)
+        work_total.insert(1, 'Type',
+                          'language most often spoken at work - total')
 
         merged = pd.concat([mt_total, home_total, work_total])
 
@@ -430,14 +374,14 @@ def clean_language_detailed(census_dict, year):
 
     merged.sort_values(by=['LocalArea', 'Type'], inplace=True)
     census_dict['detailed language'] = merged
-    merged.to_csv('../../data/processed/census_' + str(year) + '/detailed_language.csv')
+    merged.to_csv(file_path + '/detailed_language.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_official_language(census_dict, year):
+def clean_official_language(census_dict, year, file_path):
     col_names = ['LocalArea', 'Type', 'Total', 'English', 'French',
                  'English and French', 'Neither English nor French']
 
@@ -461,14 +405,14 @@ def clean_official_language(census_dict, year):
     merged = pd.concat([known, first])
     merged.sort_values(by=['LocalArea', 'Type'], inplace=True)
     census_dict['official language'] = merged
-    merged.to_csv('../../data/processed/census_' + str(year) + '/official_language.csv')
+    merged.to_csv(file_path + '/official_language.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_structural_dwelling_type(census_dict, year):
+def clean_structural_dwelling_type(census_dict, year, file_path):
 
     if year == 2006:
         col_names = ['LocalArea', 'Total', 'Single-detached house',
@@ -511,14 +455,14 @@ def clean_structural_dwelling_type(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['structural dwelling type'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/structural_dwelling_type.csv')
+    df.to_csv(file_path + '/structural_dwelling_type.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_household_size(census_dict, year):
+def clean_household_size(census_dict, year, file_path):
 
     if year == 2001:
 
@@ -549,14 +493,14 @@ def clean_household_size(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['household size'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/household_size.csv')
+    df.to_csv(file_path + '/household_size.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_lone_parent(census_dict, year):
+def clean_lone_parent(census_dict, year, file_path):
     col_names = ['LocalArea', 'Total lone-parent families', 'Female parent',
                  'Male parent', '1 child', '2 children', '3 or more children']
 
@@ -608,14 +552,14 @@ def clean_lone_parent(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['lone_parent'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/lone_parent.csv')
+    df.to_csv(file_path + '/lone_parent.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_immigration_age(census_dict, year):
+def clean_immigration_age(census_dict, year, file_path):
 
     if year in [2006, 2016]:
         col_names = ['LocalArea', 'Total immigrant population',
@@ -633,7 +577,7 @@ def clean_immigration_age(census_dict, year):
                      'Under 5 years', '5 to 14 years', '15 to 24 years',
                      '25 to 44 years', '45 years and over']
 
-        df = pd.read_csv('../../data/processed/nhs/Age at immigration.csv', index_col=0)
+        df = pd.read_csv('data/processed/nhs/Age at immigration.csv', index_col=0)
         df = df[['LocalArea', 'Type',
                  '0_Total immigrant population in private households by age at immigration',
                  '1_Under 5 years', '2_5 to 14 years', '3_15 to 24 years',
@@ -647,14 +591,14 @@ def clean_immigration_age(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['immigration_age'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/immigration_age.csv')
+    df.to_csv(file_path + '/immigration_age.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_immigration_period(census_dict, year):
+def clean_immigration_period(census_dict, year, file_path):
 
     if year == 2001:
         col_names = ['LocalArea', 'Total immigrant population', 'Before 1961',
@@ -689,7 +633,7 @@ def clean_immigration_period(census_dict, year):
                      'Before 1971', '1971 to 1980', '1981 to 1990',
                      '1991 to 2000', '2001 to 2005', '2006 to 2011']
 
-        df = pd.read_csv('../../data/processed/nhs/Immigrant status and period of immigration.csv', index_col=0)
+        df = pd.read_csv('data/processed/nhs/Immigrant status and period of immigration.csv', index_col=0)
         df = df[['LocalArea', 'Type',
                  '0_Total population in private households by immigrant status and period of immigration',
                  '1_Non-immigrants', '10_Non-permanent residents',
@@ -700,14 +644,14 @@ def clean_immigration_period(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['immigration_period'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/immigration_period.csv')
+    df.to_csv(file_path + '/immigration_period.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_visible_minority(census_dict, year):
+def clean_visible_minority(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Total population', 'Not a visible minority',
                  'Total visible minority population', 'Arab', 'Black',
@@ -745,7 +689,7 @@ def clean_visible_minority(census_dict, year):
                      'Southeast Asian', 'Multiple visible minorities',
                      'Other visible minority']
 
-        df = pd.read_csv('../../data/processed/nhs/Visible minority population.csv', index_col=0)
+        df = pd.read_csv('data/processed/nhs/Visible minority population.csv', index_col=0)
         df = df[['LocalArea', 'Type',
                  '0_Total population in private households by visible minority',
                  '14_Not a visible minority',
@@ -768,14 +712,14 @@ def clean_visible_minority(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['visible_minority'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/visible_minority.csv')
+    df.to_csv(file_path + '/visible_minority.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_birth_place(census_dict, year):
+def clean_birth_place(census_dict, year, file_path):
 
     if year == 2001:
         col_names = ['LocalArea', 'Total population', 'Non-immigrants',
@@ -789,41 +733,41 @@ def clean_birth_place(census_dict, year):
                      'Yugoslavia', 'Haiti', 'Ukraine', 'Croatia', 'Mexico',
                      'Egypt', 'South Africa', 'Ireland', 'Morocco', 'Austria',
                      'Switzerland', 'Other places of birth']
-        
+
         df1 = census_dict['Total population by immigrant status and place of birth']
         df1 = df1.iloc[:, 1:5].copy()
         df2 = census_dict['Total immigrants by selected places of birth']
-        
+
         df = pd.concat([df1, df2], axis=1)
-        df = df[['LocalArea', 
+        df = df[['LocalArea',
                  'Total population by immigrant status and place of birth',
                  'Non-immigrant population', 'Born in province of residence',
-                 'Born outside province of residence', 
+                 'Born outside province of residence',
                  'Non-permanent residents',
                  'Total immigrants by selected places of birth',
                  'United Kingdom', "China, People's Republic of",
-                 'Italy', 'India', 'United States', 
+                 'Italy', 'India', 'United States',
                  'Hong Kong, Special Administrative Region', 'Philippines',
                  'Poland', 'Germany', 'Portugal', 'Viet Nam', 'Jamaica',
                  'Netherlands', 'Guyana', 'Greece', 'Korea, South', 'France',
                  'Lebanon', 'Taiwan', 'Yugoslavia', 'Haiti', 'Ukraine',
                  'Croatia', 'Mexico', 'Egypt', 'South Africa, Republic of',
-                 'Ireland, Republic of (EIRE)', 'Morocco', 'Austria', 
+                 'Ireland, Republic of (EIRE)', 'Morocco', 'Austria',
                  'Switzerland', 'All other places of birth']].copy()
 
     elif year == 2006:
-        col_names = ['LocalArea', 'Total population', 'Non-immigrants', 
+        col_names = ['LocalArea', 'Total population', 'Non-immigrants',
                      'Born in province of residence',
-                     'Born outside province of residence', 
+                     'Born outside province of residence',
                      'Non-permanent residents', 'Immigrants', 'United States',
                      'Central America', 'Caribbean and Bermuda',
                      'South America', 'Europe', 'Western Europe',
-                     'Eastern Europe', 'Southern Europe', 
+                     'Eastern Europe', 'Southern Europe',
                      'Italy', 'Other Southern Europe', 'Northern Europe',
                      'United Kingdom', 'Other Northern Europe', 'Africa',
                      'Western Africa', 'Eastern Africa', 'Northern Africa',
-                     'Central Africa', 'Southern Africa', 
-                     'Asia and the Middle East', 
+                     'Central Africa', 'Southern Africa',
+                     'Asia and the Middle East',
                      'West Central Asia and the Middle East', 'Eastern Asia',
                      'China', 'Hong Kong', 'Other Eastern Asia',
                      'Southeast Asia', 'Philippines', 'Other Southeast Asia',
@@ -831,10 +775,10 @@ def clean_birth_place(census_dict, year):
                      'Oceania and other']
 
         df = census_dict['Total population by immigrant status and place of birth']
-        df = df[['LocalArea', 
+        df = df[['LocalArea',
                  'Total population by immigrant status and place of birth',
                  'Non-immigrants', 'Born in province of residence',
-                 'Born outside province of residence', 
+                 'Born outside province of residence',
                  'Non-permanent residents', 'Immigrants',
                  'United States of America', 'Central America',
                  'Caribbean and Bermuda', 'South America', 'Europe',
@@ -842,10 +786,10 @@ def clean_birth_place(census_dict, year):
                  'Italy', 'Other Southern Europe', 'Northern Europe',
                  'United Kingdom', 'Other Northern Europe', 'Africa',
                  'Western Africa', 'Eastern Africa', 'Northern Africa',
-                 'Central Africa', 'Southern Africa', 
+                 'Central Africa', 'Southern Africa',
                  'Asia and the Middle East',
                  'West Central Asia and the Middle East', 'Eastern Asia',
-                 "China, People's Republic of", 
+                 "China, People's Republic of",
                  'Hong Kong, Special Administrative Region',
                  'Other Eastern Asia', 'Southeast Asia', 'Philippines',
                  'Other Southeast Asia', 'Southern Asia', 'India',
@@ -862,7 +806,7 @@ def clean_birth_place(census_dict, year):
                      'Europe', 'Fiji', 'France', 'Germany', 'Greece', 'Guyana',
                      'Haiti', 'Hong Kong', 'Hungary', 'India', 'Iran', 'Iraq',
                      'Ireland', 'Italy', 'Jamaica', 'Japan', 'Kenya',
-                     'South Korea', 'Lebanon', 'Mexico', 'Morocco', 
+                     'South Korea', 'Lebanon', 'Mexico', 'Morocco',
                      'Netherlands', 'Nigeria', 'Pakistan', 'Peru',
                      'Philippines', 'Poland', 'Portugal', 'Romania', 'Russia',
                      'Serbia', 'South Africa', 'Sri Lanka', 'Taiwan',
@@ -871,8 +815,8 @@ def clean_birth_place(census_dict, year):
                      'Oceania and other', 'Other Africa', 'Other Americas',
                      'Other Asia', 'Other Europe', 'Other places of birth']
 
-        df = pd.read_csv('../../data/processed/nhs/Immigrant status and selected places of birth.csv', index_col=0)
-        df = df[['LocalArea', 'Type',  
+        df = pd.read_csv('data/processed/nhs/Immigrant status and selected places of birth.csv', index_col=0)
+        df = df[['LocalArea', 'Type',
                  '0_Total population in private households by immigrant status and selected places of birth',
                  '1_Non-immigrants', '2_Born in province of residence',
                  '3_Born outside province of residence',
@@ -884,25 +828,26 @@ def clean_birth_place(census_dict, year):
                  '63_Fiji', '24_France', '20_Germany', '27_Greece', '8_Guyana',
                  '9_Haiti', '48_Hong Kong Special Administrative Region',
                  '30_Hungary', '45_India', '52_Iran', '56_Iraq',
-                 '33_Ireland, Republic of', '19_Italy', '7_Jamaica','59_Japan',
-                 '42_Kenya', '53_Korea, South', '54_Lebanon', '10_Mexico',
-                 '36_Morocco', '23_Netherlands', '40_Nigeria', '50_Pakistan',
-                 '14_Peru', '47_Philippines', '21_Poland', '22_Portugal',
-                 '25_Romania', '26_Russian Federation', '32_Serbia',
-                 '39_South Africa, Republic of', '51_Sri Lanka', '55_Taiwan',
-                 '11_Trinidad and Tobago', '60_Turkey', '28_Ukraine',
-                 '18_United Kingdom', '6_United States', '49_Viet Nam',
-                 '62_Oceania and other', '43_Other places of birth in Africa',
+                 '33_Ireland, Republic of', '19_Italy', '7_Jamaica',
+                 '59_Japan', '42_Kenya', '53_Korea, South', '54_Lebanon',
+                 '10_Mexico', '36_Morocco', '23_Netherlands', '40_Nigeria',
+                 '50_Pakistan', '14_Peru', '47_Philippines', '21_Poland',
+                 '22_Portugal', '25_Romania', '26_Russian Federation',
+                 '32_Serbia', '39_South Africa, Republic of', '51_Sri Lanka',
+                 '55_Taiwan', '11_Trinidad and Tobago', '60_Turkey',
+                 '28_Ukraine', '18_United Kingdom', '6_United States',
+                 '49_Viet Nam', '62_Oceania and other',
+                 '43_Other places of birth in Africa',
                  '16_Other places of birth in Americas',
-                 '61_Other places of birth in Asia', 
-                 '34_Other places of birth in Europe', 
+                 '61_Other places of birth in Asia',
+                 '34_Other places of birth in Europe',
                  '64_Other places of birth']].copy()
 
     elif year == 2016:
         col_names = ['LocalArea', 'Total population', 'Non-immigrants',
                      'Non-permanent residents', 'Immigrants', 'Americas',
                      'Brazil', 'Colombia', 'El Salvador', 'Guyana', 'Haiti',
-                     'Jamaica', 'Mexico', 'Peru', 'Trinidad and Tobago', 
+                     'Jamaica', 'Mexico', 'Peru', 'Trinidad and Tobago',
                      'United States', 'Other  Americas', 'Europe',
                      'Bosnia and Herzegovina', 'Croatia', 'France', 'Germany',
                      'Greece', 'Hungary', 'Ireland', 'Italy', 'Netherlands',
@@ -915,16 +860,16 @@ def clean_birth_place(census_dict, year):
                      'Lebanon', 'Pakistan', 'Philippines', 'Sri Lanka',
                      'Syria', 'Taiwan', 'Viet Nam', 'Other Asia',
                      'Oceania and other places of birth']
-        
+
         df1 = census_dict['Total - Immigrant status and period of immigration for the population in private households - 25% sample data']
         df1 = df1[['Total - Immigrant status and period of immigration for the population in private households - 25% sample data',
                    'Non-immigrants', 'Non-permanent residents']].copy()
         df2 = census_dict['Total - Selected places of birth for the immigrant population in private households - 25% sample data']
 
         df = pd.concat([df1, df2], axis=1)
-        df = df[['LocalArea', 
+        df = df[['LocalArea',
                  'Total - Immigrant status and period of immigration for the population in private households - 25% sample data',
-                 'Non-immigrants', 'Non-permanent residents', 
+                 'Non-immigrants', 'Non-permanent residents',
                  'Total - Selected places of birth for the immigrant population in private households - 25% sample data',
                  'Americas', 'Brazil', 'Colombia', 'El Salvador', 'Guyana',
                  'Haiti', 'Jamaica', 'Mexico', 'Peru', 'Trinidad and Tobago',
@@ -937,7 +882,7 @@ def clean_birth_place(census_dict, year):
                  'Egypt', 'Ethiopia', 'Kenya', 'Morocco', 'Nigeria', 'Somalia',
                  'South Africa, Republic of',
                  'Other places of birth in Africa', 'Asia', 'Afghanistan',
-                 'Bangladesh', 'China', 'Hong Kong', 'India', 'Iran', 'Iraq', 
+                 'Bangladesh', 'China', 'Hong Kong', 'India', 'Iran', 'Iraq',
                  'Japan', 'Korea, South', 'Lebanon', 'Pakistan', 'Philippines',
                  'Sri Lanka', 'Syria', 'Taiwan', 'Viet Nam',
                  'Other places of birth in Asia',
@@ -946,14 +891,14 @@ def clean_birth_place(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['immigration_birth_place'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/immigration_birth_place.csv')
+    df.to_csv(file_path + '/immigration_birth_place.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_shelter_tenure(census_dict, year):
+def clean_shelter_tenure(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Total number of dwellings', 'Owned', 'Rented',
                  'Band housing']
@@ -968,7 +913,7 @@ def clean_shelter_tenure(census_dict, year):
         col_names = ['LocalArea', 'Type', 'Total number of dwellings',
                      'Owned', 'Rented']
 
-        df = pd.read_csv('../../data/processed/nhs/Shelter costs.csv', index_col=0)
+        df = pd.read_csv('data/processed/nhs/Shelter costs.csv', index_col=0)
         df = df[['LocalArea', 'Type',
                  '0_Total number of owner and tenant households with household total income greater than zero, in non-farm, non-reserve private dwellings by shelter-cost-to-income ratio',
                  '4_Number of owner households in non-farm, non-reserve private dwellings',
@@ -980,40 +925,40 @@ def clean_shelter_tenure(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['shelter_tenure'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/shelter_tenure.csv')
+    df.to_csv(file_path + '/shelter_tenure.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_education(census_dict, year):
+def clean_education(census_dict, year, file_path):
 
     if year == 2001:
         col_names = ['LocalArea', 'Education',
-           'Visual and performing arts, and communications technologies',
-           'Humanities', 'Social and behavioural sciences and law',
-           'Business, management and public administration',
-           'Agriculture, natural resources and conservation',
-           'Engineering and applied sciences',
-           'Applied science technologies and trades',
-           'Health and related fields',
-           'Mathematics, computer and information sciences', 'No specialization',
-           'Total population with postsecondary qualifications',
-           'Total population 20 years and over',
-           'population 20 years and over - Less than grade 9', 
-           'population 20 years and over - Grades 9 to 13',
-           'population 20 years and over - Without High school diploma or equivalent',
-           'population 20 years and over - High school diploma or equivalent',
-           'population 20 years and over - Apprenticeship or trades certificate or diploma', 
-           'population 20 years and over - College',
-           'population 20 years and over - College without certificate or diploma', 
-           'population 20 years and over - College, CEGEP or other non-university certificate or diploma',
-           'population 20 years and over - University', 
-           'population 20 years and over - University without degree', 
-           'population 20 years and over - University without certificate or diploma',
-           'population 20 years and over - University with certificate or diploma', 
-           "population 20 years and over - University certificate, diploma or degree at bachelor level or above"]
+                     'Visual and performing arts, and communications technologies',
+                     'Humanities', 'Social and behavioural sciences and law',
+                     'Business, management and public administration',
+                     'Agriculture, natural resources and conservation',
+                     'Engineering and applied sciences',
+                     'Applied science technologies and trades',
+                     'Health and related fields',
+                     'Mathematics, computer and information sciences', 'No specialization',
+                     'Total population with postsecondary qualifications',
+                     'Total population 20 years and over',
+                     'population 20 years and over - Less than grade 9',
+                     'population 20 years and over - Grades 9 to 13',
+                     'population 20 years and over - Without High school diploma or equivalent',
+                     'population 20 years and over - High school diploma or equivalent',
+                     'population 20 years and over - Apprenticeship or trades certificate or diploma',
+                     'population 20 years and over - College',
+                     'population 20 years and over - College without certificate or diploma',
+                     'population 20 years and over - College, CEGEP or other non-university certificate or diploma',
+                     'population 20 years and over - University',
+                     'population 20 years and over - University without degree',
+                     'population 20 years and over - University without certificate or diploma',
+                     'population 20 years and over - University with certificate or diploma',
+                     "population 20 years and over - University certificate, diploma or degree at bachelor level or above"]
 
         df1 = census_dict['Total population of females with postsecondary qualifications by major field of study']
         df2 = census_dict['Total population of males with postsecondary qualifications by major field of study']
@@ -1132,7 +1077,7 @@ def clean_education(census_dict, year):
                      'population aged 15 years and over - No postsecondary certificate, diploma or degree',
                      'population aged 15 years and over - With postsecondary certificate, diploma or degree']
 
-        df = pd.read_csv('../../data/processed/nhs/Education.csv', index_col=0)
+        df = pd.read_csv('data/processed/nhs/Education.csv', index_col=0)
         df = df[['LocalArea', 'Type',
                  '0_Total population aged 15 years and over by highest certificate, diploma or degree',
                  '1_No certificate, diploma or degree',
@@ -1231,14 +1176,14 @@ def clean_education(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['education'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/education.csv')
+    df.to_csv(file_path + '/education.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_household_type(census_dict, year):
+def clean_household_type(census_dict, year, file_path):
 
     col_names = ['LocalArea', 
                  'Total number of private households by household type', 
@@ -1275,14 +1220,14 @@ def clean_household_type(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['household_type'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/household_type.csv')
+    df.to_csv(file_path + '/household_type.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_citizenship(census_dict, year):
+def clean_citizenship(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Canadian citizens', 'Not Canadian citizens']
 
@@ -1297,7 +1242,7 @@ def clean_citizenship(census_dict, year):
         df = df[col_names]
 
     elif year == 2011:
-        df = pd.read_csv('../../data/processed/nhs/Citizenship.csv', index_col=0)
+        df = pd.read_csv('data/processed/nhs/Citizenship.csv', index_col=0)
         df = df[['LocalArea', '1_Canadian citizens', 
                  '4_Not Canadian citizens']]
 
@@ -1308,14 +1253,14 @@ def clean_citizenship(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['citizenship'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/citizenship.csv')
+    df.to_csv(file_path + '/citizenship.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_worker_class(census_dict,year):
+def clean_worker_class(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Type', 
                  'Total labour force aged 15 years and over',
@@ -1376,7 +1321,7 @@ def clean_worker_class(census_dict,year):
         merged = pd.concat([df1,df2,df3])
 
     elif year == 2011:
-        df = pd.read_csv('../../data/processed/nhs/Class of worker.csv', index_col=0)
+        df = pd.read_csv('data/processed/nhs/Class of worker.csv', index_col=0)
         merged = df[['LocalArea', 'Type',
                  '0_Total labour force aged 15 years and over by class of worker',
                  '1_Class of worker - not applicable',
@@ -1402,14 +1347,14 @@ def clean_worker_class(census_dict,year):
 
     merged.sort_values(by=['LocalArea','Type'], inplace=True)
     census_dict['worker_class'] = merged
-    merged.to_csv('../../data/processed/census_' + str(year) + '/worker_class.csv')
+    merged.to_csv(file_path + '/worker_class.csv')
     
     return census_dict
 
 ###############################################################################
 
 
-def clean_time_worked(census_dict, year):
+def clean_time_worked(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Type',
                  'Population 15 years and over by work activity',
@@ -1486,7 +1431,7 @@ def clean_time_worked(census_dict, year):
                      'Population 15 years and over by work activity',
                      'full time', 'y', 'part time', 'LocalArea']
 
-        df1 = pd.read_csv('../../data/processed/nhs/Full-time or part-time weeks worked.csv', index_col=0)
+        df1 = pd.read_csv('data/processed/nhs/Full-time or part-time weeks worked.csv', index_col=0)
         df1 = df1.iloc[:, 0:7].copy()
         df1.set_axis(col_names, axis=1, inplace=True)
         df1['Worked partially full time and partially part time'] = df1['Population 15 years and over by work activity']-df1['full time']-df1['part time']-df1['x']
@@ -1546,13 +1491,13 @@ def clean_time_worked(census_dict, year):
 
     merged.sort_values(by=['LocalArea', 'Type'], inplace=True)
     census_dict['time_worked'] = merged
-    merged.to_csv('../../data/processed/census_' + str(year) + '/time_worked.csv')
+    merged.to_csv(file_path + '/time_worked.csv')
     return census_dict
 
 ###############################################################################
 
 
-def clean_generation_status(census_dict, year):
+def clean_generation_status(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Total Population 15 years and older',
                 '1st generation','2nd generation', '3rd generation and over']
@@ -1568,7 +1513,7 @@ def clean_generation_status(census_dict, year):
         df.set_axis(col_names, axis=1, inplace=True)
 
     elif year == 2011:
-        df = pd.read_csv('../../data/processed/nhs/Generation status.csv', index_col=0)
+        df = pd.read_csv('data/processed/nhs/Generation status.csv', index_col=0)
         df = df.loc[df['Type'] == 'Total'].copy().reset_index()
         df.drop(['Type', 'index'], axis=1, inplace=True)
 
@@ -1585,17 +1530,17 @@ def clean_generation_status(census_dict, year):
 
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['generation_status'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/generation_status.csv')
+    df.to_csv(file_path + '/generation_status.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_industry(census_dict, year):
+def clean_industry(census_dict, year, file_path):
 
     if year == 2011:
-        df = pd.read_csv('../../data/processed/nhs/Industry.csv', index_col=0).query('Type == "Total"')
+        df = pd.read_csv('data/processed/nhs/Industry.csv', index_col=0).query('Type == "Total"')
         label = list(df.columns[[-1, -3]])
 
     else:
@@ -1620,21 +1565,21 @@ def clean_industry(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['industry'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/industry.csv')
+    df.to_csv(file_path + '/industry.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_labour_force_status(census_dict, year):
+def clean_labour_force_status(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Type', 'Employed', 'Employment rate', 
                  'In the labour force', 'Not in the labour force', 
                  'Participation rate', 'Unemployed', 'Unemployment rate']
 
     if year == 2011:
-        df = pd.read_csv('../../data/processed/nhs/Labour force status.csv', index_col=0)
+        df = pd.read_csv('data/processed/nhs/Labour force status.csv', index_col=0)
         df = df[['LocalArea', 'Type', '2_Employed', '6_Employment rate', 
                  '1_In the labour force', '4_Not in the labour force',
                  '5_Participation rate', '3_Unemployed', 
@@ -1669,14 +1614,14 @@ def clean_labour_force_status(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['labour_force_status'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/labour_force_status.csv')
+    df.to_csv(file_path + '/labour_force_status.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_mobility(census_dict, year):
+def clean_mobility(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Migrants', 'Non-migrants', 'Non-movers',
                  'Total - Mobility status 1 year ago',
@@ -1685,7 +1630,7 @@ def clean_mobility(census_dict, year):
 
     if year == 2011:
 
-        df = pd.read_csv('../../data/processed/nhs/Mobility.csv',
+        df = pd.read_csv('data/processed/nhs/Mobility.csv',
                          index_col=0).query('Type == "Total"').iloc[:, [-1, 5, 7, 8, -3, -2]]
 
     else:
@@ -1717,21 +1662,21 @@ def clean_mobility(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['mobility'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/mobility.csv')
+    df.to_csv(file_path + '/mobility.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_transport_mode(census_dict, year):
+def clean_transport_mode(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Type', 'Bicycle', 'Car as driver',
                  'Car as passenger', 'Other methods', 'Public transit',
                  'Walked']
 
     if year == 2011:
-        df = pd.read_csv('../../data/processed/nhs/Mode of transportation.csv',
+        df = pd.read_csv('data/processed/nhs/Mode of transportation.csv',
                          index_col=0).iloc[:, [-1, 0, 1, 2, 3, 4, 5, -2]]
 
     else:
@@ -1778,13 +1723,13 @@ def clean_transport_mode(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['transport_mode'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/transport_mode.csv')
+    df.to_csv(file_path + '/transport_mode.csv')
 
     return census_dict
 
 ###############################################################################
 
-def clean_occupation(census_dict, year):
+def clean_occupation(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Type', 'All occupations', 'Occupations n/a',
                  'Management', 'Business and finance', 
@@ -1822,7 +1767,7 @@ def clean_occupation(census_dict, year):
 
     elif year == 2011:
         df = pd.read_csv(
-            '../../data/processed/nhs/Occupation.csv', index_col=0)
+            'data/processed/nhs/Occupation.csv', index_col=0)
 
         df = pd.concat(
             (df.iloc[:, [14, 0, 11, 12]], df.iloc[:, 1:11]), axis=1)
@@ -1850,14 +1795,14 @@ def clean_occupation(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['occupation'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/occupation.csv')
+    df.to_csv(file_path + '/occupation.csv')
 
     return census_dict
 
 ###############################################################################
 
 
-def clean_workplace_status(census_dict, year):
+def clean_workplace_status(census_dict, year, file_path):
 
     col_names = ['LocalArea', 'Type', 'Worked at home', 
                  'Worked at usual place', 'Worked outside Canada',
@@ -1865,7 +1810,7 @@ def clean_workplace_status(census_dict, year):
 
     if year == 2011:
 
-        df = pd.read_csv('../../data/processed/nhs/Place of work status.csv',
+        df = pd.read_csv('data/processed/nhs/Place of work status.csv',
                          index_col=0).iloc[:, [-1, 0, 3, 4, 5, 1]]
 
     else:
@@ -1894,6 +1839,72 @@ def clean_workplace_status(census_dict, year):
     df.set_axis(col_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['workplace_status'] = df
-    df.to_csv('../../data/processed/census_' + str(year) + '/workplace_status.csv')
+    df.to_csv(file_path + '/workplace_status.csv')
 
     return census_dict
+
+###############################################################################
+# MAIN FUNCTION
+###############################################################################
+
+
+def main(census_file, year, file_path):
+
+    col_names = ['Variable', 'Arbutus-Ridge', 'Downtown',
+                 'Dunbar-Southlands', 'Fairview', 'Grandview-Woodland',
+                 'Hastings-Sunrise', 'Kensington-Cedar Cottage',
+                 'Kerrisdale', 'Killarney', 'Kitsilano', 'Marpole',
+                 'Mount Pleasant', 'Oakridge', 'Renfrew-Collingwood',
+                 'Riley Park', 'Shaughnessy', 'South Cambie', 'Strathcona',
+                 'Sunset', 'Victoria-Fraserview', 'West End',
+                 'West Point Grey', 'Vancouver CSD', 'Vancouver CMA']
+    year = int(year)
+
+    # read in csv file as dataframe
+    df = pd.read_csv(census_file, encoding='latin-1', skiprows=4)
+
+    # remove 'ID' column if present
+    df.drop(columns='ID', inplace=True, errors='ignore')
+
+    # rename columns
+    df.set_axis(col_names, axis=1, inplace=True)
+
+    # remove empty rows
+    df.dropna(0, 'all', inplace=True)
+
+    # remove whitespace from variables
+    df.Variable = df.Variable.apply(lambda x: (x.lstrip()).rstrip())
+    df.drop(df[df.Variable.str.contains('20%.*data')].index, inplace=True)
+
+    # convert numeric data to float type
+    df.iloc[:, 1:25] = df.iloc[:, 1:25].applymap(lambda x: str(x) if x == x else x)
+    df.iloc[:, 1:25] = df.iloc[:, 1:25].applymap(lambda x: re.sub("[-]", "0", x) if x == x else x)
+    df.iloc[:, 1:25] = df.iloc[:, 1:25].applymap(lambda x: float(re.sub("[,$]", "", x)) if x == x else x)
+
+    # Create the census subdirectory for given year if it doesn't exist
+    os.makedirs(file_path, exist_ok=True)
+
+    # divide the census datasets into subgroups
+    census_dict = create_subgroup_dict(df, year)
+
+    # clean the datatables by topics
+    helper_func = [clean_age, clean_marital_status,
+                   clean_couple_fam_structure, clean_language_detailed,
+                   clean_official_language, clean_structural_dwelling_type,
+                   clean_household_size, clean_lone_parent,
+                   clean_immigration_age, clean_immigration_period,
+                   clean_birth_place, clean_shelter_tenure,
+                   clean_visible_minority, clean_education,
+                   clean_household_type, clean_citizenship,
+                   clean_worker_class, clean_time_worked,
+                   clean_generation_status, clean_industry,
+                   clean_labour_force_status, clean_mobility,
+                   clean_transport_mode, clean_occupation,
+                   clean_workplace_status]
+
+    for func in helper_func:
+        census_dict = func(census_dict, year, file_path)
+
+
+if __name__ == "__main__":
+    main(opt["--census_file"], opt["--year"], opt["--file_path"])
