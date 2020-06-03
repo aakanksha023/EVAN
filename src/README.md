@@ -55,7 +55,29 @@ python3 src/02_clean_wrangle/04_clean_nhs.py --nhs_zip="data/raw/nhs_census_2011
 --area_file="data/raw/local_area_boundary.geojson" \
 --file_path="data/processed/nhs/"
 
-# 5. 04_synthesis.py
+# 5. 05_clean_census.py
+
+# census year 2001
+python3 src/02_clean_wrangle/05_clean_census.py --census_file="data/raw/census_2001.csv" \
+    --year="2001" \
+    --file_path="data/processed/census_2001"
+
+# census year 2006
+python3 src/02_clean_wrangle/05_clean_census.py --census_file="data/raw/census_2006.csv" \
+    --year="2006" \
+    --file_path="data/processed/census_2006"
+
+# census year 2011
+python3 src/02_clean_wrangle/05_clean_census.py --census_file="data/raw/census_2011.csv" \
+    --year="2011" \
+    --file_path="data/processed/census_2011"
+
+# census year 2016
+python3 src/02_clean_wrangle/05_clean_census.py --census_file="data/raw/census_2016.csv" \
+    --year="2016" \
+    --file_path="data/processed/census_2016"
+
+# 6. 04_synthesis.py
 
 # train set
 python3 src/02_clean_wrangle/04_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
@@ -68,7 +90,7 @@ python3 src/02_clean_wrangle/04_synthesis.py --file_path="src/02_clean_wrangle/s
 **Part 3: Modelling**
 
 ```{bash}
-# 6. 05_feature_engineering.py
+# 7. 05_feature_engineering.py
 
 # train set
 python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_train.csv" \

@@ -98,7 +98,11 @@ def clean_age(census_dict, year, file_path):
         male.set_axis(col_names, axis=1, inplace=True)
 
         merged = pd.concat([female, male])
-
+        merged.sort_values(by=['LocalArea', 'Type'], inplace=True)
+        total = merged.groupby('LocalArea').sum()
+        total['Type'] = 'total'
+        total.reset_index(inplace=True)
+        merged = pd.concat([merged, total])
 
     else:
         if year == 2006:
@@ -1870,7 +1874,7 @@ def main(census_file, year, file_path):
 
     # remove whitespace from variables
     df.Variable = df.Variable.apply(lambda x: (x.lstrip()).rstrip())
-    df.drop(df[df.Variable.str.contains('20%.*data')].index, inplace=True)
+    df.drop(df[df.Variable.str.contains('20%.*Data')].index, inplace=True)
 
     # convert numeric data to float type
     df.iloc[:, 1:25] = df.iloc[:, 1:25].applymap(lambda x: str(x) if x == x else x)
