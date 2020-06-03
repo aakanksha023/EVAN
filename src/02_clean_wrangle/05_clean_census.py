@@ -1427,24 +1427,15 @@ def clean_time_worked(census_dict, year, file_path):
         merged['Worked partially full time and partially part time'] = merged['Population 15 years and over by work activity'] - merged['full time'] - merged['part time']
     
     elif year == 2011:
-        col_names = ['Type', 'x', 
+        col_names = ['LocalArea', 'Type', 
                      'Population 15 years and over by work activity',
-                     'full time', 'y', 'part time', 'LocalArea']
+                     'full time', 'part time']
 
         df1 = pd.read_csv('data/processed/nhs/Full-time or part-time weeks worked.csv', index_col=0)
-        df1 = df1.iloc[:, 0:7].copy()
-        df1.set_axis(col_names, axis=1, inplace=True)
-        df1['Worked partially full time and partially part time'] = df1['Population 15 years and over by work activity']-df1['full time']-df1['part time']-df1['x']
-        df1.loc[df1['Worked partially full time and partially part time'] < 0, 
-                    'Worked partially full time and partially part time'] = 0
-        df1.drop(['x', 'y'], inplace=True, axis=1)
-        
-        cols = ['LocalArea', 'Type',
-                'Population 15 years and over by work activity',
-                'full time', 'part time',
-                'Worked partially full time and partially part time']
+        df1 = df1.iloc[:,[-1,0,1,4,5]].copy()
 
-        merged = df1[cols]
+        df1.columns = col_names  
+        merged = df1
 
     elif year == 2016:
         col_names = ['LocalArea',
