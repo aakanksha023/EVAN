@@ -1531,29 +1531,74 @@ def clean_generation_status(census_dict, year, file_path):
 def clean_industry(census_dict, year, file_path):
 
     if year == 2011:
-        df = pd.read_csv('data/processed/nhs/Industry.csv', index_col=0).query('Type == "Total"')
-        label = list(df.columns[[-1, -3]])
+        df = pd.read_csv('data/processed/nhs/Industry.csv', index_col=0
+                        ).query('Type == "Total"'
+                               ).drop(columns='Type')
+        df = df.rename(columns={
+                       '0_Total labour force population aged 15 years and over by industry - North American Industry Classification System (NAICS) 2007': 'total'})
+
+        meta = ['LocalArea', '2_All industries',
+                '1_Industry - not applicable', 'total']
 
     else:
         if year == 2001:
-            df = census_dict['Total labour force 15 years and over by industry - 1997 North American Industry Classification System']
+            df = census_dict[
+                'Total labour force 15 years and over by industry - 1997 North American Industry Classification System']
+            df = df.rename(columns={
+                           'Total labour force 15 years and over by industry - 1997 North American Industry Classification System': 'total'})
+            meta = ['LocalArea',
+                    'All industries',
+                    'Industry - Not applicable',
+                    'total']
+
         elif year == 2006:
-            df = census_dict['Total labour force 15 years and over by industry - North American Industry Classification System 2002']
+            df = census_dict[
+                'Total labour force 15 years and over by industry - North American Industry Classification System 2002']
+            df = df.rename(columns={
+                           'Total labour force 15 years and over by industry - North American Industry Classification System 2002': 'total'})
+            meta = ['LocalArea',
+                    'All industries',
+                    'Industry - Not applicable',
+                    'total']
         else:
-            df = census_dict['Total Labour Force population aged 15 years and over by Industry - North American Industry Classification System (NAICS) 2012 - 25% sample data']
+            df = census_dict[
+                'Total Labour Force population aged 15 years and over by Industry - North American Industry Classification System (NAICS) 2012 - 25% sample data']
+            df = df.rename(columns={
+                           'Total Labour Force population aged 15 years and over by Industry - North American Industry Classification System (NAICS) 2012 - 25% sample data': 'total'})
+            meta = ['LocalArea',
+                    'All industry categories',
+                    'Industry - NAICS2012 - not applicable',
+                    'total']
 
-        label = list(df.columns[[0, 2]])
+    meta_df = df[meta]
+    industries_df = df.drop(columns=meta)
+    industries = industries_df.columns
+    industries = [re.findall(r'^[0-9 -_]* (.*)', i)[0] for i in industries]
+    industries_df.columns = industries
+    industries_df = industries_df.loc[:, sorted(industries)]
 
-    industries = list(df.columns)
-    industries_original = [i for i in industries if re.match(r'^[0-9]', i)]
-    industries = [re.findall(r'^[0-9 -]*(.*)', i)[0] for i in industries_original]
+    column_names = ['LocalArea',
+                    'All industries',
+                    'Industry - Not applicable',
+                    'total',
+                    'Accommodation and food services',
+                    'Administrative and support, waste management and remediation services',
+                    'Agriculture, forestry, fishing and hunting',
+                    'Arts, entertainment and recreation', 'Construction',
+                    'Educational services', 'Finance and insurance',
+                    'Health care and social assistance',
+                    'Information and cultural industries',
+                    'Management of companies and enterprises', 'Manufacturing',
+                    'Mining, quarrying, and oil and gas extraction',
+                    'Other services (except public administration)',
+                    'Professional, scientific and technical services',
+                    'Public administration', 'Real estate and rental and leasing',
+                    'Retail trade', 'Transportation and warehousing', 'Utilities',
+                    'Wholesale trade']
 
-    col_names = ['LocalArea', 'Industry not applicable'] + industries
+    df = pd.concat([meta_df, industries_df], axis=1)
 
-    cols = label + industries_original
-    df = df.loc[:, cols]
-
-    df.set_axis(col_names, axis=1, inplace=True)
+    df.set_axis(column_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['industry'] = df
     df.to_csv(file_path + '/industry.csv')
@@ -1614,43 +1659,29 @@ def clean_labour_force_status(census_dict, year, file_path):
 
 def clean_mobility(census_dict, year, file_path):
 
-    col_names = ['LocalArea', 'Migrants', 'Non-migrants', 'Non-movers',
-                 'Total - Mobility status 1 year ago',
-                 'Total - Mobility status 5 yeas ago']
-    sel_col = ['LocalArea', 'Migrants', 'Non-migrants', 'Non-movers']
+    column_names = ['LocalArea', 
+                    'Non-movers 1 yr ago',
+                    'Non-migrants 1 yr ago', 
+                    'Migrants 1 yr ago']
 
     if year == 2011:
-
-        df = pd.read_csv('data/processed/nhs/Mobility.csv',
-                         index_col=0).query('Type == "Total"').iloc[:, [-1, 5, 7, 8, -3, -2]]
+        df = pd.read_csv(
+            'data/processed/nhs/Mobility.csv', index_col=0
+        ).query('Type == "Total"').iloc[:, [-1, 1, 3, 4]]
 
     else:
         if year == 2001:
-            yr1 = census_dict['Total population 1 year and over by mobility status 1 year ago']
-            yr5 = census_dict['Total population 5 years and over by mobility status 5 years ago']
-
+            df = census_dict[
+                'Total population 1 year and over by mobility status 1 year ago']
         elif year == 2006:
-            yr1 = census_dict['Total - Mobility status 1 year ago']
-            yr5 = census_dict['Total - Mobility status 5 years ago']
-
+            df = census_dict[
+                'Total - Mobility status 1 year ago']
         else:
-            yr1 = census_dict['Total - Mobility status 1 year ago - 25% sample data']
-            yr5 = census_dict['Total - Mobility status 5 years ago - 25% sample data']
+            df = census_dict[
+                'Total - Mobility status 1 year ago - 25% sample data']
+        df = df.iloc[:, [0, 2, 4, 5]]
 
-        yr1.sort_values(by=['LocalArea'], inplace=True)
-        yr5.sort_values(by=['LocalArea'], inplace=True)
-
-        total1 = yr1.iloc[:,1]
-        total5 = yr5.iloc[:,1]
-
-        yr1 = yr1.loc[:, sel_col]
-        yr5 = yr5.loc[:, sel_col]
-
-        df = pd.concat([yr1, yr5]).groupby(['LocalArea']).sum().reset_index()
-        df['Total - Mobility status 1 year ago'] = total1
-        df['Total - Mobility status 5 years ago'] = total5
-
-    df.set_axis(col_names, axis=1, inplace=True)
+    df.set_axis(column_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['mobility'] = df
     df.to_csv(file_path + '/mobility.csv')
@@ -1662,56 +1693,58 @@ def clean_mobility(census_dict, year, file_path):
 
 def clean_transport_mode(census_dict, year, file_path):
 
-    col_names = ['LocalArea', 'Type', 'Bicycle', 'Car as driver',
-                 'Car as passenger', 'Other methods', 'Public transit',
-                 'Walked']
+    column_names = ['LocalArea', 'Type', 'Total',
+                    'car as driver', 'car as passenger', 
+                    'public transportation', 'walked',
+                    'bicycle', 'other transportation']
 
     if year == 2011:
         df = pd.read_csv('data/processed/nhs/Mode of transportation.csv',
-                         index_col=0).iloc[:, [-1, 0, 1, 2, 3, 4, 5, -2]]
+                         index_col=0).iloc[:, [-1, 0, 1, 2, 3, 4, 5, 6, 7]]
 
     else:
         if year == 2016:
-            order = [0, -2, 2, 3, -1, 4, 5]
             male = census_dict['Total - Main mode of commuting for the male employed labour force aged 15 years and over in private households with a usual place of work or no fixed workplace address - 25% sample data']
             female = census_dict['Total - Main mode of commuting for the female employed labour force aged 15 years and over in private households with a usual place of work or no fixed workplace address - 25% sample data']
 
-            male = male.iloc[:, order]
-            female = female.iloc[:, order]
-
             male.insert(1, 'Type', 'Male')
             female.insert(1, 'Type', 'Female')
-
+        
         else:
-            order = [0, -1, 6, 2, 3, -2, 4, 5]
             if year == 2001:
                 male = census_dict['Males with a usual place of work or no fixed workplace address']
             else:
                 male = census_dict['Males with usual place of work or no fixed workplace address']
-
+                
             female = census_dict['Females with usual place of work or no fixed workplace address']
+                
+            male.insert(1, 'Type', 'Male')
+            male['Other method'] = male[
+                'Other method'] + male[
+                'Taxicab'] + male[
+                'Motorcycle']
+            male.drop(columns=[
+                'Taxicab', 'Motorcycle'], inplace=True)
 
-            male['Type'] = ['Male']*len(male)
-            male['Other method'] = male['Other method'] + \
-                male['Taxicab'] + male['Motorcycle']
-            male = male.iloc[:, order]
-
-            female['Type'] = ['Female']*len(female)
-            female['Other method'] = female['Other method'] + \
-                female['Taxicab'] + female['Motorcycle']
-            female = female.iloc[:, order]
-
-        male.columns = col_names
-        female.columns = col_names
-
+            female.insert(1, 'Type', 'Female')
+            female['Other method'] = female[
+                'Other method'] + female[
+                'Taxicab'] + female[
+                'Motorcycle']
+            female.drop(columns=['Taxicab', 
+                                 'Motorcycle'], inplace=True)
+        
+        male.columns = column_names
+        female.columns = column_names
+        
         df = pd.concat([male, female])
 
         total = df.groupby(['LocalArea']).sum().reset_index()
-        total['Type'] = ['Total'] * len(total)
+        total['Type'] = ['total']*len(total)
 
         df = pd.concat([df, total])
-
-    df.set_axis(col_names, axis=1, inplace=True)
+        
+    df.set_axis(column_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['transport_mode'] = df
     df.to_csv(file_path + '/transport_mode.csv')
@@ -1795,30 +1828,33 @@ def clean_occupation(census_dict, year, file_path):
 
 def clean_workplace_status(census_dict, year, file_path):
 
-    col_names = ['LocalArea', 'Type', 'Worked at home', 
-                 'Worked at usual place', 'Worked outside Canada',
-                 'No fixed workplace']
+    column_names = ['LocalArea', 'Type',
+                    'Worked at home',
+                    'Worked at usual place',
+                    'Worked outside Canada',
+                    'No fixed workplace']
 
     if year == 2011:
 
         df = pd.read_csv('data/processed/nhs/Place of work status.csv',
-                         index_col=0).iloc[:, [-1, 0, 3, 4, 5, 1]]
+                         index_col=0).iloc[:, [-1, 0, 2, 5, 3, 4]]
 
     else:
-        if year in [2001, 2006]:
+        if year == 2001 or year == 2006:
             order = [0, -3, 2, -2, -1]
             male = census_dict['Males'].iloc[:, order]
             female = census_dict['Females'].iloc[:, order]
         else:
             order = [0, 2, -1, 3, 4]
-            male = census_dict['Total - Place of work status for the male employed labour force aged 15 years and over in private households - 25% sample data'].iloc[:, order]
+            male = census_dict[
+                'Total - Place of work status for the male employed labour force aged 15 years and over in private households - 25% sample data'].iloc[:, order]
             female = census_dict['Total - Place of work status for the female employed labour force aged 15 years and over in private households - 25% sample data'].iloc[:, order]
 
         male.insert(1, 'Type', 'Male')
         female.insert(1, 'Type', 'Female')
 
-        male.columns = col_names
-        female.columns = col_names
+        male.columns = column_names
+        female.columns = column_names
 
         df = pd.concat([female, male])
 
@@ -1827,7 +1863,7 @@ def clean_workplace_status(census_dict, year, file_path):
 
         df = pd.concat([df, total])
 
-    df.set_axis(col_names, axis=1, inplace=True)
+    df.set_axis(column_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['workplace_status'] = df
     df.to_csv(file_path + '/workplace_status.csv')

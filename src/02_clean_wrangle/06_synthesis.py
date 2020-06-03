@@ -807,10 +807,9 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
             tw[col] = tw[col]/tw[
                 'Population 15 years and over by work activity']
 
-        tw.drop(columns=['Type',
-                         'Population 15 years and over by work activity',
-                         'Worked partialy full time and partially part time',
-                         'Unnamed: 0'], inplace=True)
+        tw = tw[['LocalArea',
+                 'full time',
+                 'part time']]
 
         tw = fill_missing_year(tw, start_year, end_year)
         return tw
@@ -940,7 +939,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         lambda p: json.loads(p)['coordinates'][1])
 
     # filter out point without Geom location
-    licence_vis_df = licence_vis_df[~licence_vis_df['Geom'].isnull()]
+    licence_vis_df = licence_df[~licence_df['Geom'].isnull()]
     licence_vis_df["coord-x"] = licence_vis_df['Geom'].apply(
         lambda p: json.loads(p)['coordinates'][0])
     licence_vis_df["coord-y"] = licence_vis_df['Geom'].apply(
