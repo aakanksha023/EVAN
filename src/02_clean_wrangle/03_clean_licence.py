@@ -95,7 +95,7 @@ def main(file_path, mapping_csv, save_to):
     df = df[df.business_id_lag1 == df.business_id]
     df = df[df.FOLDERYEAR + 1 == df.folderyear_lag1]
 
-    # 3. define conditions to label 1 (sucesss)
+    # 3. define conditions to label 1 (success)
     #       current year = Issued, no matter what status in last year
     df['label'] = np.where(df.NextYearStatus == 'Issued', 1, 0)
 
