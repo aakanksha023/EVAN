@@ -98,11 +98,7 @@ def clean_age(census_dict, year, file_path):
         male.set_axis(col_names, axis=1, inplace=True)
 
         merged = pd.concat([female, male])
-        merged.sort_values(by=['LocalArea', 'Type'], inplace=True)
-        total = merged.groupby('LocalArea').sum()
-        total['Type'] = 'total'
-        total.reset_index(inplace=True)
-        merged = pd.concat([merged, total])
+
 
     else:
         if year == 2006:
