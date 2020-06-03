@@ -77,10 +77,10 @@ python3 src/02_clean_wrangle/05_clean_census.py --census_file="data/raw/census_2
     --year="2016" \
     --file_path="data/processed/census_2016"
 
-# 6. 04_synthesis.py
+# 6. 06_synthesis.py
 
 # train set
-python3 src/02_clean_wrangle/04_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
+python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
 --save_to1="data/processed/04_combined_train.csv" \
 --save_to2="data/processed/paking_meter_vis.csv" \
 --save_to3="data/processed/disability_parking_vis.csv" \
