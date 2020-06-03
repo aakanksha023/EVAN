@@ -1865,7 +1865,7 @@ def main(census_file, year, file_path):
 
     # remove whitespace from variables
     df.Variable = df.Variable.apply(lambda x: (x.lstrip()).rstrip())
-    df.drop(df[df.Variable.str.contains('20%.*Data')].index, inplace=True)
+    df.drop(df[df.Variable.str.contains('20%.*data', flags=re.IGNORECASE)].index, inplace=True)
 
     # convert numeric data to float type
     df.iloc[:, 1:25] = df.iloc[:, 1:25].applymap(lambda x: str(x) if x == x else x)
