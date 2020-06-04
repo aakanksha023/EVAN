@@ -482,10 +482,9 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
                 dwel['Apartment, duplex'] + dwel[
                     'Apartment, building that has five or more storeys'
                 ])/dwel['Total']
-            dwel['dwelling_Other'] = (
-                dwel['Total'] - dwel[
+            dwel['dwelling_Other'] = 1 - dwel[
                     'dwelling_Apartment'] - dwel[
-                    'dwelling_House'])/dwel['Total']
+                    'dwelling_House']
 
         else:
             dwel['dwelling_Apartment'] = (dwel[
@@ -494,14 +493,14 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
             ] + dwel[
                 'Apartment, building that has fewer than five storeys'
             ])/dwel['Total']
-            dwel['dwelling_Other'] = (
-                dwel['Total'] - dwel[
-                    'dwelling_Apartment'] - dwel['dwelling_House'
-                                                 ])/dwel['Total']
+            dwel['dwelling_Other'] = 1 - dwel[
+                    'dwelling_Apartment'] - dwel[
+                    'dwelling_House']
 
         dwel = dwel[['LocalArea',
                      'dwelling_House',
-                     'dwelling_Apartment']]
+                     'dwelling_Apartment',
+                     'dwelling_Other']]
 
         dwel = fill_missing_year(dwel, start_year, end_year)
         return dwel
@@ -658,13 +657,17 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
             columns={'1 person': '1 person household',
                      '2 persons': '2 persons household',
                      '3 persons': '3 persons household',
+                     '4 persons': '4 to 5 persons household',
+                     '5 or more persons': '6 or more persons household',
                      '4 to 5 persons': '4 to 5 persons household',
                      '6 or more persons': '6 or more persons household'}, inplace=True)
 
-        house_size.drop(columns=['Unnamed: 0',
-                                 'Total households',
-                                 'Average household size'])
-
+        house_size = house_size[[
+            'LocalArea', '1 person household',
+            '2 persons household', '3 persons household',
+            '4 to 5 persons household',
+            '6 or more persons household']]
+        
         house_size = fill_missing_year(house_size, start_year, end_year)
         return house_size
 
@@ -783,6 +786,8 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         col_lis = list(occ.columns)[4:]
         for col in col_lis:
             occ[col] = occ[col]/occ['total']
+            
+        occ = occ[occ.Type == "Total"]
 
         occ.drop(columns=['Type',
                           'All occupations',
@@ -978,36 +983,29 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     # licence_df = merge_data(family_2001, family_2006,
     #                        family_2011, family_2016, licence_df)
 
-    language = pd.concat([language_2001, language_2006,
-                          language_2011, language_2016])
-    language = pd.concat([language_2006, language_2011, language_2016])
-    language.rename(columns={'LocalArea': 'Geo Local Area',
-                             'Year': 'FOLDERYEAR'}, inplace=True)
-    # filter out nan values
-    language.dropna(axis=1, inplace=True)
-    licence_df = licence_df.merge(
-        language, on=['Geo Local Area', 'FOLDERYEAR'], how='left')
+#     licence_df = merge_data(language_2001, language_2006,
+#                              language_2011, language_2016, licence_df)
 
-    licence_df = merge_data(marital_2001, marital_2006,
-                            marital_2011, marital_2016, licence_df)
+#     licence_df = merge_data(marital_2001, marital_2006,
+#                             marital_2011, marital_2016, licence_df)
 
-    licence_df = merge_data(age_2001, age_2006,
-                            age_2011, age_2016, licence_df)
+#     licence_df = merge_data(age_2001, age_2006,
+#                             age_2011, age_2016, licence_df)
 
-    licence_df = merge_data(gender_2001, gender_2006,
-                            gender_2011, gender_2016, licence_df)
+#     licence_df = merge_data(gender_2001, gender_2006,
+#                             gender_2011, gender_2016, licence_df)
 
-    licence_df = merge_data(minority_2001, minority_2006,
-                            minority_2011, minority_2016, licence_df)
+#     licence_df = merge_data(minority_2001, minority_2006,
+#                             minority_2011, minority_2016, licence_df)
 
     licence_df = merge_data(dwelling_2001, dwelling_2006,
                             dwelling_2011, dwelling_2016, licence_df)
 
-    licence_df = merge_data(shelter_2001, shelter_2006,
-                            shelter_2011, shelter_2016, licence_df)
+#     licence_df = merge_data(shelter_2001, shelter_2006,
+#                             shelter_2011, shelter_2016, licence_df)
 
-    licence_df = merge_data(lone_parent_2001, lone_parent_2006,
-                            lone_parent_2011, lone_parent_2016, licence_df)
+#     licence_df = merge_data(lone_parent_2001, lone_parent_2006,
+#                             lone_parent_2011, lone_parent_2016, licence_df)
 
     # licence_df = merge_data(imgra_period_2001, imgra_period_2006,
     #                        imgra_period_2011, imgra_period_2016, licence_df)
@@ -1015,12 +1013,12 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     # licence_df = merge_data(citizen_2001, citizen_2006,
     #                        citizen_2011, citizen_2016, licence_df)
 
-    licence_df = merge_data(generation_2001, generation_2006,
-                            generation_2011, generation_2016, licence_df)
+#     licence_df = merge_data(generation_2001, generation_2006,
+#                             generation_2011, generation_2016, licence_df)
 
-    licence_df = merge_data(household_size_2001, household_size_2006,
-                            household_size_2011,
-                            household_size_2016, licence_df)
+#     licence_df = merge_data(household_size_2001, household_size_2006,
+#                             household_size_2011,
+#                             household_size_2016, licence_df)
 
     # licence_df = merge_data(household_type_2001, household_type_2006,
     #                        household_type_2011,
@@ -1029,32 +1027,32 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     # licence_df = merge_data(imgra_age_2001, imgra_age_2006,
     #                        imgra_age_2011, imgra_age_2016, licence_df)
 
-    licence_df = merge_data(industry_2001, industry_2006,
-                            industry_2011, industry_2016, licence_df)
+#     licence_df = merge_data(industry_2001, industry_2006,
+#                             industry_2011, industry_2016, licence_df)
 
-    licence_df = merge_data(labour_2001, labour_2006,
-                            labour_2011, labour_2016, licence_df)
+#     licence_df = merge_data(labour_2001, labour_2006,
+#                             labour_2011, labour_2016, licence_df)
 
     # licence_df = merge_data(mobility_2001, mobility_2006,
     #                        mobility_2011, mobility_2016, licence_df)
 
-    licence_df = merge_data(occupation_2001, occupation_2006,
-                            occupation_2011, occupation_2016, licence_df)
+#     licence_df = merge_data(occupation_2001, occupation_2006,
+#                             occupation_2011, occupation_2016, licence_df)
 
-    licence_df = merge_data(time_worked_2001, time_worked_2006,
-                            time_worked_2011, time_worked_2016, licence_df)
+#     licence_df = merge_data(time_worked_2001, time_worked_2006,
+#                             time_worked_2011, time_worked_2016, licence_df)
 
-    licence_df = merge_data(transport_2001, transport_2006,
-                            transport_2011, transport_2016, licence_df)
+#     licence_df = merge_data(transport_2001, transport_2006,
+#                             transport_2011, transport_2016, licence_df)
 
-    licence_df = merge_data(workplace_2001, workplace_2006,
-                            workplace_2011, workplace_2016, licence_df)
+#     licence_df = merge_data(workplace_2001, workplace_2006,
+#                             workplace_2011, workplace_2016, licence_df)
 
-    licence_df = merge_data(education_2001, education_2006,
-                            education_2011, education_2016, licence_df)
+#     licence_df = merge_data(education_2001, education_2006,
+#                             education_2011, education_2016, licence_df)
 
-    licence_df = merge_data(im_birth_2001, im_birth_2006,
-                            im_birth_2011, im_birth_2016, licence_df)
+#     licence_df = merge_data(im_birth_2001, im_birth_2006,
+#                             im_birth_2011, im_birth_2016, licence_df)
 
     # save to a new csv
     licence_df.rename(columns={'Geo Local Area': 'LocalArea'}).to_csv(

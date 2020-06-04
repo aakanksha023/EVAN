@@ -1788,10 +1788,8 @@ def clean_occupation(census_dict, year, file_path):
 
     elif year == 2011:
         df = pd.read_csv(
-            'data/processed/nhs/Occupation.csv', index_col=0)
-
-        df = pd.concat(
-            (df.iloc[:, [14, 0, 11, 12]], df.iloc[:, 1:11]), axis=1)
+            'data/processed/nhs/Occupation.csv', index_col=0
+        ).iloc[:, [14, 0, 6, 5, 7, 8, 9, 10, 11, 12, 13, 2, 3, 4]]
 
     elif year == 2016:
         total = census_dict['Total labour force population aged 15 years and over by occupation - National Occupational Classification (NOC) 2016 - 25% sample data']
