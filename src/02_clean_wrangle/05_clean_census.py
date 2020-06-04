@@ -1709,7 +1709,6 @@ def clean_transport_mode(census_dict, year, file_path):
 
             male.insert(1, 'Type', 'Male')
             female.insert(1, 'Type', 'Female')
-        
         else:
             if year == 2001:
                 male = census_dict['Males with a usual place of work or no fixed workplace address']
