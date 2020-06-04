@@ -1714,7 +1714,6 @@ def clean_transport_mode(census_dict, year, file_path):
                 male = census_dict['Males with a usual place of work or no fixed workplace address']
             else:
                 male = census_dict['Males with usual place of work or no fixed workplace address']
-                
             female = census_dict['Females with usual place of work or no fixed workplace address']
                 
             male.insert(1, 'Type', 'Male')
