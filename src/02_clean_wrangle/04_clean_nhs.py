@@ -50,7 +50,7 @@ def main(nhs_zip, ct_bound_zip, nhs_file, ct_file, area_file, file_path):
 
     # extract and read boundary data from zip file
     z = zipfile.ZipFile(ct_bound_zip)
-    z.extractall(path="../../data/raw/")
+    z.extractall(path="data/raw/")
     nhs_boundaries = gpd.read_file(ct_file)
 
     # read in local areas boundaries

@@ -82,7 +82,7 @@ python3 src/02_clean_wrangle/05_clean_census.py --census_file="data/raw/census_2
 # train set
 python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
 --save_to1="data/processed/04_combined_train.csv" \
---save_to2="data/processed/paking_meter_vis.csv" \
+--save_to2="data/processed/parking_meter_vis.csv" \
 --save_to3="data/processed/disability_parking_vis.csv" \
 --save_to4="data/processed/train_licence_vis.csv"
 ```

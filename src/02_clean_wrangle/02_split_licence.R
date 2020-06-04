@@ -53,6 +53,7 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
     arrange(business_id, IssuedDate)
 
   # save dataframe to csv
+  dir.create(filepath_out, showWarnings = FALSE)
   combined_grouped_df %>% write_csv(paste0(filepath_out, "/combined_licences.csv"))
 
   # split data in train, validation, and test sets

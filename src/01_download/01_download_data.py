@@ -46,6 +46,10 @@ def main(file_path, urls):
             continue
         else:
             print("Starting download for %s...\n"%file_name)
+        
+            # Create the data subdirectory if it doesn't exist
+            os.makedirs(file_path, exist_ok=True)
+       
             # create response object
             r = requests.get(url, stream=True)
 
