@@ -482,10 +482,9 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
                 dwel['Apartment, duplex'] + dwel[
                     'Apartment, building that has five or more storeys'
                 ])/dwel['Total']
-            dwel['dwelling_Other'] = (
-                dwel['Total'] - dwel[
+            dwel['dwelling_Other'] = 1 - dwel[
                     'dwelling_Apartment'] - dwel[
-                    'dwelling_House'])/dwel['Total']
+                    'dwelling_House']
 
         else:
             dwel['dwelling_Apartment'] = (dwel[
@@ -494,14 +493,14 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
             ] + dwel[
                 'Apartment, building that has fewer than five storeys'
             ])/dwel['Total']
-            dwel['dwelling_Other'] = (
-                dwel['Total'] - dwel[
-                    'dwelling_Apartment'] - dwel['dwelling_House'
-                                                 ])/dwel['Total']
+            dwel['dwelling_Other'] = 1 - dwel[
+                    'dwelling_Apartment'] - dwel[
+                    'dwelling_House']
 
         dwel = dwel[['LocalArea',
                      'dwelling_House',
-                     'dwelling_Apartment']]
+                     'dwelling_Apartment',
+                     'dwelling_Other']]
 
         dwel = fill_missing_year(dwel, start_year, end_year)
         return dwel
@@ -999,8 +998,8 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 #     licence_df = merge_data(minority_2001, minority_2006,
 #                             minority_2011, minority_2016, licence_df)
 
-#     licence_df = merge_data(dwelling_2001, dwelling_2006,
-#                             dwelling_2011, dwelling_2016, licence_df)
+    licence_df = merge_data(dwelling_2001, dwelling_2006,
+                            dwelling_2011, dwelling_2016, licence_df)
 
 #     licence_df = merge_data(shelter_2001, shelter_2006,
 #                             shelter_2011, shelter_2016, licence_df)
@@ -1037,8 +1036,8 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     # licence_df = merge_data(mobility_2001, mobility_2006,
     #                        mobility_2011, mobility_2016, licence_df)
 
-    licence_df = merge_data(occupation_2001, occupation_2006,
-                            occupation_2011, occupation_2016, licence_df)
+#     licence_df = merge_data(occupation_2001, occupation_2006,
+#                             occupation_2011, occupation_2016, licence_df)
 
 #     licence_df = merge_data(time_worked_2001, time_worked_2006,
 #                             time_worked_2011, time_worked_2016, licence_df)
