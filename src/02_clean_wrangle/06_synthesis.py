@@ -787,6 +787,8 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         col_lis = list(occ.columns)[4:]
         for col in col_lis:
             occ[col] = occ[col]/occ['total']
+            
+        occ = occ[occ.Type == "Total"]
 
         occ.drop(columns=['Type',
                           'All occupations',
