@@ -663,7 +663,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
 
     # save to a new csv
-    licence_df.to_csv(save_to1, index=False)
+    #licence_df.to_csv(save_to1, index=False)
     parking_meters_df.to_csv(save_to2, index=False)
     disability_parking_df.to_csv(save_to3, index=False)
     licence_vis_df.to_csv(save_to4, index=False)
