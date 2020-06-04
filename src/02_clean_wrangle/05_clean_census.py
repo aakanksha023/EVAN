@@ -1741,7 +1741,6 @@ def clean_transport_mode(census_dict, year, file_path):
         total['Type'] = ['total']*len(total)
 
         df = pd.concat([df, total])
-        
     df.set_axis(column_names, axis=1, inplace=True)
     df.sort_values(by=['LocalArea'], inplace=True)
     census_dict['transport_mode'] = df
