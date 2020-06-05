@@ -124,6 +124,16 @@ def main(file_path, mapping_csv, save_to):
     # Remove 2010 Winter games : Outlier
     df = df[df.BusinessIndustry != 'Historic']
 
+    #######################
+    # Reduce Dataset Size #
+    #######################
+
+    # 1. Drop null LocalArea
+    df = df[df.LocalArea.notnull()]
+
+    # 2. Remove BusinessIndustry = 'Real estate and rental and leasing'
+    df = df[~(df.BusinessIndustry == 'Real estate and rental and leasing')]
+
     # save to a new csv
     df.to_csv(save_to, index=False)
 
