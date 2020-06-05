@@ -20,6 +20,8 @@ from docopt import docopt
 import os
 import requests
 import re
+import progressbar
+
 
 opt = docopt(__doc__)
 
@@ -46,18 +48,25 @@ def main(file_path, urls):
             continue
         else:
             print("Starting download for %s...\n"%file_name)
-        
+
             # Create the data subdirectory if it doesn't exist
             os.makedirs(file_path, exist_ok=True)
-       
+
             # create response object
             r = requests.get(url, stream=True)
-
+            widgets = ["Progress: ",
+                       progressbar.DataSize(), "| ",
+                       progressbar.Timer()]
+            bar = progressbar.ProgressBar(widgets=widgets,
+                                          max_value=progressbar.UnknownLength)
+            value = 0
             # download started
             with open(os.path.join(file_path, file_name), 'wb') as f:
-                for chunk in r.iter_content(chunk_size=1024*1024):
+                for chunk in r.iter_content(chunk_size=64*1024):
                     if chunk:
                         f.write(chunk)
+                        value += len(chunk)
+                        bar.update(value)
 
             print("%s downloaded!\n"%file_name)
 
