@@ -1,0 +1,92 @@
+---
+title: "Data Dictionary"
+author: "Aakanksha Dimri"
+date: "28/05/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Busines License(s)
+
+| Variable | Description | Type & Scale | Unique/Range | Missing Value    | 
+|----------|-----------------------------------------------------------------------------|-----------------|--------|-----------------|
+|  Folder Year| First two characters of the Business Licence Number, representing the year issued| Numeric, Annual  | [1996,2020] |1|
+|  Number of Employees| Number of staff employed with the business   |   Numeric, Annual   |   [0,300,813]                  | 0  |
+|  Fee Paid |  Total amount of licence fee paid in Canadian dollars     |  Numeric, Annual   |   [-1,624 , 87,228]                  |  167147  |
+|  Licence RSN|  A unique identifier for a licence     |   Text    |   1,028,004                  | 0 |
+|  Licence Number|The number on the license plate that identifies the business that bears it. Could be used twice for different businesses|Text, Annual   |1,019,766 | 0 |
+|  Licence Revision Number| 2 digit field that represents the licence version. Note: 00 means the original version and this number increases as new revisions are created|  Text, Annual    |   6 | 3 |
+|  Status|  The five status of the licence (Issued, Pending, Cancelled, Gone out of business, Inactive)     |   Text, Annual |   6   | 0 |
+|  Business Name| The legal name for the business for government form and applications    |   Text    |   141,488                | 16,158 |
+|  Business Trade Name|  The name that the public sees (used for advertising) which could be different from a business name    |   Text |  62,264   | 620,869 |
+|  Business Type| Description of the business activity, usually in accordance with the definition in the Licence By-Law No. 4450|  Text  |224 | 0 |
+|  Business Subtype| Sub-category(s) of the main business type      |   Text    |   421                  | 549453 |
+|  Unit |  Official space identifier for a building    |   Text    |   2,945                  | 763,055 |
+|  Unit type |  Description of a location other than a house or building     |   Text    |   64                | 763,288 |
+|  House | The number assigned to an address     |   Text    |   8,237                  | 413,902 |
+
+### Census 
+
+Census data(sets) [2001, 2006, 2011, 2016] constitues a multitude of attributes, which can be broadly summarised under the following headings
+
+| Variable | Description | Type & Scale |  
+|---------------|-----------------------------------------------------------------------------|-----------------------|
+|  Age| Age of population; subdivided by sex and broader age groups| Numeric, 5 Year  | 
+|  Marital Status| Whether a person is living in a common-law union, the legal marital status of those not living in a common-law union| Categorical, 4 types |
+|  Household type| Whether they are census family households or non-census-family households| Categorical  | 
+|  Languages| Contains information on the first spoken language, proficiency in official languages (English, French)  | Categorical  |
+|  Income statistics| Total family income| Numeric, 5 Year| 
+|  Citizenship & Immigration| Constitues of citizenship status, Country of origin & years living in Canada| Categorical| 
+|  Educational attainment| Highest level of education that a person has successfully completed | Categorical, 3 types  |
+|  Occupation| Type of occupation according to Canadian Govt.| Categorical, 55 types  | 
+
+### Parking meters
+
+This dataset contains information on the rates and time limits for parking meters in the City.
+
+| Variable | Description | Type |  
+|--------------|-----------------------------------------------------------------------------|-----------------------|
+|  Geom | Spatial representation of parking location| geo shape  | 
+|  GEO Local Area| Mapping the parking zone address to the City's 22 local areas (also known as local planning areas)| Categorical| 
+|  Parking meters| Number of parlking meters at the 22 local neighbourhood level| Numeric  | 
+
+
+### Disability Parking
+
+Designated disability parking zones and disability meter spaces are located in commercial districts and high-density residential areas throughout Vancouver, with new spaces being added every year.
+
+| Variable | Description | Type |  
+|--------------|-----------------------------------------------------------------------------|-----------------------|
+|  Description| Type of parking Zone| Categorical, 7 Types  | 
+|  Geom | Spatial representation of parking location| geo shape  | 
+|  Location | Postal address of the parking space | Text  | 
+|  GEO Local Area| Mapping the parking zone address to the City's 22 local areas (also known as local planning areas)| Categorical| 
+
+### Vancouver unemployment rate
+
+This data is extracted from the annual survey: Labour force characteristics by census metropolitan area, Table  14-10-0096-01
+
+| Variable | Description | Type |
+|--------------|-----------------------------------------------------------------------------|-----------------------|
+|  REF_DATE | Year | Numeric [1997,2020]   | 
+|  Unemployment_rate | Annual unemployment rate for Vancouver for both sexes, 15 years and over| Numeric (%)  | 
+
+### Local area boundary
+
+This data set contains the boundaries for Vancouver city's 22 local areas (also known as local planning areas)
+
+| Variable | Description | Type |
+|--------------|-----------------------------------------------------------------------------|-----------------------|
+|  MAPID | Abbreviation for the official name of the local Area | Text  | 
+|  Name | Official name of the local Area | Text  |
+|  Geom | Spatial representation of the local Area | geo shape  |
+
+
+
+
+
+
+
