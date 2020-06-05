@@ -24,18 +24,27 @@ Options:
   # filename_1 = 'licence_1997_2012.csv'
   # filename_2 = 'licence_2013_current.csv'
 
-library(tidyverse)
-library(docopt)
-library(data.table)
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(docopt)
+  library(data.table)})
 set.seed(2020)
 
 opt <- docopt(doc)
 
 main <- function(filepath_in, filepath_out, filename_1, filename_2) {
-
+  
+  # initialize progress bar 
+  bar = txtProgressBar(max = 10, style = 3)
+  setTxtProgressBar(bar, 0)
+  
   # open raw csv files
-  csv1 <- read_delim(paste0(filepath_in, "/", filename_1), delim = ";")
-  csv2 <- read_delim(paste0(filepath_in, "/", filename_2), delim = ";")
+  csv1 <- (read_delim(paste0(filepath_in, "/", filename_1), delim = ";")) %>% 
+    suppressWarnings()
+  setTxtProgressBar(bar, 1)
+  csv2 <- suppressWarnings(read_delim(paste0(filepath_in, "/", filename_2), delim = ";")) %>% 
+    suppressWarnings()
+  setTxtProgressBar(bar, 2)
 
   # combine the raw csv datasets
   combined_df <- csv1 %>% rbind(csv2)
@@ -44,6 +53,7 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
   combined_grouped_df <- combined_df %>%
     group_by(BusinessName, PostalCode, LocalArea, City, BusinessTradeName) %>%
     mutate(business_id = group_indices())
+  setTxtProgressBar(bar, 3)
 
   # reorder columns
   combined_grouped_df <- combined_grouped_df[, c(25, 1:24)]
@@ -51,10 +61,12 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
   # arrange dataset by business_id
   combined_grouped_df <- combined_grouped_df %>%
     arrange(business_id, IssuedDate)
+  setTxtProgressBar(bar, 4)
 
   # save dataframe to csv
   dir.create(filepath_out, showWarnings = FALSE)
   combined_grouped_df %>% write_csv(paste0(filepath_out, "/combined_licences.csv"))
+  setTxtProgressBar(bar, 5)
 
   # split data in train, validation, and test sets
   ids <- unique(combined_grouped_df$business_id)
@@ -63,19 +75,25 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
   test_valid_ids <- setdiff(1:length(ids), train_ids)
   test_ids <- sample(test_valid_ids, 0.7 * length(test_valid_ids), replace = FALSE)
   valid_ids <- setdiff(test_valid_ids, test_ids)
+  setTxtProgressBar(bar, 6)
   
   dt <- as.data.table(combined_grouped_df)
   train_dt <- dt %>%
     filter(business_id %in% train_ids)
+  setTxtProgressBar(bar, 7)
   valid_dt <- dt %>%
     filter(business_id %in% valid_ids)
+  setTxtProgressBar(bar, 8)
   test_dt <- dt %>%
     filter(business_id %in% test_ids)
+  setTxtProgressBar(bar, 9)
 
   # write csv files to filepath
   write_csv(train_dt, paste0(filepath_out, "/train.csv"))
   write_csv(valid_dt, paste0(filepath_out, "/validate.csv"))
   write_csv(test_dt, paste0(filepath_out, "/test.csv"))
+  setTxtProgressBar(bar, 10)
+  close(bar)
 }
 
 main(opt$filepath_in, opt$filepath_out, opt$filename_1, opt$filename_2)

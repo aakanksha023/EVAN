@@ -126,6 +126,7 @@ python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/0
 - numpy
 - os
 - pandas 
+- progressbar2
 - re
 - requests
 - seaborn
