@@ -1366,7 +1366,7 @@ def clean_time_worked(census_dict, year, file_path):
                    'Total population 15 years and over with employment income, by sex and work activity',
                    'Worked full year, full time',
                    'Worked part year or part time']].copy()
-        df1.insert(1, 'Type', 'total')
+        df1.insert(1, 'Type', 'Total')
         df1.set_axis(col_names, axis=1, inplace=True)
         df1['Worked partially full time and partially part time'] = df1['Population 15 years and over by work activity'] - df1['full time']-df1['part time']
 
@@ -1422,7 +1422,7 @@ def clean_time_worked(census_dict, year, file_path):
                    'full time', 'part time']].copy()
         df1.insert(1, 'Type', 'female')
         df2.insert(1, 'Type', 'male')
-        df3.insert(1, 'Type', 'total')
+        df3.insert(1, 'Type', 'Total')
         merged = pd.concat([df3, df2, df1])
         merged['Worked partially full time and partially part time'] = merged['Population 15 years and over by work activity'] - merged['full time'] - merged['part time']
     
@@ -1455,7 +1455,7 @@ def clean_time_worked(census_dict, year, file_path):
                    'Worked part year and/or part time',
                    'Worked partially full time and partially part time']].copy()
         df1.set_axis(col_names, axis=1, inplace=True)
-        df1.insert(1, 'Type', 'total')
+        df1.insert(1, 'Type', 'Total')
 
         # Male
         df2['Worked partially full time and partially part time'] = df2['Males aged 15 years and over by work activity during the reference year - 25% sample data']-df2['Did not work']-df2['Worked']
@@ -1738,7 +1738,7 @@ def clean_transport_mode(census_dict, year, file_path):
         df = pd.concat([male, female])
 
         total = df.groupby(['LocalArea']).sum().reset_index()
-        total['Type'] = ['total']*len(total)
+        total['Type'] = ['Total']*len(total)
 
         df = pd.concat([df, total])
     df.set_axis(column_names, axis=1, inplace=True)

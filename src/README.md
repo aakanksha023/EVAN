@@ -28,22 +28,22 @@ Rscript src/02_clean_wrangle/02_split_licence.R --filepath_in="data/raw" \
 
 # train set
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/train.csv" \
---mapping_csv="src/01_download/business_mapping_dictionary.csv" \
+--mapping_csv="src/02_clean_wrangle/business_mapping_dictionary.csv" \
 --save_to="data/processed/03_train_cleaned.csv"
 
 # validation set
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/validate.csv" \
---mapping_csv="src/01_download/business_mapping_dictionary.csv" \
+--mapping_csv="src/02_clean_wrangle/business_mapping_dictionary.csv" \
 --save_to="data/processed/03_validate_cleaned.csv"
 
 # test set
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/test.csv" \
---mapping_csv="src/01_download/business_mapping_dictionary.csv" \
+--mapping_csv="src/02_clean_wrangle/business_mapping_dictionary.csv" \
 --save_to="data/processed/03_test_cleaned.csv"
 
 # combined dataset (train+validation+test)
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/combined_licences.csv" \
---mapping_csv="src/01_download/business_mapping_dictionary.csv" \
+--mapping_csv="src/02_clean_wrangle/business_mapping_dictionary.csv" \
 --save_to="data/processed/03_combined_licences_cleaned.csv"
 
 # 4. 04_clean_nhs.py
