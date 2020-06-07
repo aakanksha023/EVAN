@@ -2,12 +2,12 @@
 # date: 2020-05-21
 
 """
-This script performs data wrangling and sythesis for multiple csv
+This script performs data wrangling and synthesis for multiple csv
 and saves it to a specified file path. The input licence data needs to
-be the output of 03_clean_wrangle.py script. The ouput will be feeding into
+be the output of 03_clean_wrangle.py script. The output will be feeding into
 machine learning algorithm and visualization.
 
-Usage: src/02_clean_wrangle/06_sythesis.py --file_path=<file_path>  \
+Usage: src/02_clean_wrangle/06_synthesis.py --file_path=<file_path>  \
 --save_to1=<save_to1> --save_to2=<save_to2> \
 --save_to3=<save_to3> --save_to4=<save_to4>
 
@@ -27,11 +27,9 @@ Options:
 # load packages
 from docopt import docopt
 import pandas as pd
-import numpy as np
 import zipfile
 import json
 import re
-from datetime import datetime
 
 
 opt = docopt(__doc__)
@@ -226,7 +224,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
             df: The expanded dataframe
 
         """
-        
+
         df = df[~((
             df.LocalArea == 'Vancouver CMA') | (
             df.LocalArea == 'Vancouver CSD'))]
@@ -249,7 +247,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         This function cleans the family census data
         Args:
             family (pandas dataframe): The dataframe for family data
-            start_year (int): The four digit strat year
+            start_year (int): The four digit start year
             end_year (int): The four digit end year, note end year not included
 
         Returns:
@@ -289,7 +287,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         This function cleans the language census data
         Args:
             language (pandas dataframe): The dataframe for language data
-            start_year (int): The four digit strat year
+            start_year (int): The four digit start year
             end_year (int): The four digit end year, note end year not included
 
         Returns:
@@ -334,7 +332,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         This function cleans the marital census data
         Args:
             marital (pandas dataframe): The dataframe for language data
-            start_year (int): The four digit strat year
+            start_year (int): The four digit start year
             end_year (int): The four digit end year, note end year not included
 
         Returns:
@@ -347,7 +345,8 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
             marital['Total population 15 years and over']
         marital[
             'Not living with a married spouse or common-law partner'] = \
-            marital['Not living with a married spouse or common-law partner'] / \
+            marital[
+                'Not living with a married spouse or common-law partner'] / \
             marital['Total population 15 years and over']
 
         if start_year == 2007 or start_year == 2012:
@@ -371,7 +370,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         This function cleans the marital census data
         Args:
             age (pandas dataframe): The dataframe for population data
-            start_year (int): The four digit strat year
+            start_year (int): The four digit start year
             end_year (int): The four digit end year, note end year not included
 
         Returns:
@@ -440,7 +439,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
     # visible minority
     def clean_minority(mino, start_year, end_year):
-        
+
         if start_year == 2007:
             mino = mino[mino.Type == 'Total']
 
@@ -563,7 +562,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
     # immigrates_period
     def clean_imgra_period(im_p, start_year, end_year):
-        # please note that start year should only be 1997 or 2002 or 2007 or 2012
+        # note that start year should only be 1997 or 2002 or 2007 or 2012
         if start_year == 1997:
             col_names = ['LocalArea',
                          'Total immigrant population',
@@ -596,7 +595,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
         else:
             print(
-                'Invalid start year. A valid start year should be 1997 or 2002 or 2007 or 2012')
+                'Invalid start year. Valid years are: 1997, 2002, 2007, 2012')
 
         im_p['Immigrates'] = im_p[
             'Immigrates'] / im_p['Total immigrant population']
@@ -607,21 +606,21 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         im_p = fill_missing_year(im_p, start_year, end_year)
         return im_p
 
-    #imgra_period_2001 = clean_imgra_period(imgra_period_2001, 1997, 2002)
-    #imgra_period_2006 = clean_imgra_period(imgra_period_2006, 2002, 2007)
+    # imgra_period_2001 = clean_imgra_period(imgra_period_2001, 1997, 2002)
+    # imgra_period_2006 = clean_imgra_period(imgra_period_2006, 2002, 2007)
     # note this is not an error, intentional using 2016
-    #imgra_period_2011 = clean_imgra_period(imgra_period_2016, 2007, 2012)
-    #imgra_period_2016 = clean_imgra_period(imgra_period_2016, 2012, 2020)
+    # imgra_period_2011 = clean_imgra_period(imgra_period_2016, 2007, 2012)
+    # imgra_period_2016 = clean_imgra_period(imgra_period_2016, 2012, 2020)
 
     # citizenship
     def clean_citizen(citizen, start_year, end_year):
 
         if start_year == 2007:
             citizen = citizen[citizen['Unnamed: 0'] == 0]
-            
+
         if start_year == 1997:
             citizen = citizen.rename(
-                columns={'Canadian Citizenship': 'Canadian citizens', 
+                columns={'Canadian Citizenship': 'Canadian citizens',
                          'Citizenship other than Canadian': 'Not Canadian citizens'})
 
         citizen['total'] = citizen[
@@ -672,14 +671,15 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
                      '4 persons': '4 to 5 persons household',
                      '5 or more persons': '6 or more persons household',
                      '4 to 5 persons': '4 to 5 persons household',
-                     '6 or more persons': '6 or more persons household'}, inplace=True)
+                     '6 or more persons': '6 or more persons household'},
+                     inplace=True)
 
         house_size = house_size[[
             'LocalArea', '1 person household',
             '2 persons household', '3 persons household',
             '4 to 5 persons household',
             '6 or more persons household']]
-        
+
         house_size = fill_missing_year(house_size, start_year, end_year)
         return house_size
 
@@ -695,15 +695,15 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
                 i]/house_type[house_type.columns[2]]
 
         house_type = house_type.iloc[:, [1, 3, 4, 5]]
-        
+
         house_type.columns = ['LocalArea',
                               'One-family households',
                               'Multiple-family households',
                               'Non-family households']
-        
+
         house_type = fill_missing_year(house_type, start_year, end_year)
         return house_type
-    
+
     household_type_2001 = clean_household_type(household_type_2001, 1997, 2002)
     household_type_2006 = clean_household_type(household_type_2006, 2002, 2007)
     household_type_2011 = clean_household_type(household_type_2011, 2007, 2012)
@@ -734,11 +734,11 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         img_age = fill_missing_year(img_age, start_year, end_year)
         return img_age
 
-    #imgra_age_2001 = imgra_age_2006.copy()
-    #imgra_age_2001 = clean_imgra_age(imgra_age_2001, 2002, 2007)
-    #imgra_age_2006 = clean_imgra_age(imgra_age_2006, 2002, 2007)
-    #imgra_age_2011 = clean_imgra_age(imgra_age_2011, 2007, 2012)
-    #imgra_age_2016 = clean_imgra_age(imgra_age_2016, 2012, 2020)
+    # imgra_age_2001 = imgra_age_2006.copy()
+    # imgra_age_2001 = clean_imgra_age(imgra_age_2001, 2002, 2007)
+    # imgra_age_2006 = clean_imgra_age(imgra_age_2006, 2002, 2007)
+    # imgra_age_2011 = clean_imgra_age(imgra_age_2011, 2007, 2012)
+    # imgra_age_2016 = clean_imgra_age(imgra_age_2016, 2012, 2020)
 
     # industry
     def clean_industry(ind, start_year, end_year):
@@ -813,7 +813,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         col_lis = list(occ.columns)[4:]
         for col in col_lis:
             occ[col] = occ[col]/occ['total']
-            
+
         occ = occ[occ.Type == "Total"]
 
         occ.drop(columns=['Type',
@@ -938,7 +938,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
     # birth place
     def clean_im_birth(im_birth, start_year, end_year):
-        
+
         if start_year == 2007:
             im_birth = im_birth.query('Type == "Total"')
 
@@ -962,7 +962,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     im_birth_2006 = clean_im_birth(im_birth_2006, 2002, 2007)
     im_birth_2011 = clean_im_birth(im_birth_2011, 2007, 2012)
     im_birth_2016 = clean_im_birth(im_birth_2016, 2012, 2020)
-    
+
     #################
     # Visualization #
     #################
@@ -983,47 +983,47 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
         lambda p: json.loads(p)['coordinates'][0])
     licence_vis_df["coord-y"] = licence_vis_df['Geom'].apply(
         lambda p: json.loads(p)['coordinates'][1])
-    
+
     ###################################
     # Insert Cleaning (for modelling) #
     ###################################
-    
+
     # 1. Remove status != Issued
     licence_df = licence_df[licence_df.Status == 'Issued']
-    
+
     # 2. Filter out unused columns
     cols_not_used = ['business_id',
-                     'LicenceRSN', 
-                     'LicenceNumber', 
+                     'LicenceRSN',
+                     'LicenceNumber',
                      'LicenceRevisionNumber',
-                     'BusinessName', 
+                     'BusinessName',
                      'BusinessTradeName',
                      'BusinessType',
                      'BusinessSubType',
-                     'Status', 
-                     'IssuedDate', 
+                     'Status',
+                     'IssuedDate',
                      'ExpiredDate',
-                     'Unit', 
-                     'UnitType', 
+                     'Unit',
+                     'UnitType',
                      'House',
-                     'Street', 
-                     'City', 
+                     'Street',
+                     'City',
                      'Province',
-                     'Country', 
-                     'PostalCode', 
+                     'Country',
+                     'PostalCode',
                      'ExtractDate',
                      'Geom',
                      'NextYearStatus']
-    
+
     licence_df = licence_df.drop(columns=cols_not_used)
-    
+
     # 3. Remove null BusinessIndustry
     licence_df = licence_df[licence_df.BusinessIndustry.notnull()]
 
     ################
     # Synthesizing #
     ################
-    
+
     # synthesis merging function
     def merge_data(df1, df2, df3, df4, licence_df):
 
@@ -1038,7 +1038,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     # combine two parking
     final_parking_df = meter_count_df.merge(
         area_count_df, on='Geo Local Area', how='outer')
-    
+
     # combine with licence
     licence_df.rename(columns={'LocalArea': 'Geo Local Area'}, inplace=True)
     licence_df = licence_df.merge(
@@ -1054,10 +1054,10 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
     # combine with census data
     licence_df = merge_data(family_2001, family_2006,
-                           family_2011, family_2016, licence_df)
+                            family_2011, family_2016, licence_df)
 
     licence_df = merge_data(language_2001, language_2006,
-                             language_2011, language_2016, licence_df)
+                            language_2011, language_2016, licence_df)
 
     licence_df = merge_data(marital_2001, marital_2006,
                             marital_2011, marital_2016, licence_df)
@@ -1089,12 +1089,12 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     licence_df = merge_data(generation_2001, generation_2006,
                             generation_2011, generation_2016, licence_df)
 
-    licence_df = merge_data(household_size_2001, 
+    licence_df = merge_data(household_size_2001,
                             household_size_2006,
                             household_size_2011,
                             household_size_2016, licence_df)
 
-    licence_df = merge_data(household_type_2001, 
+    licence_df = merge_data(household_type_2001,
                             household_type_2006,
                             household_type_2011,
                             household_type_2016, licence_df)
@@ -1109,7 +1109,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
                             labour_2011, labour_2016, licence_df)
 
     licence_df = merge_data(mobility_2001, mobility_2006,
-                           mobility_2011, mobility_2016, licence_df)
+                            mobility_2011, mobility_2016, licence_df)
 
     licence_df = merge_data(occupation_2001, occupation_2006,
                             occupation_2011, occupation_2016, licence_df)
