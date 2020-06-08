@@ -753,7 +753,7 @@ def main(path_in, path_out, area_file):
     for year in list_years:
         directory = path_in + "_" + str(year)
         for entry in os.scandir(directory):
-            if entry.name not in excluded and entry.is_file:
+            if entry.name not in excluded and entry.is_file():
                 general_file = os.path.splitext(entry.name)[0]
                 file_name = (general_file + "_" + str(year))
 
@@ -767,7 +767,7 @@ def main(path_in, path_out, area_file):
                 elif file_name == "immigration_age_2001":
                     df = pd.read_csv(path_in + "_2006/immigration_age.csv")
                 else:
-                    df = pd.read_csv(entry.path)
+                    df = pd.read_csv(entry.path, engine='python')
                 # remove non-neighbourhoods from local areas
                 df = df[~((df.LocalArea == 'Vancouver CMA') | (
                         df.LocalArea == 'Vancouver CSD'))]
@@ -786,8 +786,8 @@ def main(path_in, path_out, area_file):
 
     # read in local areas boundaries
     total_df = gpd.read_file(area_file)
-    total_df.drop(columns=['mapid'], inplace=True)
-    total_df.columns = ['LocalArea', 'geometry']
+    total_df.drop(columns=['mapid', 'geometry'], inplace=True)
+    total_df.columns = ['LocalArea']
     total_df = pd.concat([total_df]*len(list_years))
     total_df.reset_index(drop=True, inplace=True)
     total_df['Year'] = 0
