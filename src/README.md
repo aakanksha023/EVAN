@@ -107,6 +107,11 @@ python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/0
 
 **Part 4: Visualization**
 ```{bash}
+# 8. census_vis_synthesis.py
+
+python3 src/04_visualization/census_vis_synthesis.py --path_in="data/processed/census" \
+--path_out="data/processed/census_viz.csv" \
+--area_file="data/raw/local_area_boundary.geojson"
 
 ```
 
