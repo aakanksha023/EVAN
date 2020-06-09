@@ -81,10 +81,7 @@ python3 src/02_clean_wrangle/05_clean_census.py --census_file="data/raw/census_2
 
 # train set
 python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
---save_to1="data/processed/04_combined_train.csv" \
---save_to2="data/processed/parking_meter_vis.csv" \
---save_to3="data/processed/disability_parking_vis.csv" \
---save_to4="data/processed/train_licence_vis.csv"
+--save_to="data/processed/04_combined_train.csv"
 ```
 
 **Part 3: Modelling**
@@ -112,6 +109,12 @@ python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/0
 python3 src/04_visualization/census_vis_synthesis.py --path_in="data/processed/census" \
 --path_out="data/processed/census_viz.csv" \
 --area_file="data/raw/local_area_boundary.geojson"
+
+# 9. licence_vis_synthesis.py
+python3 src/04_visualization/licence_vis_synthesis.py
+
+# 10. app.py
+python3 app.py
 
 ```
 

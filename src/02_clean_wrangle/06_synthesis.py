@@ -4,24 +4,17 @@
 """
 This script performs data wrangling and synthesis for multiple csv
 and saves it to a specified file path. The input licence data needs to
-be the output of 03_clean_wrangle.py script. The output will be feeding into
-machine learning algorithm and visualization.
+be the output of 03_clean_wrangle.py script. The ouput will be feeding into
+machine learning algorithm.
 
-Usage: src/02_clean_wrangle/06_synthesis.py --file_path=<file_path>  \
---save_to1=<save_to1> --save_to2=<save_to2> \
---save_to3=<save_to3> --save_to4=<save_to4>
+Usage: src/02_clean_wrangle/06_sythesis.py --file_path=<file_path>  \
+--save_to=<save_to> 
 
 Options:
 --file_path=<file_path>         A txt file storing two-dimensional array,
                                     specifing the file path for input dataset.
---save_to1=<save_to1>           This is the file path the processed training
+--save_to=<save_to>           This is the file path the processed training
                                     csv will be saved to
---save_to2=<save_to2>           This is the file path the parking
-                                    meters for visualization will be saved to
---save_to3=<save_to3>           This is the file path the disability parking
-                                    for visualization will be saved to
---save_to4=<save_to4>           This is the file path the licence data for
-                                    visualization will be saved to
 """
 
 # load packages
@@ -35,7 +28,7 @@ import re
 opt = docopt(__doc__)
 
 
-def main(file_path, save_to1, save_to2, save_to3, save_to4):
+def main(file_path, save_to):
 
     # read files
 
@@ -153,16 +146,6 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     # suppress warning
     pd.options.mode.chained_assignment = None
 
-    # read from zip file
-    vancouver_zip_path = file_lis[3]
-    with zipfile.ZipFile(vancouver_zip_path, "r") as z:
-        with z.open("14100096.csv") as f:
-            vancouver_employment = pd.read_csv(f, header=0, delimiter=",")
-
-    bc_zip_path = file_lis[4]
-    with zipfile.ZipFile(bc_zip_path, "r") as z:
-        with z.open("14100327.csv") as f:
-            bc_employment = pd.read_csv(f, header=0, delimiter=",")
 
     # clean
 
@@ -183,30 +166,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     parking_meters_df = parking_meters_df.merge(
         meter_count_df, on='Geo Local Area', how='left')
 
-    # Clean bc employmentd data, only need 1997-2000 as subsitude for vancouver
-    bc_unemployment = bc_employment[
-        (bc_employment['GEO'] == 'British Columbia') &
-        (bc_employment['Labour force characteristics'] ==
-         'Unemployment rate') &
-        (bc_employment['REF_DATE'] < 2001) &
-        (1996 < bc_employment['REF_DATE']) &
-        (bc_employment['UOM'] == 'Percentage') &
-        (bc_employment['Age group'] == '15 years and over') &
-        (bc_employment['Sex'] == 'Both sexes')][['REF_DATE', 'VALUE']]
-
-    # clean Vancouver data, since BC level only have unemployment,
-    # use unemployment rate note unemployment+employment !=1
-    vancouver_unemployment = vancouver_employment[
-        (vancouver_employment['GEO'] == 'Vancouver, British Columbia') &
-        (vancouver_employment[
-            'Labour force characteristics'] == 'Unemployment rate') &
-        (vancouver_employment['Sex'] == 'Both sexes') &
-        (vancouver_employment['UOM'] == 'Percentage') &
-        (vancouver_employment[
-            'Age group'] == '15 years and over')][['REF_DATE', 'VALUE']]
-
-    unemployment_rate = pd.concat([bc_unemployment, vancouver_unemployment])
-
+    
     ###############
     # Census Data #
     ###############
@@ -962,28 +922,7 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
     im_birth_2006 = clean_im_birth(im_birth_2006, 2002, 2007)
     im_birth_2011 = clean_im_birth(im_birth_2011, 2007, 2012)
     im_birth_2016 = clean_im_birth(im_birth_2016, 2012, 2020)
-
-    #################
-    # Visualization #
-    #################
-
-    # wrangle the Geom into coordinates
-    parking_meters_df["coord-x"] = parking_meters_df['Geom'].apply(
-        lambda p: json.loads(p)['coordinates'][0])
-    parking_meters_df["coord-y"] = parking_meters_df['Geom'].apply(
-        lambda p: json.loads(p)['coordinates'][1])
-    disability_parking_df["coord-x"] = disability_parking_df['Geom'].apply(
-        lambda p: json.loads(p)['coordinates'][0])
-    disability_parking_df["coord-y"] = disability_parking_df['Geom'].apply(
-        lambda p: json.loads(p)['coordinates'][1])
-
-    # filter out point without Geom location
-    licence_vis_df = licence_df[~licence_df['Geom'].isnull()]
-    licence_vis_df["coord-x"] = licence_vis_df['Geom'].apply(
-        lambda p: json.loads(p)['coordinates'][0])
-    licence_vis_df["coord-y"] = licence_vis_df['Geom'].apply(
-        lambda p: json.loads(p)['coordinates'][1])
-
+    
     ###################################
     # Insert Cleaning (for modelling) #
     ###################################
@@ -1046,11 +985,6 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
     # change folderyear to be int
     licence_df = licence_df.astype({'FOLDERYEAR': 'int'})
-    unemployment_rate.rename(
-        columns={'REF_DATE': 'FOLDERYEAR',
-                 'VALUE': 'Unemployment_rate'}, inplace=True)
-    licence_df = licence_df.merge(
-        unemployment_rate, on='FOLDERYEAR', how='left')
 
     # combine with census data
     licence_df = merge_data(family_2001, family_2006,
@@ -1131,12 +1065,9 @@ def main(file_path, save_to1, save_to2, save_to3, save_to4):
 
     # save to a new csv
     licence_df.rename(columns={'Geo Local Area': 'LocalArea'}).to_csv(
-        save_to1, index=False)
-    parking_meters_df.to_csv(save_to2, index=False)
-    disability_parking_df.to_csv(save_to3, index=False)
-    licence_vis_df.to_csv(save_to4, index=False)
+        save_to, index=False)
+   
 
 
 if __name__ == "__main__":
-    main(opt["--file_path"], opt["--save_to1"],
-         opt["--save_to2"], opt["--save_to3"], opt["--save_to4"])
+    main(opt["--file_path"], opt["--save_to"])
