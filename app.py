@@ -53,6 +53,8 @@ for i in boundary['features']:
 # Info and wrangling #
 ######################
 
+licence = licence[licence.Status == 'Issued']
+
 industries = licence.BusinessIndustry.unique()
 localareas = boundary_df.LocalArea.unique()
 
