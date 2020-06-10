@@ -147,33 +147,56 @@ def main(path_in, path_out, area_file):
         """
         age = age[age['Type'] == 'total']
 
-        age['age below 20'] = (age[
+        age['Under 20'] = (age[
             '0 to 4 years'] + age[
             '5 to 9 years'] + age[
             '10 to 14 years'] + age[
-            '15 to 19 years']) / age['Total']
+            '15 to 19 years'])
 
-        age['age between 20 and 35'] = (age[
+        age['20 to 34'] = (age[
             '20 to 24 years'] + age[
             '25 to 29 years'] + age[
-            '30 to 34 years']) / age['Total']
+            '30 to 34 years'])
 
-        age['age between 35 and 60'] = (age[
+        age['35 to 44'] = (age[
             '35 to 39 years'] + age[
-            '40 to 44 years'] + age[
+            '40 to 44 years'])
+
+        age['45 to 54'] = (age[
             '45 to 49 years'] + age[
-            '50 to 54 years'] + age[
-            '55 to 59 years']) / age['Total']
+            '50 to 54 years'])
 
-        age['age above 60'] = 1 - (age[
-            'age below 20'] + age[
-            'age between 20 and 35'] + age[
-            'age between 35 and 60'])
+        age['55 to 64'] = (age[
+            '55 to 59 years'] + age[
+            '60 to 64 years'])
 
-        age = age[['LocalArea', 'age below 20',
-                   'age between 20 and 35',
-                   'age between 35 and 60',
-                   'age above 60']]
+        age['65 to 79'] = (age[
+            '65 to 69 years'] + age[
+            '70 to 74 years'] + age[
+            '75 to 79 years'])
+
+        if year in [2001, 2006]:
+
+            age['80 and Older'] = (age[
+                '80 to 84 years'] + age[
+                '85 to 89 years'] + age[
+                '90 to 94 years'] + age[
+                '95 to 99 years'] + age[
+                '100 years and over'])
+
+        elif year in [2011, 2016]:
+
+            age['80 and Older'] = (age[
+                '80 to 84 years'] + age[
+                '85 years and over'])
+
+        age = age[['LocalArea', 'Under 20',
+                   '20 to 34',
+                   '35 to 44',
+                   '45 to 54',
+                   '55 to 64',
+                   '65 to 79',
+                   '80 and Older']]
 
         return age
 
@@ -434,19 +457,19 @@ def main(path_in, path_out, area_file):
             house_size[col] = house_size[col] / house_size['Total households']
 
         house_size.rename(
-            columns={'1 person': '1 person household',
-                     '2 persons': '2 persons household',
-                     '3 persons': '3 persons household',
-                     '4 persons': '4 to 5 persons household',
-                     '5 or more persons': '6 or more persons household',
-                     '4 to 5 persons': '4 to 5 persons household',
-                     '6 or more persons': '6 or more persons household'},
+            columns={'1 person': '1 person',
+                     '2 persons': '2 persons',
+                     '3 persons': '3 persons',
+                     '4 persons': '4 to 5 persons',
+                     '5 or more persons': '6+ persons',
+                     '4 to 5 persons': '4 to 5 persons',
+                     '6 or more persons': '6+ persons'},
             inplace=True)
 
-        house_size = house_size[['LocalArea', '1 person household',
-                                 '2 persons household', '3 persons household',
-                                 '4 to 5 persons household',
-                                 '6 or more persons household']]
+        house_size = house_size[['LocalArea', '1 person',
+                                 '2 persons', '3 persons',
+                                 '4 to 5 persons',
+                                 '6+ persons']]
 
         return house_size
 
@@ -689,27 +712,49 @@ def main(path_in, path_out, area_file):
         """
 
         if year == 2001:
-            uni = education[
-                'Total population with postsecondary qualifications']
+            no_deg = education[
+                'population 20 years and over - Less than grade 9'] + education[
+                'population 20 years and over - Grades 9 to 13'] + education[
+                'population 20 years and over - Without High school diploma or equivalent']
+
+            high = education['population 20 years and over - High school diploma or equivalent']
+            trade = education['population 20 years and over - Apprenticeship or trades certificate or diploma']
+            college = education[
+                'population 20 years and over - College'] + education[
+                'population 20 years and over - College without certificate or diploma'] + education[
+                'population 20 years and over - College, CEGEP or other non-university certificate or diploma']
+
             total = education['Total population 20 years and over']
+
         elif year == 2006:
-            uni = education[
-                    'Total population 25 to 64 years with postsecondary qualifications']
+            no_deg = education['population aged 15 years and over - No certificate, diploma or degree']
+            high = education['population aged 15 years and over - High school certificate or equivalent']
+            trade = education['population aged 15 years and over - Apprenticeship or trades certificate or diploma']
+            college = education['population aged 15 years and over - College, CEGEP or other non-university certificate or diploma']
             total = education['Total population aged 15 years and over']
-        else:
-            uni = education[
-                    'population aged 15 years and over - Postsecondary certificate, diploma or degree']
+
+        elif year in [2011, 2016]:
+            no_deg = education['population aged 15 years and over - No certificate, diploma or degree']
+            high = education['population aged 15 years and over - High school diploma or equivalent']
+            trade = education['population aged 15 years and over - Apprenticeship or trades certificate or diploma']
+            college = education['population aged 15 years and over - College, CEGEP or other non-university certificate or diploma']
             total = education['Total population aged 15 years and over']
             if year == 2011:
                 education = education.query('Type == "Total"')
 
-        high_school = total - uni
-        education['education below postsecondary'] = high_school/total
-        education['education above postsecondary'] = uni/total
+        uni = total - no_deg - high - trade - college
+        education['No certificate/diploma'] = no_deg/total
+        education['High school'] = high/total
+        education['Apprenticeship/Trades'] = trade/total
+        education['College'] = college/total
+        education['University'] = uni/total
 
         education = education[['LocalArea',
-                               'education below postsecondary',
-                               'education above postsecondary']]
+                               'No certificate/diploma',
+                               'High school',
+                               'Apprenticeship/Trades',
+                               'College',
+                               'University']]
 
         return education
 
@@ -753,7 +798,7 @@ def main(path_in, path_out, area_file):
     for year in list_years:
         directory = path_in + "_" + str(year)
         for entry in os.scandir(directory):
-            if entry.name not in excluded and entry.is_file:
+            if entry.name not in excluded and entry.is_file():
                 general_file = os.path.splitext(entry.name)[0]
                 file_name = (general_file + "_" + str(year))
 
@@ -786,8 +831,8 @@ def main(path_in, path_out, area_file):
 
     # read in local areas boundaries
     total_df = gpd.read_file(area_file)
-    total_df.drop(columns=['mapid'], inplace=True)
-    total_df.columns = ['LocalArea', 'geometry']
+    total_df.drop(columns=['mapid', 'geometry'], inplace=True)
+    total_df.columns = ['LocalArea']
     total_df = pd.concat([total_df]*len(list_years))
     total_df.reset_index(drop=True, inplace=True)
     total_df['Year'] = 0
