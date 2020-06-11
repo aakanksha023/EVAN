@@ -896,4 +896,4 @@ def update_size(clickData):
     return size_fig
 
 
-app.run_server(debug=False)
+app.run_server(debug=True)
