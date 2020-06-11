@@ -50,6 +50,10 @@ def main(path_in, path_out, area_file):
         """
 
         family = family[family['Type'] == 'total couples']
+        van_total = family.sum()
+        van_total['LocalArea'] = 'Metro Vancouver'
+        van_total['Type'] = 'total couples'
+        family = family.append(van_total, ignore_index=True)
 
         family['Without children at home'] = family[
             'Without children at home']/family['Total']
@@ -82,6 +86,11 @@ def main(path_in, path_out, area_file):
 
         # only keeping their mother tongue
         language = language[language['Type'] == 'mother tongue - total']
+
+        van_total = language.sum()
+        van_total['LocalArea'] = 'Metro Vancouver'
+        van_total['Type'] = 'mother tongue - total'
+        language = language.append(van_total, ignore_index=True)
 
         cols = ['English', 'French', 'Chinese, n.o.s.',
                 'Mandarin', 'Cantonese', 'Italian',
@@ -127,6 +136,10 @@ def main(path_in, path_out, area_file):
 
         if year == 2011 or year == 2016:
             marital = marital.query('Type == "total"')
+            van_total = marital.sum()
+            van_total['LocalArea'] = 'Metro Vancouver'
+            van_total['Type'] = 'total'
+            marital = marital.append(van_total, ignore_index=True)
 
         marital = marital[[
             'LocalArea',
@@ -146,6 +159,10 @@ def main(path_in, path_out, area_file):
             age: A cleaned pandas dataframe
         """
         age = age[age['Type'] == 'total']
+        van_total = age.sum()
+        van_total['LocalArea'] = 'Metro Vancouver'
+        van_total['Type'] = 'total'
+        age = age.append(van_total, ignore_index=True)
 
         age['Under 20'] = (age[
             '0 to 4 years'] + age[
@@ -237,6 +254,10 @@ def main(path_in, path_out, area_file):
 
         if year == 2011:
             mino = mino[mino.Type == 'Total']
+            van_total = mino.sum()
+            van_total['LocalArea'] = 'Metro Vancouver'
+            van_total['Type'] = 'Total'
+            mino = mino.append(van_total, ignore_index=True)
 
         mino = mino[['LocalArea', 'Not a visible minority',
                      'Total visible minority population']]
@@ -321,6 +342,10 @@ def main(path_in, path_out, area_file):
 
         if year == 2011:
             shel = shel.query('Type == "Total"')
+            van_total = shel.sum()
+            van_total['LocalArea'] = 'Metro Vancouver'
+            van_total['Type'] = 'Total'
+            shel = shel.append(van_total, ignore_index=True)
 
         shel['Owned_Rented'] = shel['Owned'] + shel['Rented']
         shel['Owned shelter'] = shel['Owned'] / shel['Owned_Rented']
@@ -401,6 +426,10 @@ def main(path_in, path_out, area_file):
 
         if year == 2011:
             citizen = citizen[citizen['Unnamed: 0'] == 0]
+            van_total = citizen.sum()
+            van_total['LocalArea'] = 'Metro Vancouver'
+            van_total['Unnamed: 0'] = 0
+            citizen = citizen.append(van_total, ignore_index=True)
 
         if year == 2001:
             citizen = citizen.rename(
@@ -519,6 +548,10 @@ def main(path_in, path_out, area_file):
 
         if year == 2011:
             img_age = img_age[img_age['Type'] == 'Total']
+            van_total = img_age.sum()
+            van_total['LocalArea'] = 'Metro Vancouver'
+            van_total['Type'] = 'Total'
+            img_age = img_age.append(van_total, ignore_index=True)
             img_age.drop(columns=['Type'], inplace=True)
 
         col_lis = list(img_age.columns)[2:]
@@ -563,6 +596,10 @@ def main(path_in, path_out, area_file):
         """
 
         labour = labour[labour['Type'] == 'Total']
+        van_total = labour.sum()
+        van_total['LocalArea'] = 'Metro Vancouver'
+        van_total['Type'] = 'Total'
+        labour = labour.append(van_total, ignore_index=True)
 
         labour = labour[['LocalArea',
                          'Employment rate',
@@ -619,6 +656,10 @@ def main(path_in, path_out, area_file):
             occ[col] = occ[col]/occ['total']
 
         occ = occ[occ.Type == "Total"]
+        van_total = occ.sum()
+        van_total['LocalArea'] = 'Metro Vancouver'
+        van_total['Type'] = 'Total'
+        occ = occ.append(van_total, ignore_index=True)
 
         occ.drop(columns=['Type',
                           'All occupations',
@@ -639,6 +680,11 @@ def main(path_in, path_out, area_file):
         """
 
         tw = tw.query('Type == "Total"')
+        van_total = tw.sum()
+        van_total['LocalArea'] = 'Metro Vancouver'
+        van_total['Type'] = 'Total'
+        tw = tw.append(van_total, ignore_index=True)
+
         col_lis = list(tw.columns)[4:6]
 
         for col in col_lis:
@@ -661,6 +707,10 @@ def main(path_in, path_out, area_file):
         """
 
         trans = trans.query('Type == "Total"')
+        van_total = trans.sum()
+        van_total['LocalArea'] = 'Metro Vancouver'
+        van_total['Type'] = 'Total'
+        trans = trans.append(van_total, ignore_index=True)
 
         cols = list(trans.columns)[4:]
         for c in cols:
@@ -684,6 +734,10 @@ def main(path_in, path_out, area_file):
         """
 
         wp = wp.query('Type == "Total"')
+        van_total = wp.sum()
+        van_total['LocalArea'] = 'Metro Vancouver'
+        van_total['Type'] = 'Total'
+        wp = wp.append(van_total, ignore_index=True)
 
         cols = list(wp.columns)[3:]
         wp['total'] = wp[list(wp.columns)[3]] + wp[
@@ -741,6 +795,10 @@ def main(path_in, path_out, area_file):
             total = education['Total population aged 15 years and over']
             if year == 2011:
                 education = education.query('Type == "Total"')
+                van_total = education.sum()
+                van_total['LocalArea'] = 'Metro Vancouver'
+                van_total['Type'] = 'Total'
+                education = education.append(van_total, ignore_index=True)
 
         uni = total - no_deg - high - trade - college
         education['No certificate/diploma'] = no_deg/total
@@ -771,6 +829,10 @@ def main(path_in, path_out, area_file):
 
         if year == 2011:
             im_birth = im_birth.query('Type == "Total"')
+            van_total = im_birth.sum()
+            van_total['LocalArea'] = 'Metro Vancouver'
+            van_total['Type'] = 'Total'
+            im_birth = im_birth.append(van_total, ignore_index=True)
 
         col_lis = ['Non-immigrants',
                    'Non-permanent residents',
@@ -813,9 +875,14 @@ def main(path_in, path_out, area_file):
                     df = pd.read_csv(path_in + "_2006/immigration_age.csv")
                 else:
                     df = pd.read_csv(entry.path)
+
                 # remove non-neighbourhoods from local areas
                 df = df[~((df.LocalArea == 'Vancouver CMA') | (
                         df.LocalArea == 'Vancouver CSD'))]
+                van_total = df.sum()
+                van_total['LocalArea'] = 'Metro Vancouver'
+                df = df.append(van_total, ignore_index=True)
+
                 # clean dataframes
                 func_name = "clean_" + general_file
                 globals()[file_name] = eval(func_name)(df, year)
@@ -833,15 +900,16 @@ def main(path_in, path_out, area_file):
     total_df = gpd.read_file(area_file)
     total_df.drop(columns=['mapid', 'geometry'], inplace=True)
     total_df.columns = ['LocalArea']
+    add_df = pd.DataFrame(data={'LocalArea': 'Metro Vancouver'}, index=[0])
+    total_df = total_df.append(add_df, ignore_index=True)
     total_df = pd.concat([total_df]*len(list_years))
     total_df.reset_index(drop=True, inplace=True)
     total_df['Year'] = 0
     i = 0
 
     for year in list_years:
-        total_df.iloc[i:i+22]['Year'] = year
-        i += 22
-
+        total_df.iloc[i:i+23]['Year'] = year
+        i += 23
     for topic in list_files:
         all_years = []
         for year in list_years:
