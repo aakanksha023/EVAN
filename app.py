@@ -509,13 +509,13 @@ def update_histogram(SelectedIndustry, SelectedLocalArea):
     
     histogram_df = pd.DataFrame(
         histogram_df.groupby([sum_col])[
-            'BusinessName'].sum()).reset_index()
+            'business_id'].sum()).reset_index()
     histogram_df = histogram_df.sort_values(
-        'BusinessName')
+        'business_id')
 
     histogram_df = histogram_df.rename(
         columns={sum_col: 'y-axis',
-                 'BusinessName': 'x-axis'})
+                 'business_id': 'x-axis'})
             
     x_title = "Count of Unique Businesses"
 
@@ -570,17 +570,17 @@ def update_line(SelectedIndustry, SelectedLocalArea):
                 agg_licence.LocalArea == SelectedLocalArea]
 
         line_df = pd.DataFrame(line_df.groupby([
-            'FOLDERYEAR'])['BusinessName'].sum()).reset_index()
+            'FOLDERYEAR'])['business_id'].sum()).reset_index()
             
     else:
         line_df = pd.DataFrame(agg_licence.groupby([
-            'FOLDERYEAR'])['BusinessName'].sum()).reset_index()\
+            'FOLDERYEAR'])['business_id'].sum()).reset_index()\
 
     y_title = "Count of Unique Businesses"
 
     return go.Figure(
         data=go.Scatter(x=line_df['FOLDERYEAR'],
-                        y=line_df['BusinessName'],
+                        y=line_df['business_id'],
                         mode='lines+markers',
                         marker_color=colors['green3']),
 

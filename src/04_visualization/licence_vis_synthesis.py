@@ -94,10 +94,15 @@ def main():
 
     df = df[~(df.FOLDERYEAR < 1997.0)]
     df['FOLDERYEAR'] = [int(i) for i in df['FOLDERYEAR']]
-
+    
+    df = df.sort_values(by=['business_id', 'FOLDERYEAR', 'ExtractDate'])
+    df = df[df.groupby(['business_id'])['FOLDERYEAR'].apply(
+        lambda x: ~(x.duplicated(keep='last')))]
+    
     # only Issued licences
     df = df.query('Status == "Issued"')
 
+    # Industry mapping
     mapping_dict = {' ': ' '}
 
     # Read csv and write to dictionary
@@ -118,11 +123,12 @@ def main():
     # Remove 2010 Winter games : Outlier
     df = df[df.BusinessIndustry != 'Historic']
     df = df[df.BusinessIndustry != 'Real estate and rental and leasing']
+    df = df[df.LocalArea.notnull()]
 
     agg_viz = pd.DataFrame(df.groupby([
         'FOLDERYEAR', 'LocalArea',
         'BusinessIndustry', 'BusinessType'])[
-        'BusinessName'].count()).reset_index()
+        'business_id'].count()).reset_index()
 
     agg_viz = agg_viz[~(agg_viz.BusinessType.str.contains(
         r'\*Historic\*'))]
