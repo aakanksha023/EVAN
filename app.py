@@ -50,8 +50,6 @@ for i in boundary['features']:
     i['name'] = i['properties']['name']
     i['id'] = i['properties']['mapid']
 
-census_boundary = gpd.read_file("data/raw/local_area_boundary.geojson")
-
 ######################
 # Info and wrangling #
 ######################
@@ -499,7 +497,7 @@ def update_choropleth(SelectedLocalArea):
 )
 def update_histogram(SelectedIndustry, SelectedLocalArea):
     sum_col = 'BusinessType'
-    
+
     if SelectedIndustry and SelectedLocalArea:
         histogram_df = agg_licence[
             agg_licence.BusinessIndustry == SelectedIndustry
@@ -519,7 +517,7 @@ def update_histogram(SelectedIndustry, SelectedLocalArea):
     else:
         histogram_df = agg_licence.copy()
         sum_col = 'BusinessIndustry'
-    
+
     histogram_df = pd.DataFrame(
         histogram_df.groupby([sum_col])[
             'business_id'].sum()).reset_index()
@@ -529,7 +527,7 @@ def update_histogram(SelectedIndustry, SelectedLocalArea):
     histogram_df = histogram_df.rename(
         columns={sum_col: 'y-axis',
                  'business_id': 'x-axis'})
-            
+
     x_title = "Count of Unique Businesses"
 
     return go.Figure(
@@ -584,7 +582,7 @@ def update_line(SelectedIndustry, SelectedLocalArea):
 
         line_df = pd.DataFrame(line_df.groupby([
             'FOLDERYEAR'])['business_id'].sum()).reset_index()
-            
+
     else:
         line_df = pd.DataFrame(agg_licence.groupby([
             'FOLDERYEAR'])['business_id'].sum()).reset_index()\
@@ -732,26 +730,28 @@ def update_figure(SelectedIndustry,
     [Input('van_map', 'clickData')])
 def update_van_map(clickData):
 
-    colour = ['blank']*22
+    boundary_df['color'] = ['blank']*22
 
     if clickData is not None:
-        colour = ['not-selected']*22
+        boundary_df['color'] = ['not-selected']*22
         neighbour = (clickData['points'][0]['location'])
-        colour[
-            census_boundary[
-                census_boundary.name == neighbour].index[0]] = 'selected'
+        boundary_df.loc[
+            boundary_df.LocalArea == neighbour,
+            'color'] = 'selected'
 
-    graph_map = px.choropleth_mapbox(census_boundary,
-                                     geojson=census_boundary,
-                                     locations='name',
+    graph_map = px.choropleth_mapbox(boundary_df,
+                                     geojson=boundary,
+                                     locations='LocalArea',
                                      featureidkey='properties.name',
                                      opacity=0.5,
-                                     color=colour,
+                                     color="color",
                                      color_discrete_map={
                                          'not-selected': 'white',
                                          'selected': colors['purple5'],
                                          'blank': colors['purple4']},
-                                     hover_name='name',
+                                     hover_name='LocalArea',
+                                     hover_data={'LocalArea': False,
+                                                 'color': False},
                                      mapbox_style="carto-positron",
                                      center={"lat": 49.252, "lon": -123.140},
                                      zoom=11,
