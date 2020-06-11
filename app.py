@@ -43,6 +43,7 @@ df = pd.read_csv("data/processed/census_viz.csv")
 licence = pd.read_csv("data/processed/vis_licence.csv")
 boundary_df = gpd.read_file("data/raw/local_area_boundary.geojson"
                             ).rename(columns={'name': 'LocalArea'})
+agg_licence = pd.read_csv("data/processed/vis_agg_licence.csv")
 
 with open("data/raw/local_area_boundary.geojson") as f:
     boundary = json.load(f)
@@ -415,8 +416,6 @@ app.layout = html.Div([
 ###########
 
 # update titles
-
-
 @app.callback(
     Output("histogram-title", "children"),
     [Input("industry-dropdown", "value")],
@@ -426,7 +425,6 @@ def update_title_bar(SelectedIndustry):
         return "Total Number of Issued Businesses in by Business Type (1997 to 2020)"
     else:
         return "Total Number of Issued Businesses in all Industries (1997 to 2020)"
-
 
 @app.callback(
     Output("line-title", "children"),
@@ -438,9 +436,8 @@ def update_title_line(SelectedIndustry):
     else:
         return "Total Number of Issued Businesses in all Industries by Year"
 
+    
 # update choropleth
-
-
 @app.callback(
     Output("localarea-map", "figure"),
     [Input("localarea-dropdown", "value")],
@@ -484,48 +481,50 @@ def update_choropleth(SelectedLocalArea):
 # update histogram
 @app.callback(
     Output("business-type-histogram", "figure"),
-    [Input("industry-dropdown", "value")],
+    [Input("industry-dropdown", "value"),
+     Input("localarea-dropdown", "value")],
 )
-def update_histogram(SelectedIndustry):
-    if SelectedIndustry:
-        histogram_df = licence[licence.BusinessIndustry == SelectedIndustry]
-        histogram_df = histogram_df[histogram_df.Status == "Issued"]
-
+def update_histogram(SelectedIndustry, SelectedLocalArea):
+    sum_col = 'BusinessType'
+    
+    if SelectedIndustry and SelectedLocalArea:
+        histogram_df = agg_licence[
+            agg_licence.BusinessIndustry == SelectedIndustry
+        ]
         histogram_df = histogram_df[
-            ~(histogram_df.BusinessType.str.contains(r'\*Historic\*'))]
-        histogram_df = pd.DataFrame(
-            histogram_df.groupby(['BusinessType'])[
-                'BusinessName'].count()).reset_index()
-        histogram_df = histogram_df.sort_values(
-            'BusinessName')
-
-        histogram_df = histogram_df.rename(
-            columns={'BusinessType': 'y-axis',
-                     'BusinessName': 'x-axis'}
-        )
-
-        x_title = "Count of Unique Businesses in " + SelectedIndustry
-
+            histogram_df.LocalArea == SelectedLocalArea
+        ]
+    elif SelectedIndustry:
+        histogram_df = agg_licence[
+            agg_licence.BusinessIndustry == SelectedIndustry
+        ]
+    elif SelectedLocalArea:
+        sum_col = 'BusinessIndustry'
+        histogram_df = agg_licence[
+            agg_licence.LocalArea == SelectedLocalArea
+        ]
     else:
-        histogram_df = licence[licence.Status == "Issued"]
-        histogram_df = pd.DataFrame(
-            histogram_df.groupby(['BusinessIndustry'])[
-                'BusinessName'].count()).reset_index()
-        histogram_df = histogram_df.sort_values(
-            'BusinessName')
+        histogram_df = agg_licence.copy()
+        sum_col = 'BusinessIndustry'
+    
+    histogram_df = pd.DataFrame(
+        histogram_df.groupby([sum_col])[
+            'BusinessName'].sum()).reset_index()
+    histogram_df = histogram_df.sort_values(
+        'BusinessName')
 
-        histogram_df = histogram_df.rename(
-            columns={'BusinessIndustry': 'y-axis',
-                     'BusinessName': 'x-axis'}
-        )
-
-        x_title = "Count of Unique Businesses"
+    histogram_df = histogram_df.rename(
+        columns={sum_col: 'y-axis',
+                 'BusinessName': 'x-axis'})
+            
+    x_title = "Count of Unique Businesses"
 
     return go.Figure(
         data=go.Bar(x=histogram_df['x-axis'],
                     y=histogram_df['y-axis'],
                     orientation='h',
-                    marker_color=colors['green3']
+                    marker_color=colors['green3'],
+                    hoverinfo='x'
                     ),
         layout=go.Layout(
             margin=dict(l=10, r=10, b=20, t=10),
@@ -554,24 +553,30 @@ def update_histogram(SelectedIndustry):
 # update line
 @app.callback(
     Output("business-industry-line", "figure"),
-    [Input("industry-dropdown", "value")],
+    [Input("industry-dropdown", "value"),
+     Input("localarea-dropdown", "value")],
 )
-def update_line(SelectedIndustry):
-    if SelectedIndustry:
-        line_df = licence[licence.BusinessIndustry == SelectedIndustry]
+def update_line(SelectedIndustry, SelectedLocalArea):
+    if SelectedIndustry or SelectedLocalArea:
+        if SelectedIndustry and SelectedLocalArea:
+            line_df = agg_licence[
+                agg_licence.BusinessIndustry == SelectedIndustry]
+            line_df = line_df[line_df.LocalArea == SelectedLocalArea]
+        elif SelectedIndustry:
+            line_df = agg_licence[
+                agg_licence.BusinessIndustry == SelectedIndustry]
+        else:
+            line_df = agg_licence[
+                agg_licence.LocalArea == SelectedLocalArea]
 
         line_df = pd.DataFrame(line_df.groupby([
-            'FOLDERYEAR'])['BusinessName'].count()).reset_index()
-
-        y_title = "Count of Unique Businesses in " + SelectedIndustry
-
+            'FOLDERYEAR'])['BusinessName'].sum()).reset_index()
+            
     else:
-        line_df = pd.DataFrame(licence.groupby([
-            'FOLDERYEAR'])['BusinessName'].count()).reset_index()
+        line_df = pd.DataFrame(agg_licence.groupby([
+            'FOLDERYEAR'])['BusinessName'].sum()).reset_index()\
 
-        y_title = "Count of Unique Businesses"
-
-    line_df = line_df.sort_values('FOLDERYEAR')
+    y_title = "Count of Unique Businesses"
 
     return go.Figure(
         data=go.Scatter(x=line_df['FOLDERYEAR'],
