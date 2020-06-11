@@ -6,12 +6,10 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 import json
-import re
 
 # Plotly
 import plotly.graph_objects as go
 import plotly.express as px
-import plotly.io as pio
 
 # Dash
 import dash
@@ -196,8 +194,8 @@ def build_tab1():
                                         max=licence['FOLDERYEAR'].max(),
                                         value=2010,
                                         marks={str(year): {
-                                            'label': str(year), 'style': {
-                                                'color': 'white'}}
+                                            'label': str(year),
+                                            'style': {'color': 'white'}}
                                                for year in licence['FOLDERYEAR'].unique()},
                                         step=None
                                     )
@@ -272,119 +270,131 @@ app.layout = html.Div([
 
         # Define the layout of the second Tab
         dcc.Tab(label='Neighbourhood Profiles', children=[
-            
+
             # main row with map and summary info
             html.Div([
                 # summary info
                 html.Div(
                         className="one-third column",
                         children=[
-                            html.H6("Vancouver Neighbourhood:", 
-                                    style={"textAlign": "center"}), 
-                            html.H3(id='summary_title', 
-                            style={"textAlign": "center"})
-                        ]), 
+                            html.H6("Vancouver Neighbourhood:",
+                                    style={"textAlign": "center"}),
+                            html.H3(id='summary_title',
+                                    style={"textAlign": "center"})
+                        ]),
                 # main map of neighbourhoods
                 html.Div(
                         className="two-thirds column map__slider__container",
                         children=[
-                            dcc.Graph(id='van_map',
-                              style={"visibility": "visible",
-                                     'width': '98%', 
-                                     'padding': 10},
-                              config=config)]
+                            dcc.Graph(
+                                id='van_map',
+                                style={"visibility": "visible",
+                                       'width': '98%',
+                                       'padding': 10},
+                                config=config)]
                 )],
                 style={'marginTop': 50,
-                       'width': '100%', 
-                       'display': 'flex', 
+                       'width': '100%',
+                       'display': 'flex',
                        'justifyContent': 'center'}),
-            
-            
+
             # Adding tabs for summary neighbourhood data
             dcc.Tabs(id="subTabs", children=[
-                
+
                 # summary of local demographics
                 dcc.Tab(label='People', children=[
-                    
+
                     # population by age
                     html.Div(
                         className="app__content",
                         children=[
-                        html.Div(
-                            className="one-half column",
-                            children=[
-                                html.H4('Age Distribution', style={"textAlign": "center"}),
-                                dcc.Graph(id='age_graph', config=config, style={"width":"80%"})
-                            ], ),
-                        html.Div(
-                            className="other-half column",
-                            children=[
-                                html.H5('text description...')
-                            ])
-                    ], style={'marginTop': 50}),
-                    
+                            html.Div(
+                                className="one-half column",
+                                children=[
+                                    html.H4('Age Distribution',
+                                            style={"textAlign": "center"}),
+                                    dcc.Graph(id='age_graph',
+                                              config=config,
+                                              style={"width": "80%"})
+                                ], ),
+                            html.Div(
+                                className="other-half column",
+                                children=[
+                                    html.H5('text description...')
+                                ])
+                        ], style={'marginTop': 50}),
+
                     # population by household size
                     html.Div(
                         className="app__content",
                         children=[
-                        html.Div(
-                            className="one-half column",
-                            children=[
-                                html.H4('Household Size', style={"textAlign": "center"}),
-                                dcc.Graph(id='size_graph', config=config, style={"width":"80%"})
-                        ]),
-                        html.Div(
-                            className="other-half column",
-                            children=[
-                                html.H5('text description...')
-                        ])
-                    ], style={'marginTop': 50}),
-                    
+                            html.Div(
+                                className="one-half column",
+                                children=[
+                                    html.H4('Household Size',
+                                            style={"textAlign": "center"}),
+                                    dcc.Graph(id='size_graph',
+                                              config=config,
+                                              style={"width": "80%"})
+                                ]),
+                            html.Div(
+                                className="other-half column",
+                                children=[
+                                    html.H5('text description...')
+                                ])
+                        ], style={'marginTop': 50}),
+
                     # population by language
                     html.Div(
                         className="app__content",
                         children=[
-                        html.Div(
-                            className="one-half column",
-                            children=[
-                                html.H4('Languages + Ethnicities', style={"textAlign": "center"}),
-                               # dcc.Graph(figure=age_fig, config=config, style={"width":"80%"})
-                        ]),
-                         html.Div(
-                            className="other-half column",
-                            children=[
-                                html.H5("text description...composition of the spoken language and ethnicity in the neighbourhood.")
-                        ])
-                    ], style={'marginTop': 50}),
-                    
+                            html.Div(
+                                className="one-half column",
+                                children=[
+                                    html.H4('Languages + Ethnicities',
+                                            style={"textAlign": "center"}),
+                                    # dcc.Graph(figure=age_fig,
+                                    # config=config,
+                                    # style={"width":"80%"})
+                                ]),
+                            html.Div(
+                                className="other-half column",
+                                children=[
+                                    html.H5("text description...composition of the spoken language and ethnicity in the neighbourhood.")
+                                ])
+                        ], style={'marginTop': 50}),
+
                     # population by education level
                     html.Div(
                         className="app__content",
                         children=[
-                        html.Div(
-                            className="one-half column",
-                            children=[
-                                html.H4('Education Level', style={"textAlign": "center"}),
-                                dcc.Graph(id='edu_graph', config=config, style={"width":"80%"})
-                        ]),
-                        html.Div(
-                            className="other-half column",
-                            children=[
-                                html.H5('text description...')
-                        ])
-                    ], style={'marginTop': 50}),
-                ]),
-                
+                            html.Div(
+                                className="one-half column",
+                                children=[
+                                    html.H4('Education Level',
+                                            style={"textAlign": "center"}),
+                                    dcc.Graph(id='edu_graph',
+                                              config=config,
+                                              style={"width": "80%"})
+                                ]),
+                            html.Div(
+                                className="other-half column",
+                                children=[
+                                    html.H5('text description...')
+                                ])
+                        ], style={'marginTop': 50}),
+                    ]),
+
                 # summary of local business structure
                 dcc.Tab(label='Businesses', children=[
-            
+
                 ]),
-                
+
                 # summary of local infrastructure
                 dcc.Tab(label='Infrastructure', children=[
-            
+
                 ]),
-           
+
             ], style={'marginTop': 50}),
         ]),
 
@@ -399,14 +409,19 @@ app.layout = html.Div([
                 "textAlign": "center", 'marginBottom': 50}),
         dbc.Row([
             dbc.Col([
-                html.Img(src="https://brand3.sites.olt.ubc.ca/files/2018/09/5NarrowLogo_ex_768.png",
-                         style={"width": "20%"})],
-                    width=4, align='end'),
+                html.Img(
+                    src="https://brand3.sites.olt.ubc.ca/files/2018/09/5NarrowLogo_ex_768.png",
+                    style={"width": "20%"})
+                    ],
+                    width=4,
+                    align='end'),
             dbc.Col([
-                html.Img(src="https://deetken.com/wp-content/uploads/2019/02/logo-1.png",
-                         style={"width": "20%"})],
+                html.Img(
+                    src="https://deetken.com/wp-content/uploads/2019/02/logo-1.png",
+                    style={"width": "20%"})
+                    ],
                     width=4)
-        ], justify="center"),
+                ], justify="center"),
     ], style={'marginTop': 200}),
 ])
 
@@ -474,9 +489,7 @@ def update_choropleth(SelectedLocalArea):
         fitbounds="locations",
         visible=False
     ).update_layout(
-        margin=dict(
-            l=0, r=0, b=0, t=0,
-        ),
+        margin=dict(l=0, r=0, b=0, t=0),
         coloraxis_showscale=False,
         showlegend=False)
 
@@ -705,43 +718,46 @@ def update_figure(SelectedIndustry,
     )
 
 ###############################################################################
-#second tab updates
+# second tab updates
+
 
 # Define callback to update vancouver map
 @app.callback(
     Output('van_map', 'figure'),
     [Input('van_map', 'clickData')])
 def update_van_map(clickData):
-    
+
     colour = ['blank']*22
-    
+
     if clickData is not None:
         colour = ['not-selected']*22
         neighbour = (clickData['points'][0]['location'])
-        colour[census_boundary[census_boundary.name == neighbour].index[0]] = 'selected'
-  
-    graph_map = px.choropleth_mapbox(census_boundary,
-                             geojson= census_boundary,
-                             locations='name',
-                             featureidkey='properties.name',
-                             opacity=0.5,
-                             color=colour,
-                             color_discrete_map={'not-selected': 'white',
-                                                'selected': colors['purple5'],
-                                                'blank': colors['purple4']},
-                            hover_name='name',
-                             mapbox_style="carto-positron",
-                             center={"lat": 49.252, "lon": -123.140},
-                             zoom=11,
-                             height=470)
+        colour[
+            census_boundary[
+                census_boundary.name == neighbour].index[0]] = 'selected'
 
-    
+    graph_map = px.choropleth_mapbox(census_boundary,
+                                     geojson=census_boundary,
+                                     locations='name',
+                                     featureidkey='properties.name',
+                                     opacity=0.5,
+                                     color=colour,
+                                     color_discrete_map={
+                                         'not-selected': 'white',
+                                         'selected': colors['purple5'],
+                                         'blank': colors['purple4']},
+                                     hover_name='name',
+                                     mapbox_style="carto-positron",
+                                     center={"lat": 49.252, "lon": -123.140},
+                                     zoom=11,
+                                     height=470)
+
     graph_map.update_layout(
-        margin={"r":0,"t":0,"l":0,"b":0},
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
         coloraxis_showscale=False,
         showlegend=False,
-        hoverlabel=dict( 
-            font_size=16, 
+        hoverlabel=dict(
+            font_size=16,
             font_family="sans-serif"),
         annotations=[go.layout.Annotation(
             x=0,
@@ -757,8 +773,9 @@ def update_van_map(clickData):
             borderpad=6,
             bgcolor="rgb(71, 71, 107)",
             opacity=0.7)])
-    
+
     return graph_map
+
 
 # update titles by selected area
 @app.callback(
@@ -771,6 +788,7 @@ def update_summary_title(clickData):
         area = area.upper()
     return area
 
+
 # update education graph by local area
 @app.callback(
     Output('edu_graph', 'figure'),
@@ -778,42 +796,43 @@ def update_summary_title(clickData):
 def update_edu(clickData):
     year = 2016
     area = 'Downtown'
-    
+
     if clickData is not None:
         area = (clickData['points'][0]['location'])
     edu_df = df[['LocalArea', 'Year',
-             'No certificate/diploma',
-             'High school',
-             'Apprenticeship/Trades',
-             'College',
-             'University']]
+                 'No certificate/diploma',
+                 'High school',
+                 'Apprenticeship/Trades',
+                 'College',
+                 'University']]
     edu_df = edu_df[(edu_df.Year == year) & (edu_df.LocalArea == area)]
-    edu_df = edu_df.melt(id_vars=['LocalArea', 'Year'], 
-                         var_name='Education Level', 
+    edu_df = edu_df.melt(id_vars=['LocalArea', 'Year'],
+                         var_name='Education Level',
                          value_name='Percent of total population')
-    edu_fig = px.bar(edu_df, 
-             x="Education Level", 
-             y='Percent of total population', 
-             hover_data=['Percent of total population'],
-             width=500, 
-             height=400,
-             template='simple_white',
-             color_discrete_sequence = ['#19B1BA'])
-    edu_fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    edu_fig = px.bar(edu_df,
+                     x="Education Level",
+                     y='Percent of total population',
+                     hover_data=['Percent of total population'],
+                     width=500,
+                     height=400,
+                     template='simple_white',
+                     color_discrete_sequence=['#19B1BA'])
+    edu_fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return edu_fig
+
 
 # update age graph by local area
 @app.callback(
     Output('age_graph', 'figure'),
     [Input('van_map', 'clickData')])
-def update_edu(clickData):
+def update_age(clickData):
     year = 2016
     area = 'Downtown'
-    
+
     if clickData is not None:
         area = (clickData['points'][0]['location'])
-        
-    age_df = df[['LocalArea', 'Year', 
+
+    age_df = df[['LocalArea', 'Year',
                  'Under 20',
                  '20 to 34',
                  '35 to 44',
@@ -824,21 +843,24 @@ def update_edu(clickData):
 
     age_df = age_df[(age_df.Year == year) & (age_df.LocalArea == area)]
     age_df = age_df.melt(id_vars=['LocalArea', 'Year'], var_name='Age', value_name='Population')
-    
+
     age_fig = go.Figure(
-                data=go.Scatter(x=age_df['Age'],
-                        y=age_df['Population'],
-                        mode='lines+markers',
-                        marker_color='#19B1BA'),
+                data=go.Scatter(
+                    x=age_df['Age'],
+                    y=age_df['Population'],
+                    mode='lines+markers',
+                    marker_color='#19B1BA'),
 
                 layout=go.Layout(
                     margin=dict(l=10, r=10, b=10, t=10),
                     template='simple_white'))
-    
-    age_fig.update_layout(xaxis_title="Age",
-                          yaxis_title="Population",
-                          height=300)
+
+    age_fig.update_layout(
+        xaxis_title="Age",
+        yaxis_title="Population",
+        height=300)
     return age_fig
+
 
 # update household size graph by local area
 @app.callback(
@@ -847,28 +869,31 @@ def update_edu(clickData):
 def update_size(clickData):
     year = 2016
     area = 'Downtown'
-    
+
     if clickData is not None:
         area = (clickData['points'][0]['location'])
-    size_df = df[['LocalArea', 'Year','1 person',
-                 '2 persons',
-                 '3 persons',
-                 '4 to 5 persons',
-                 '6+ persons']]
+    size_df = df[['LocalArea',
+                  'Year',
+                  '1 person',
+                  '2 persons',
+                  '3 persons',
+                  '4 to 5 persons',
+                  '6+ persons']]
     size_df = size_df[(size_df.Year == year) & (size_df.LocalArea == area)]
-    size_df = size_df.melt(id_vars=['LocalArea', 'Year'], 
-                           var_name='Household Size', 
+    size_df = size_df.melt(id_vars=['LocalArea', 'Year'],
+                           var_name='Household Size',
                            value_name='Percent of total population')
-    size_fig = px.bar(size_df, 
-                     x="Household Size", 
-                     y='Percent of total population', 
-                     hover_data=['Percent of total population'],
-                     width=500, 
-                     height=300,
-                     template='simple_white',
-                     color_discrete_sequence = ['#19B1BA'])
-    size_fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    size_fig = px.bar(
+        size_df,
+        x="Household Size",
+        y='Percent of total population',
+        hover_data=['Percent of total population'],
+        width=500,
+        height=300,
+        template='simple_white',
+        color_discrete_sequence=['#19B1BA'])
+    size_fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return size_fig
 
 
-app.run_server(debug=True)
+app.run_server(debug=False)
