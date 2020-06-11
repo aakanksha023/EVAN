@@ -111,9 +111,11 @@ python3 src/04_visualization/census_vis_synthesis.py --path_in="data/processed/c
 --area_file="data/raw/local_area_boundary.geojson"
 
 # 9. licence_vis_synthesis.py
+
 python3 src/04_visualization/licence_vis_synthesis.py
 
 # 10. app.py
+
 python3 app.py
 
 ```
