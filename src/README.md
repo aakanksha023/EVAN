@@ -90,15 +90,18 @@ python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/s
 # 7. 05_feature_engineering.py
 
 # train set
-python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_train.csv" \
+python3 src/03_modelling/05_feature_engineering.py --file_path1="data/processed/04_combined_train.csv" \
+--file_path2 = "data/raw/disability-parking.csv" --file_path3 = "data/raw/parking-meters.csv"
 --save_to="data/processed/05_feat_eng_train.csv"
 
 # validation set
 python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_validation.csv" \
+--file_path2 = "data/raw/disability-parking.csv" --file_path3 = "data/raw/parking-meters.csv"
 --save_to="data/processed/05_feat_eng_validation.csv"
 
 # test set
 python3 src/03_modelling/05_feature_engineering.py --file_path="data/processed/04_combined_test.csv" \
+--file_path2 = "data/raw/disability-parking.csv" --file_path3 = "data/raw/parking-meters.csv"
 --save_to="data/processed/05_feat_eng_test.csv"
 ```
 
