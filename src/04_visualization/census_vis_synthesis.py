@@ -206,8 +206,26 @@ def main(path_in, path_out, area_file):
             age['80 and Older'] = (age[
                 '80 to 84 years'] + age[
                 '85 years and over'])
+        
+        age['Age_total'] = (age[
+                   'Under 20'] + age[
+                   '20 to 34'] + age[
+                   '35 to 44'] + age[
+                   '45 to 54'] + age[
+                   '55 to 64'] + age[
+                   '65 to 79'] + age[
+                   '80 and Older'])
+        age['Under 20'] = age['Under 20'] / age['Age_total']
+        age['20 to 34'] = age['20 to 34'] / age['Age_total']
+        age['35 to 44'] = age['35 to 44'] / age['Age_total']
+        age['45 to 54'] = age['45 to 54'] / age['Age_total']
+        age['55 to 64'] = age['55 to 64'] / age['Age_total']
+        age['65 to 79'] = age['65 to 79'] / age['Age_total']
+        age['80 and Older'] = age['80 and Older'] / age['Age_total']
 
-        age = age[['LocalArea', 'Under 20',
+        age = age[['LocalArea',
+                   'Age_total',
+                   'Under 20',
                    '20 to 34',
                    '35 to 44',
                    '45 to 54',

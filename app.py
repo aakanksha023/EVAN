@@ -273,14 +273,14 @@ app.layout = html.Div([
             # main row with map and summary info
             html.Div([
                 # summary info
-                html.Div(
+                html.Div(id='summary_info',
                         className="one-third column",
-                        children=[
-                            html.H6("Vancouver Neighbourhood:",
-                                    style={"textAlign": "center"}),
-                            html.H3(id='summary_title',
-                                    style={"textAlign": "center"})
-                        ]),
+                        # children=[
+                        #     html.H6("Vancouver Neighbourhood:",
+                        #             style={"textAlign": "center"}),
+                        #     html.H3(id='summary_title',
+                        #             style={"textAlign": "center"})
+                        ),
                 # main map of neighbourhoods
                 html.Div(
                         className="two-thirds column map__slider__container",
@@ -449,7 +449,7 @@ def update_title_line(SelectedIndustry):
     else:
         return "Total Number of Issued Businesses in all Industries by Year"
 
-    
+
 # update choropleth
 @app.callback(
     Output("localarea-map", "figure"),
@@ -782,47 +782,63 @@ def update_van_map(clickData):
     return graph_map
 
 
-# update titles by selected area
-@app.callback(
-    Output('summary_title', 'children'),
-    [Input('van_map', 'clickData')])
-def update_summary_title(clickData):
-    area = 'METRO VANCOUVER'
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-        area = area.upper()
-    return area
-
-
 # update education graph by local area
 @app.callback(
     Output('edu_graph', 'figure'),
     [Input('van_map', 'clickData')])
 def update_edu(clickData):
     year = 2016
-    area = 'Downtown'
+    area = 'Metro Vancouver'
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+
     edu_df = df[['LocalArea', 'Year',
                  'No certificate/diploma',
                  'High school',
                  'Apprenticeship/Trades',
                  'College',
                  'University']]
+
+    van_df = edu_df.copy()
     edu_df = edu_df[(edu_df.Year == year) & (edu_df.LocalArea == area)]
     edu_df = edu_df.melt(id_vars=['LocalArea', 'Year'],
-                         var_name='Education Level',
-                         value_name='Percent of total population')
-    edu_fig = px.bar(edu_df,
-                     x="Education Level",
-                     y='Percent of total population',
-                     hover_data=['Percent of total population'],
-                     width=500,
-                     height=400,
-                     template='simple_white',
-                     color_discrete_sequence=['#19B1BA'])
-    edu_fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+                         var_name='Education',
+                         value_name='Percent of Total Population')
+
+    edu_fig = go.Figure(
+        data=go.Bar(
+                    x=edu_df["Education"],
+                    y=edu_df['Percent of Total Population'],
+                    name=area,
+                    marker_color='#19B1BA'),
+        layout=go.Layout(
+                    margin=dict(l=10, r=10, b=10, t=10),
+                    template='simple_white'))
+
+    if clickData is not None:
+        van_df = van_df[(
+            van_df.Year == year) & (van_df.LocalArea == 'Metro Vancouver')]
+        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
+                             var_name='Education',
+                             value_name='Percent of Total Population')
+
+        edu_fig.add_trace(
+            go.Bar(
+               x=van_df["Education"],
+               y=van_df['Percent of Total Population'],
+               name='Metro Vancouver',
+               marker_color='#afb0b3'
+            ))
+
+    edu_fig.update_layout(
+        barmode='group',
+        xaxis_title="Level of Education",
+        yaxis_title="Percent of Total Population",
+        showlegend=True,
+        legend=dict(x=1, y=1, xanchor="right"),
+        height=300)
+
     return edu_fig
 
 
@@ -832,7 +848,7 @@ def update_edu(clickData):
     [Input('van_map', 'clickData')])
 def update_age(clickData):
     year = 2016
-    area = 'Downtown'
+    area = 'Metro Vancouver'
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
@@ -845,25 +861,54 @@ def update_age(clickData):
                  '55 to 64',
                  '65 to 79',
                  '80 and Older']]
-
+    van_df = age_df.copy()
     age_df = age_df[(age_df.Year == year) & (age_df.LocalArea == area)]
-    age_df = age_df.melt(id_vars=['LocalArea', 'Year'], var_name='Age', value_name='Population')
+    age_df = age_df.melt(id_vars=['LocalArea', 'Year'],
+                         var_name='Age',
+                         value_name='Population')
 
     age_fig = go.Figure(
                 data=go.Scatter(
                     x=age_df['Age'],
                     y=age_df['Population'],
                     mode='lines+markers',
-                    marker_color='#19B1BA'),
+                    marker=dict(
+                        color='#19B1BA',
+                        size=8),
+                    name=area,
+                    line=dict(width=4),
+                    line_shape='spline'),
 
                 layout=go.Layout(
                     margin=dict(l=10, r=10, b=10, t=10),
                     template='simple_white'))
 
+    if clickData is not None:
+        van_df = van_df[(
+            van_df.Year == year) & (van_df.LocalArea == 'Metro Vancouver')]
+        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
+                             var_name='Age',
+                             value_name='Population')
+        age_fig.add_trace(
+            go.Scatter(
+                    x=van_df['Age'],
+                    y=van_df['Population'],
+                    mode='lines+markers',
+                    marker=dict(
+                        color='#afb0b3',
+                        size=8),
+                    name='Metro Vancouver',
+                    line=dict(width=3),
+                    line_shape='spline'))
+
     age_fig.update_layout(
         xaxis_title="Age",
-        yaxis_title="Population",
+        yaxis_title="Percent of Total Population",
+        showlegend=True,
+        legend=dict(x=1, y=1,
+                    xanchor="right"),
         height=300)
+
     return age_fig
 
 
@@ -873,7 +918,7 @@ def update_age(clickData):
     [Input('van_map', 'clickData')])
 def update_size(clickData):
     year = 2016
-    area = 'Downtown'
+    area = 'Metro Vancouver'
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
@@ -884,21 +929,91 @@ def update_size(clickData):
                   '3 persons',
                   '4 to 5 persons',
                   '6+ persons']]
+    van_df = size_df.copy()
     size_df = size_df[(size_df.Year == year) & (size_df.LocalArea == area)]
     size_df = size_df.melt(id_vars=['LocalArea', 'Year'],
                            var_name='Household Size',
-                           value_name='Percent of total population')
-    size_fig = px.bar(
-        size_df,
-        x="Household Size",
-        y='Percent of total population',
-        hover_data=['Percent of total population'],
-        width=500,
-        height=300,
-        template='simple_white',
-        color_discrete_sequence=['#19B1BA'])
-    size_fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+                           value_name='Percent of Total Population')
+
+    size_fig = go.Figure(
+        data=go.Bar(
+                    x=size_df["Household Size"],
+                    y=size_df['Percent of Total Population'],
+                    name=area,
+                    marker_color='#19B1BA'),
+        layout=go.Layout(
+                    margin=dict(l=10, r=10, b=10, t=10),
+                    template='simple_white'))
+
+    if clickData is not None:
+        van_df = van_df[(
+            van_df.Year == year) & (van_df.LocalArea == 'Metro Vancouver')]
+        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
+                             var_name='Household Size',
+                             value_name='Percent of Total Population')
+
+        size_fig.add_trace(
+            go.Bar(
+               x=van_df["Household Size"],
+               y=van_df['Percent of Total Population'],
+               name='Metro Vancouver',
+               marker_color='#afb0b3'
+            ))
+
+    size_fig.update_layout(
+        barmode='group',
+        xaxis_title="Household Size",
+        yaxis_title="Percent of Total Population",
+        showlegend=True,
+        legend=dict(x=1, y=1, xanchor="right"),
+        height=300)
+
     return size_fig
+
+@app.callback(
+    Output('summary_info', 'children'),
+    [Input('van_map', 'clickData')])
+def update_side_bar(clickData):
+    year = 2016
+    area = 'Metro Vancouver'
+
+    if clickData is not None:
+        area = (clickData['points'][0]['location'])
+
+    pop_df = df[['LocalArea', 'Year', 'Age_total']]
+    pop_df = pop_df[(pop_df.Year == year) & (pop_df.LocalArea == area)]
+    pop = int(pop_df.Age_total)
+
+    age_df = df[['LocalArea', 'Year',
+                 'Under 20',
+                 '20 to 34',
+                 '35 to 44',
+                 '45 to 54',
+                 '55 to 64',
+                 '65 to 79',
+                 '80 and Older']]
+    age_df = age_df[(age_df.Year == year) & (age_df.LocalArea == area)]
+    age_df = age_df.melt(id_vars=['LocalArea', 'Year'],
+                         var_name='Age',
+                         value_name='Population')
+    age = age_df[age_df.Population == age_df.Population.max()].reset_index()
+
+    age_frac = age.Population[0]
+    age_group = age.Age[0]
+
+    sum_info = html.Div(
+        children=[
+            html.H6("Vancouver Neighbourhood:",
+                    style={"marginBottom": 0}),
+            html.H3(area.upper(), style={"marginTop": 0}),
+            html.H3(f'{pop:,}', style={"marginBottom": 0}),
+            html.H6("Residents in " + str(year)),
+            html.H3(f'{age_frac:.1%}', style={"marginBottom": 0}),
+            html.H6(age_group + " Years of Age", style={"marginTop": 0})
+            ], style={"textAlign": "center",
+                      "fontFamily": "sans-serif"})
+
+    return sum_info
 
 
 app.run_server(debug=True)
