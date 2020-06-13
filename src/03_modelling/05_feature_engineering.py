@@ -17,8 +17,10 @@ Options:
 # load packages
 from docopt import docopt
 import pandas as pd
+import numpy as np
 import math
 import json
+from collections import Counter
 
 opt = docopt(__doc__)
 
@@ -35,6 +37,10 @@ def main(file_path, save_to):
         "data/raw/disability-parking.csv", sep=';')
     parking_meters_df = pd.read_csv(
         "data/raw/parking-meters.csv", sep=';')
+    
+    ###################
+    # Nearby Parkings #
+    ###################
 
     # Get coordinates
     parking_meters_df["lat"] = parking_meters_df[
@@ -45,13 +51,28 @@ def main(file_path, save_to):
         'Geom'].apply(lambda p: json.loads(p)['coordinates'][0])
     dis_park["lon"] = dis_park[
         'Geom'].apply(lambda p: json.loads(p)['coordinates'][1])
+    
+    # To keep null Geom records - JQ
+    def get_coords(p, axis='lat'):
+        """Get a coordinate or return null"""
+        ind = 0 if axis == 'lat' else 1
 
+        try:
+            coord = json.loads(p)['coordinates'][ind]
+        except:
+            coord = np.nan
+
+        return coord
+    
+    licence_geom = licence[pd.notnull(licence['Geom'])]
+    licence_geom["lat"] = licence_geom['Geom'].apply(
+        lambda p: get_coords(p))
+    licence_geom["lon"] = licence_geom['Geom'].apply(
+        lambda p: get_coords(p, 'lon'))
+
+    # Un-used - JQ
     # Filter out points without geom location
-    licence = licence[pd.notnull(licence['Geom'])]
-    licence["lat"] = licence['Geom'].apply(
-        lambda p: json.loads(p)['coordinates'][0])
-    licence["lon"] = licence['Geom'].apply(
-        lambda p: json.loads(p)['coordinates'][1])
+    # licence_geom = licence[pd.notnull(licence['Geom'])]
 
     # this function is from
     # https://gis.stackexchange.com/questions/293310/how-to-use-geoseries-distance-to-get-the-right-answer
@@ -61,6 +82,7 @@ def main(file_path, save_to):
         lon1, lat1 = coord1
         lon2, lat2 = coord2
         R = 6371000  # radius of Earth in meters
+        
         phi_1 = math.radians(lat1)
         phi_2 = math.radians(lat2)
 
@@ -97,13 +119,13 @@ def main(file_path, save_to):
             return licence_partial
 
     area_lis = list(dis_park['Geo Local Area'].unique())
-    new_licence = get_nearby_facility(area_lis[0], licence,
+    new_licence = get_nearby_facility(area_lis[0], licence_geom,
                                       dis_park, 150, 'nearby_dis_park')
 
     for area in area_lis[1:]:
         new_licence = pd.concat([
             new_licence, get_nearby_facility(
-                area, licence, dis_park, 150, 'nearby_dis_park')])
+                area, licence_geom, dis_park, 150, 'nearby_dis_park')])
 
     parking_area_lis = list(parking_meters_df[
         'Geo Local Area'].unique())
@@ -114,13 +136,120 @@ def main(file_path, save_to):
     for area in parking_area_lis[1:]:
         new_licence_with_parking = pd.concat([
             new_licence_with_parking, get_nearby_facility(
-                area, licence,
+                area, licence_geom,
                 parking_meters_df, 300,
                 'nearby_parking_meters')])
 
-    licence = new_licence_with_parking
+    licence_geom = new_licence_with_parking
+    
+    ###########
+    # History #
+    ###########
+    def fill_geom(df):
+        """This function fills Geom for some business_id
+            and recovers around 1000 geoms in train set.
+        """
 
-    licence.to_csv(save_to, index=False)
+        # list of business_id that has null geom
+        list_of_id = df[df.Geom.isnull()].business_id.unique()
+
+        # get all rows for these ids from original df
+        could_fill = df[df.business_id.isin(list_of_id)]
+
+        # able to find geom for these ids
+        list_of_id = could_fill[could_fill.Geom.notnull()].business_id.unique()
+
+        # fill geoms
+        for i in list_of_id:
+            df_i = df[df.business_id == i]
+            geom = df_i[df_i.Geom.notnull()].Geom.values[0]
+            df.loc[df.business_id == i, 'Geom'] = geom
+
+        return df
+    
+    def history(df):
+        """This function assigns a binary variable
+            to each business id:
+            if the business has been operating for
+            more than 5 years, it will be assigned
+            an 1, otherwise 0.
+        """
+
+        df['history'] = np.zeros(len(df))
+
+        for i in df.business_id.unique():
+            id_hist = len(df[df.business_id == i])
+
+            if id_hist >= 5:
+                history = [0]*5+[1]*(id_hist-5)
+                df.loc[df.business_id == i, 
+                       'history'] = history
+
+        return df
+    
+    ##################
+    # Chain business #
+    ##################
+    
+    def chain(df):
+        """This function counts how many times a business name
+            occurs in the entire dataframe.
+
+           It is not aggregated to years in order to capture
+            the scenario of a business gone out of business
+            for a couple of years but came back at a different
+            location later on.
+
+           When counting chain businesses, both business name
+            and business industry are used. This is because
+            some business names are owner's names so there are
+            duplicated names for completely different businesses.
+        """
+
+        # count business by name so filter out the ones
+        #   without a name first
+        df_copy = df[df.BusinessName.notnull()]
+
+        names = []
+
+        # use business_id because ids are aggregated
+        #  using location. e.g., Starbucks at different locations
+        #  will have the same name but different ids
+        for i in df_copy.business_id.unique():
+            names.append(
+                (df_copy.loc[df_copy.business_id == i,
+                             'BusinessName'].values[0],
+                 df_copy.loc[df_copy.business_id == i,
+                             'BusinessIndustry'].values[0]))
+
+        # count names
+        name_dict = Counter(names)
+
+        # add chain column
+        chain = []
+        for i in range(len(df)):
+            name = df.iloc[i, df.columns.get_loc(
+                'BusinessName')]
+            industry = df.iloc[i, df.columns.get_loc(
+                'BusinessIndustry')]
+
+            if pd.isnull(name):
+                chain.append(name)
+            else:
+                try:
+                    chain.append(name_dict[
+                        (name, industry)])
+                except:
+                    chain.append(0)
+
+        df['chain'] = chain
+
+        return df
+
+    licence_feat_eng = chain(history(fill_geom(licence)))
+    
+    # Output
+    licence_feat_eng.to_csv(save_to, index=False)
 
 
 if __name__ == "__main__":

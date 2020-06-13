@@ -931,15 +931,9 @@ def main(file_path, save_to):
     licence_df = licence_df[licence_df.Status == 'Issued']
 
     # 2. Filter out unused columns
-    cols_not_used = ['business_id',
-                     'LicenceRSN',
+    cols_not_used = ['LicenceRSN',
                      'LicenceNumber',
                      'LicenceRevisionNumber',
-                     'BusinessName',
-                     'BusinessTradeName',
-                     'BusinessType',
-                     'BusinessSubType',
-                     'Status',
                      'IssuedDate',
                      'ExpiredDate',
                      'Unit',
@@ -950,9 +944,7 @@ def main(file_path, save_to):
                      'Province',
                      'Country',
                      'PostalCode',
-                     'ExtractDate',
-                     'Geom',
-                     'NextYearStatus']
+                     'ExtractDate']
 
     licence_df = licence_df.drop(columns=cols_not_used)
 
