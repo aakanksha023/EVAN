@@ -271,31 +271,57 @@ app.layout = html.Div([
         dcc.Tab(label='Neighbourhood Profiles', children=[
 
             # main row with map and summary info
-            html.Div([
-                # summary info
-                html.Div(id='summary_info',
-                        className="one-third column",
-                        # children=[
-                        #     html.H6("Vancouver Neighbourhood:",
-                        #             style={"textAlign": "center"}),
-                        #     html.H3(id='summary_title',
-                        #             style={"textAlign": "center"})
-                        ),
-                # main map of neighbourhoods
-                html.Div(
-                        className="two-thirds column map__slider__container",
+            html.Div(
+                className='row',
+                children=[
+                    html.Div(
+                        className="app__content",
                         children=[
-                            dcc.Graph(
-                                id='van_map',
-                                style={"visibility": "visible",
-                                       'width': '98%',
-                                       'padding': 10},
-                                config=config)]
-                )],
-                style={'marginTop': 50,
-                       'width': '100%',
-                       'display': 'flex',
-                       'justifyContent': 'center'}),
+                            # summary info
+                            html.Div(
+                                className="one-third column",
+                                children=[
+                                    html.Div(
+                                        id='summary_info',
+                                        className="graph__container first"
+                                    )
+                                ]
+                            ),
+                            # main map of neighbourhoods
+                            html.Div(
+                                className="two-thirds column map__slider__container",
+                                children=[
+                                    # map
+                                    dcc.Graph(
+                                        id='van_map',
+                                        style={"visibility": "visible"},
+                                        config=config),
+
+                                    # slider
+                                    html.Div(
+                                        className='div-for-slider',
+                                        children=[
+                                            dcc.Slider(
+                                                id='year_slider_census',
+                                                min=licence['FOLDERYEAR'].min(),
+                                                max=licence['FOLDERYEAR'].max(),
+                                                value=2016,
+                                                marks={str(year): {
+                                                    'label': str(year),
+                                                    'style': {'color': 'white'}}
+                                                for year in licence['FOLDERYEAR'].unique()},
+                                                step=None
+                                            )
+                                        ]
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                ],
+                style={'marginTop': 50}
+
+            ),
 
             # Adding tabs for summary neighbourhood data
             dcc.Tabs(id="subTabs", children=[
@@ -754,8 +780,7 @@ def update_van_map(clickData):
                                                  'color': False},
                                      mapbox_style="carto-positron",
                                      center={"lat": 49.252, "lon": -123.140},
-                                     zoom=11,
-                                     height=470)
+                                     zoom=10.9)
 
     graph_map.update_layout(
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
@@ -975,15 +1000,35 @@ def update_size(clickData):
     [Input('van_map', 'clickData')])
 def update_side_bar(clickData):
     year = 2016
-    area = 'Metro Vancouver'
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+        biz_df = agg_licence[(agg_licence.FOLDERYEAR == year) & (agg_licence.LocalArea == area)]
+        biz_num = pd.DataFrame(
+        biz_df.groupby(['LocalArea', 'FOLDERYEAR'])[
+            'business_id'].sum()).reset_index()
+    else:
+        area = 'Metro Vancouver'
+        biz_df = agg_licence[(agg_licence.FOLDERYEAR == year)]
+        biz_num = pd.DataFrame(
+        biz_df.groupby(['FOLDERYEAR'])[
+            'business_id'].sum()).reset_index()
 
+    #biz_df = pd.DataFrame(
+      #  biz_df.groupby(['BusinessIndustry'])[
+       #     'business_id'].sum()).reset_index()
+    #biz = biz_df[biz_df.business_id == biz_df.business_id.max()].reset_index()
+    #biz = biz_df.BusinessIndustry[0]
+
+    # calculate number of businesses
+    biz_num = biz_num.business_id[0]
+
+    # calculate total population
     pop_df = df[['LocalArea', 'Year', 'Age_total']]
     pop_df = pop_df[(pop_df.Year == year) & (pop_df.LocalArea == area)]
     pop = int(pop_df.Age_total)
 
+    # calculate dominate age group
     age_df = df[['LocalArea', 'Year',
                  'Under 20',
                  '20 to 34',
@@ -997,10 +1042,10 @@ def update_side_bar(clickData):
                          var_name='Age',
                          value_name='Population')
     age = age_df[age_df.Population == age_df.Population.max()].reset_index()
-
     age_frac = age.Population[0]
     age_group = age.Age[0]
 
+    # format html output for the summary stats
     sum_info = html.Div(
         children=[
             html.H6("Vancouver Neighbourhood:",
@@ -1009,7 +1054,9 @@ def update_side_bar(clickData):
             html.H3(f'{pop:,}', style={"marginBottom": 0}),
             html.H6("Residents in " + str(year)),
             html.H3(f'{age_frac:.1%}', style={"marginBottom": 0}),
-            html.H6(age_group + " Years of Age", style={"marginTop": 0})
+            html.H6(age_group + " Years of Age", style={"marginTop": 0}),
+            html.H3(f'{biz_num:,}', style={"marginBottom": 0}),
+            html.H6("Businesses in " + str(year)),
             ], style={"textAlign": "center",
                       "fontFamily": "sans-serif"})
 

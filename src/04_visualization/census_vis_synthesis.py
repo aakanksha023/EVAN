@@ -206,7 +206,7 @@ def main(path_in, path_out, area_file):
             age['80 and Older'] = (age[
                 '80 to 84 years'] + age[
                 '85 years and over'])
-        
+
         age['Age_total'] = (age[
                    'Under 20'] + age[
                    '20 to 34'] + age[
