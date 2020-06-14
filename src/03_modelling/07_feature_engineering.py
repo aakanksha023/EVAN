@@ -1,11 +1,11 @@
-# author: Jasmine Qin
-# date: 2020-06-01
+# author: Jasmine Qin and Xinwen Wang
+# date: 2020-06-13
 
 """
 This script performs feature engineering for a specified csv
 and saves it to a specified file path.
 
-Usage: src/03_modelling/05_feature_engineering.py \
+Usage: src/03_modelling/07_feature_engineering.py \
 --file_path=<file_path> --save_to=<save_to>
 
 Options:
@@ -37,7 +37,7 @@ def main(file_path, save_to):
         "data/raw/disability-parking.csv", sep=';')
     parking_meters_df = pd.read_csv(
         "data/raw/parking-meters.csv", sep=';')
-    
+
     ###################
     # Nearby Parkings #
     ###################
@@ -51,28 +51,27 @@ def main(file_path, save_to):
         'Geom'].apply(lambda p: json.loads(p)['coordinates'][0])
     dis_park["lon"] = dis_park[
         'Geom'].apply(lambda p: json.loads(p)['coordinates'][1])
-    
+
     # To keep null Geom records - JQ
     def get_coords(p, axis='lat'):
         """Get a coordinate or return null"""
         ind = 0 if axis == 'lat' else 1
 
-        try:
-            coord = json.loads(p)['coordinates'][ind]
-        except:
-            coord = np.nan
+        coord = json.loads(p)['coordinates'][ind]
+
+#         try:
+#             coord = json.loads(p)['coordinates'][ind]
+#         except:
+#             coord = np.nan
 
         return coord
-    
+
+    # Filter out points without geom location
     licence_geom = licence[pd.notnull(licence['Geom'])]
     licence_geom["lat"] = licence_geom['Geom'].apply(
         lambda p: get_coords(p))
     licence_geom["lon"] = licence_geom['Geom'].apply(
         lambda p: get_coords(p, 'lon'))
-
-    # Un-used - JQ
-    # Filter out points without geom location
-    # licence_geom = licence[pd.notnull(licence['Geom'])]
 
     # this function is from
     # https://gis.stackexchange.com/questions/293310/how-to-use-geoseries-distance-to-get-the-right-answer
@@ -82,7 +81,7 @@ def main(file_path, save_to):
         lon1, lat1 = coord1
         lon2, lat2 = coord2
         R = 6371000  # radius of Earth in meters
-        
+
         phi_1 = math.radians(lat1)
         phi_2 = math.radians(lat2)
 
@@ -141,9 +140,9 @@ def main(file_path, save_to):
                 'nearby_parking_meters')])
 
     licence_geom = new_licence_with_parking
-    
+
     ###########
-    # History #
+    # History # - JQ
     ###########
     def fill_geom(df):
         """This function fills Geom for some business_id
@@ -166,7 +165,7 @@ def main(file_path, save_to):
             df.loc[df.business_id == i, 'Geom'] = geom
 
         return df
-    
+
     def history(df):
         """This function assigns a binary variable
             to each business id:
@@ -182,15 +181,15 @@ def main(file_path, save_to):
 
             if id_hist >= 5:
                 history = [0]*5+[1]*(id_hist-5)
-                df.loc[df.business_id == i, 
+                df.loc[df.business_id == i,
                        'history'] = history
 
         return df
-    
+
     ##################
-    # Chain business #
+    # Chain business # - JQ
     ##################
-    
+
     def chain(df):
         """This function counts how many times a business name
             occurs in the entire dataframe.
@@ -247,7 +246,30 @@ def main(file_path, save_to):
         return df
 
     licence_feat_eng = chain(history(fill_geom(licence)))
-    
+
+    ##############################
+    # Count of Nearby Businesses # - JQ
+    ##############################
+
+    # The lookup information is saved to csv's
+    #   because it's time consuming to run
+
+    if 'train' in file_path:
+        nearby_business_lookup = pd.read_csv(
+            'src/03_modelling/nearby_business_train.csv')
+    elif 'valid' in file_path:
+        nearby_business_lookup = pd.read_csv(
+            'src/03_modelling/nearby_business_valid.csv')
+    else:
+        nearby_business_lookup = pd.read_csv(
+            'src/03_modelling/nearby_business_test.csv')
+
+    licence_feat_eng = licence_feat_eng.merge(
+        nearby_business_lookup,
+        how='left',
+        left_on=['FOLDERYEAR', 'business_id'],
+        right_on=['FOLDERYEAR', 'business_id'])
+
     # Output
     licence_feat_eng.to_csv(save_to, index=False)
 
