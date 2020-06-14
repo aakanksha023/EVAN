@@ -83,11 +83,11 @@ python3 src/02_clean_wrangle/05_clean_census.py --census_file="data/raw/census_2
 python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
 --save_to="data/processed/04_combined_train.csv"
 
-# validation set
+# validation set - (change in synthesis_script_input.txt)
 python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
 --save_to="data/processed/04_combined_validate.csv"
 
-# test set
+# test set - (change in synthesis_script_input.txt)
 python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
 --save_to="data/processed/04_combined_test.csv"
 ```
