@@ -92,25 +92,52 @@ def main(path_in, path_out, area_file):
         van_total['Type'] = 'mother tongue - total'
         language = language.append(van_total, ignore_index=True)
 
-        cols = ['English', 'French', 'Chinese, n.o.s.',
-                'Mandarin', 'Cantonese', 'Italian',
-                'German', 'Spanish']
+        if year == 2001:
+            cols = ['English', 'French', 'Chinese, n.o.s.',
+                    'Mandarin', 'Cantonese', 'Italian',
+                    'German', 'Spanish', 'Punjabi', 'Tagalog (Pilipino)',
+                    'Vietnamese', 'Korean', 'Hindi', 'Persian (Farsi)']
+        elif year in [2006, 2011]:
+            cols = ['English', 'French', 'Chinese, n.o.s.',
+                    'Mandarin', 'Cantonese', 'Italian',
+                    'German', 'Spanish', 'Panjabi (Punjabi)',
+                    'Tagalog (Pilipino, Filipino)',
+                    'Vietnamese', 'Korean', 'Hindi', 'Persian (Farsi)']
 
-        sum_language = 0
+        else:
+            cols = ['English', 'French', 'Chinese languages',
+                    'Italian', 'German', 'Spanish', 'Punjabi (Panjabi)',
+                    'Tagalog (Pilipino, Filipino)',
+                    'Vietnamese', 'Korean', 'Hindi', 'Persian (Farsi)']
+
+        # calculate percentages
         for c in cols:
             language[c] = language[c]/language['Single responses']
-            sum_language += language[c]
 
-        language['other language'] = 1 - sum_language
+        # group together Chinese languages
+        if year in [2001, 2006, 2011]:
+            language['Chinese languages'] = language['Mandarin'] + \
+                language['Cantonese'] + \
+                language['Chinese, n.o.s.']
 
-        language['Chinese'] = language['Mandarin'] + \
-            language['Cantonese'] + \
-            language['Chinese, n.o.s.']
+        # standardize spelling of languages
+        if year in [2006, 2011, 2016]:
+            language['Tagalog (Filipino)'] = language['Tagalog (Pilipino, Filipino)']
+            if year == 2016:
+                language['Panjabi (Punjabi)'] = language['Punjabi (Panjabi)']
+        else:
+            language['Panjabi (Punjabi)'] = language['Punjabi']
+            language['Tagalog (Filipino)'] = language['Tagalog (Pilipino)']
+        language['Korean language'] = language['Korean']
 
         language = language[['LocalArea', 'English',
-                             'French', 'Chinese',
+                             'French', 'Chinese languages',
+                             'Tagalog (Filipino)',
+                             'Panjabi (Punjabi)',
                              'Italian', 'German',
-                             'Spanish', 'other language']]
+                             'Spanish', 'Vietnamese',
+                             'Korean language', 'Hindi',
+                             'Persian (Farsi)']]
 
         return language
 
@@ -277,19 +304,26 @@ def main(path_in, path_out, area_file):
             van_total['Type'] = 'Total'
             mino = mino.append(van_total, ignore_index=True)
 
-        mino = mino[['LocalArea', 'Not a visible minority',
-                     'Total visible minority population']]
+        cols = ['Arab', 'Black', 'Chinese',
+                'Filipino', 'Japanese', 'Korean',
+                'Latin American', 'West Asian', 'South Asian',
+                'Southeast Asian']
+        
+        if year == 2016:
+            mino['Caucasian'] = mino['Not a visible minority'] / (mino['Not a visible minority'] + mino['Total visible minority population'])
+             # calculate percentages
+            for c in cols:
+                mino[c] = mino[c] / (mino['Not a visible minority'] + mino['Total visible minority population'])
+        else:
+            mino['Caucasian'] = mino['Not a visible minority'] / (mino['Total population'])
+             # calculate percentages
+            for c in cols:
+                mino[c] = mino[c] / (mino['Total population'])
 
-        mino['total_sum'] = mino[
-                'Not a visible minority'] + mino[
-                'Total visible minority population']
-
-        mino['Not a visible minority'] = mino[
-                'Not a visible minority'] / mino['total_sum']
-        mino['Total visible minority population'] = mino[
-                'Total visible minority population']/mino['total_sum']
-
-        mino.drop(columns=['total_sum'], inplace=True)
+        mino = mino[['LocalArea', 'Caucasian', 'Arab', 'Black',
+                     'Chinese', 'Filipino', 'Japanese', 'Korean',
+                     'Latin American', 'West Asian', 'South Asian',
+                     'Southeast Asian']]
 
         return mino
 
@@ -908,7 +942,8 @@ def main(path_in, path_out, area_file):
                 # run second cleaning function for population gender data
                 if general_file == "population_age_sex":
                     globals()[
-                        ('population_gender_' + str(year))] = clean_gender(df, year)
+                        ('population_gender_' + str(year))
+                        ] = clean_gender(df, year)
 
     ###########################################################################
     # SYNTHESIS of census data sets
