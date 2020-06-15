@@ -2,7 +2,7 @@
 # date: 2020-06-09
 
 """
-This script performs data wrangling and sythesizing needed for
+This script performs data wrangling and synthesizing needed for
 visualization of the business licence file.
 
 Usage: src/04_visualization/licence_vis_synthesis.py
@@ -94,11 +94,11 @@ def main():
 
     df = df[~(df.FOLDERYEAR < 1997.0)]
     df['FOLDERYEAR'] = [int(i) for i in df['FOLDERYEAR']]
-    
+
     df = df.sort_values(by=['business_id', 'FOLDERYEAR', 'ExtractDate'])
     df = df[df.groupby(['business_id'])['FOLDERYEAR'].apply(
         lambda x: ~(x.duplicated(keep='last')))]
-    
+
     # only Issued licences
     df = df.query('Status == "Issued"')
 

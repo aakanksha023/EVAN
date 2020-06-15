@@ -85,6 +85,15 @@ h6 {
     color: #ffffff;
 }
 
+.bottom__box__tab2{
+    height: 400px;
+    background-color: #47476b;
+    border-radius: 0.55rem;
+    justify-content: center;
+    padding: 10px 10px 100px 10px;
+    color: #ffffff;
+}
+
 #localarea-map {
     height: 340px;
     justify-content: center;

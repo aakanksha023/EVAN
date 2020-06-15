@@ -37,6 +37,9 @@
   .one-half.column                { width: 50%; margin-top: 1%; margin-left: 0.5%}
   .other-half.column              { width: 50%; margin-top: 1%; margin-left: 0.5%; margin-right: 1%;}
 
+  .one-half-tab2.column           { width: 45%; margin-top: 1%; margin-left: 2.5%; margin-right: 2.5%;}
+  .other-half-tab2.column         { width: 45%; margin-top: 1%; margin-left: 2.5%; margin-right: 2.5%;}
+
   /* Offsets */
 
   .offset-by-one-third.column,
