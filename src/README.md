@@ -102,8 +102,8 @@ python3 src/03_modelling/07_feature_engineering.py --file_path="data/processed/0
 --save_to="data/processed/05_feat_eng_train.csv"
 
 # validation set
-python3 src/03_modelling/07_feature_engineering.py --file_path="data/processed/04_combined_validation.csv" \
---save_to="data/processed/05_feat_eng_validation.csv"
+python3 src/03_modelling/07_feature_engineering.py --file_path="data/processed/04_combined_validate.csv" \
+--save_to="data/processed/05_feat_eng_validate.csv"
 
 # test set
 python3 src/03_modelling/07_feature_engineering.py --file_path="data/processed/04_combined_test.csv" \
