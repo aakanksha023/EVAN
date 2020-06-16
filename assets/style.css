@@ -1,6 +1,6 @@
 body {
     font-family: "Open Sans", sans-serif;
-    background-color: #ffffff;
+    background-color: #f9f9f9;
 }
 
 h6 {
@@ -28,12 +28,43 @@ h6 {
 .app__content {
     display: flex;
     margin-top: 10px;
+    color: #f9f9f9;
     border-radius: 0.55rem;
+}
+
+.mainTabs {
+    width: 200px;
+    height: 200px;
+    border-color: #47476b;
+}
+
+#mainTabs .tab--selected {
+    color: #47476b !important;
+    border-top-color: #47476b;
 }
 
 .div-for-dropdown {
   padding: 5px 5px 5px 5px;
-  color: black
+  color: black;
+}
+
+.div-for-dropdown3 {
+  padding: 5px 5px 5px 5px;
+  color: black;
+  border-radius: 0rem;
+}
+
+.div-for-input {
+  padding: 5px 5px 5px 5px;
+  margin-right: 5px;
+  color: white;
+}
+
+#businessname-input3, #lat-input3,
+#lon-input3, #fee-input3,
+#employee-input3 {
+    width: 228px;
+    height: 28px;
 }
 
 .graph__title {
@@ -51,16 +82,11 @@ h6 {
   padding: 0px 0px 0px 0px;
 }
 
-.auto__checkbox {
-    margin-right: 10px;
-}
-
-.auto__container {
-    display: flex;
-    justify-content: space-between;
-    color: #DFE3E8;
-    padding: 0px 0px;
-    border-radius: 0.55rem;
+.div-for-slider3 {
+  width: 90%;
+  text-align: left;
+  color: white;
+  padding: 0px 0px 0px 0px;
 }
 
 .map__slider__container {
@@ -70,11 +96,40 @@ h6 {
     padding: 0px 0px 0px 0px;
 }
 
+.map__slider__container3 {
+    height: 550px;
+    background-color: #47476b;
+    border-radius: 0.55rem;
+    padding: 0px 0px 0px 0px;
+}
+
+#model-map {
+    height: 510px;
+}
+
 .user__control__panel {
     height: 250px;
     margin-left: 15px;
-    background-color: #ffffff;
+    background-color: #f9f9f9;
     border-radius: 0.55rem;
+}
+
+.model__input__panel {
+    height: 800px;
+    margin-left: 15px;
+    background-color: #f9f9f9;
+    border-radius: 0.55rem;
+    color: white;
+    display: inline-block !important;
+}
+
+.confusion__panel {
+    height: 800px;
+    margin-left: 15px;
+    background-color: #f9f9f9;
+    border-radius: 0.55rem;
+    color: white;
+    display: inline-block !important;
 }
 
 .bottom__box{
@@ -119,4 +174,11 @@ h6 {
 .second {
     margin-top: 3px;
     margin-right: 3px;
+}
+
+.third {
+    height: 550px;
+    margin-right: 3px;
+    padding: 0px 0px 0px 0px;
+    color: #ffffff
 }
