@@ -13,6 +13,7 @@ import pandas as pd
 import json
 import csv
 import re
+from joblib import load
 
 
 def main():
@@ -133,7 +134,49 @@ def main():
     agg_viz = agg_viz[~(agg_viz.BusinessType.str.contains(
         r'\*Historic\*'))]
 
+    #############
+    # Modelling #
+    #############
+    train = pd.read_csv("data/processed/05_feat_eng_train.csv")
+    valid = pd.read_csv("data/processed/05_feat_eng_validate.csv")
+    model = load('src/03_modelling/final_model.joblib')
+
+    admin_cols = ["business_id", "BusinessName",
+                  "BusinessTradeName", "Status",
+                  "BusinessSubType", "label",
+                  "BusinessIndustry",
+                  "NextYearStatus", "Geom"]
+
+    X_train = train.drop(columns=admin_cols)
+    X_valid = valid.drop(columns=admin_cols)
+
+    train["predict"] = model.predict(X_train)
+    train['predict_proba'] = [
+        max(i) for i in model.predict_proba(X_train)]
+    valid["predict"] = model.predict(X_valid)
+    valid['predict_proba'] = [
+        max(i) for i in model.predict_proba(X_valid)]
+
+    train['type'] = ['train']*len(train)
+    valid['type'] = ['valid']*len(valid)
+
+    vis_model = pd.concat([train, valid])
+
+    vis_model['predicted_right'] = list(vis_model.label == vis_model.predict)
+    vis_model['predicted_right'] = [1 if i else -
+                                    1 for i in vis_model['predicted_right']]
+    vis_model['predict_proba'] = vis_model['predict_proba'] * \
+        vis_model['predicted_right']
+
+    # prepare shapely geom
+    vis_model = vis_model[vis_model.Geom.notnull()]
+    vis_model['coord-x'] = vis_model['Geom'].apply(
+        lambda p: json.loads(p)['coordinates'][0])
+    vis_model['coord-y'] = vis_model['Geom'].apply(
+        lambda p: json.loads(p)['coordinates'][1])
+
     # save to files
+    vis_model.to_csv("data/processed/vis_model.csv", index=False)
     licence_df.to_csv("data/processed/vis_licence.csv", index=False)
     agg_viz.to_csv("data/processed/vis_agg_licence.csv", index=False)
     parking.to_csv("data/processed/vis_parking.csv", index=False)

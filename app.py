@@ -24,6 +24,7 @@ from dash.dependencies import Input, Output
 from joblib import load
 from shapely.ops import nearest_points
 from shapely.geometry import Point
+from sklearn import metrics
 
 ##########
 # Set-up #
@@ -60,46 +61,29 @@ for i in boundary['features']:
 #############
 # Modelling #
 #############
-train = pd.read_csv("data/processed/05_feat_eng_train.csv")
-valid = pd.read_csv("data/processed/05_feat_eng_validate.csv")
-train_valid = pd.concat([train, valid])
-train_valid = train_valid[train_valid.Geom.notnull()]
+raw_vis_model = pd.read_csv("data/processed/vis_model.csv")
+y_valid = raw_vis_model[raw_vis_model.type == 'valid']['label']
+y_valid_pred = raw_vis_model[raw_vis_model.type == 'valid']['predict']
 
 # load model
 model = load('src/03_modelling/final_model.joblib')
 
-# prepare model results
-train_valid['predict'] = model.predict(train_valid.drop(columns='label'))
-train_valid['predict_proba'] = [
-    max(i) for i in model.predict_proba(train_valid.drop(columns='label'))]
-train_valid['predicted_right'] = list(train_valid.label == train_valid.predict)
-train_valid['predicted_right'] = [1 if i else -
-                                  1 for i in train_valid['predicted_right']]
-train_valid['predict_proba'] = train_valid['predict_proba'] * \
-    train_valid['predicted_right']
+census_cols = list(raw_vis_model.iloc[:, 16:111].columns)
+vis_model = raw_vis_model.drop(columns=census_cols)
 
-census_cols = list(train.iloc[:, 16:111].columns)
-train_valid = train_valid.drop(columns=census_cols)
-
-# prepare shapely geom
-train_valid['coord-x'] = train_valid['Geom'].apply(
-    lambda p: json.loads(p)['coordinates'][0])
-train_valid['coord-y'] = train_valid['Geom'].apply(
-    lambda p: json.loads(p)['coordinates'][1])
-
-train_valid['geometry'] = [Point(train_valid['coord-y'].iloc[i],
-                                 train_valid['coord-x'].iloc[i]
-                                 ) for i in range(len(train_valid['coord-y']))]
-train_valid_gpd = gpd.GeoDataFrame(
-    train_valid, crs={'init': 'epsg:4326'}, geometry='geometry')
+vis_model['geometry'] = [
+    Point(vis_model['coord-y'].iloc[i],
+          vis_model['coord-x'].iloc[i]) for i in range(len(vis_model['coord-x']))]
+vis_model_gpd = gpd.GeoDataFrame(
+    vis_model, crs={'init': 'epsg:4326'}, geometry='geometry')
 
 # define functions
 
 
 def get_census_info(year, localarea):
     """This function gets the census information for prediction."""
-    census_info = train[(train.FOLDERYEAR == year) & (
-        train.LocalArea == localarea)][census_cols].iloc[1]
+    census_info = raw_vis_model[(raw_vis_model.FOLDERYEAR == year) & (
+        raw_vis_model.LocalArea == localarea)][census_cols].iloc[1]
     return census_info.to_dict()
 
 
@@ -116,6 +100,45 @@ def get_similar_business(p, gpd):
 
     return nearest_data
 
+# static pie chart
+def confusion_matrix():
+    matrix = metrics.confusion_matrix(y_true=y_valid, y_pred=y_valid_pred)
+    tn, fp, fn, tp = matrix.ravel()
+    
+    values = [tp, fn, fp, tn]
+    labels_t = ["True Positive",
+                "False Negative",
+                "False Positive",
+                "True Negative"]
+    labels = ["TP", "FN", "FP", "TN"]
+    colors = ['rgb(153, 187, 255)',
+              'rgb(255, 102, 102)',
+              'rgb(255, 133, 51)',
+              'rgb(128, 255, 128)']
+
+    return go.Figure(
+            data = go.Pie(
+            labels=labels_t,
+            values=values,
+            hoverinfo='label+value+percent',
+            textinfo='text+value',
+            text=labels,
+            sort=False,
+            marker=dict(
+                colors=colors
+            )
+        ),
+        
+            layout = go.Layout(
+            title=f'Confusion Matrix',
+            margin=dict(l=10, r=10, t=60, b=10),
+            legend=dict(
+                bgcolor='rgba(255,255,255,0)',
+                orientation='h'
+            )
+        )
+    )
+
 ######################
 # Info and wrangling #
 ######################
@@ -125,8 +148,8 @@ licence = licence[licence.Status == 'Issued']
 
 industries = licence.BusinessIndustry.unique()
 localareas = boundary_df.LocalArea.unique()
-years = sorted(list(train_valid.FOLDERYEAR.unique()))
-businesstypes = train_valid.BusinessType.unique()
+years = sorted(list(vis_model.FOLDERYEAR.unique()))
+businesstypes = vis_model.BusinessType.unique()
 
 list_of_neighbourhoods = {
     'Arbutus-Ridge': {'lat': 49.254093, 'lon': -123.160461},
@@ -483,7 +506,10 @@ def build_tab3():
                     html.Div(
                         className="graph__container third",
                         children=[
-                            html.P("confusion")
+                            dcc.Graph(
+                                id='confusion-matrix',
+                                figure=confusion_matrix()
+                            )
                             
                         ]
                     )
@@ -1596,14 +1622,14 @@ def update_figure3(SelectedLocalArea,
             SelectedLocalArea]['lon']
         opacity = 1
 
-    df_tab3 = train_valid[
-        (train_valid.FOLDERYEAR == SelectedYear) & (
-            train_valid.BusinessType == SelectedType)
+    df_tab3 = vis_model[
+        (vis_model.FOLDERYEAR == SelectedYear) & (
+            vis_model.BusinessType == SelectedType)
     ]
 
-    gpd_tab3 = train_valid_gpd[
-        (train_valid_gpd.FOLDERYEAR == SelectedYear) & (
-            train_valid_gpd.BusinessType == SelectedType)
+    gpd_tab3 = vis_model_gpd[
+        (vis_model_gpd.FOLDERYEAR == SelectedYear) & (
+            vis_model_gpd.BusinessType == SelectedType)
     ]
 
     row = get_census_info(SelectedYear, SelectedLocalArea)
@@ -1613,11 +1639,11 @@ def update_figure3(SelectedLocalArea,
     row['history'] = SelectedHistory
     row['NumberofEmployees'] = InputEmployee
     row['FeePaid'] = InputFee
-    row['Parking meters'] = np.mean(train_valid['Parking meters'])
-    row['Disability parking'] = np.mean(train_valid['Disability parking'])
+    row['Parking meters'] = np.mean(vis_model['Parking meters'])
+    row['Disability parking'] = np.mean(vis_model['Disability parking'])
     row['nearest_business_count'] = np.nan
     try:
-        row['chain'] = train_valid.loc[train_valid.BusinessName ==
+        row['chain'] = vis_model.loc[vis_model.BusinessName ==
                                        InputName, 'chain'].values[0] + 1
     except:
         row['chain'] = 1
@@ -1669,7 +1695,7 @@ def update_figure3(SelectedLocalArea,
                 colorbar=dict(
                 title="Predicted</b><br>Probability"),
             ),
-            hovertemplate="""Business Name: %{customdata[0]}</b><br>Business Type: %{customdata[1]}</b><br>Current Year: %{customdata[2]}</b><br>Actual Label: %{customdata[3]}</b><br>Predicted Label: %{customdata[4]}<extra></extra>
+            hovertemplate="""Business Name: %{customdata[0]}</b><br>Business Type: %{customdata[1]}</b><br>Business History: %{customdata[2]}</b><br>Actual Label: %{customdata[3]}</b><br>Predicted Label: %{customdata[4]}<extra></extra>
             """
         ),
         layout=go.Layout(
