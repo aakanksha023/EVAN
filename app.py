@@ -627,12 +627,12 @@ app.layout = html.Div([
                                 ])
                         ], style={'marginTop': 50}),
 
-                    # population by language
+                    # population by language + ethnicity
                     html.Div(
                         className="app__content",
                         children=[
                             html.Div(
-                                className="one-half column",
+                                className="one-half-tab2 column bottom__box__tab2",
                                 children=[
                                     html.H4('Language Composition',
                                             style={"textAlign": "center"}),
@@ -641,14 +641,14 @@ app.layout = html.Div([
                                 ]
                             ),
                             html.Div(
-                                className="other-half column",
+                                className="other-half-tab2 column bottom__box__tab2",
                                 children=[
                                     html.H4('Ethnic Composition',
                                             style={"textAlign": "center"}),
                                     dcc.Graph(id='eth_table',
                                               config=config)]
                             )
-                        ], style={'marginTop': 50}
+                        ], style={'marginTop': 10}
                     ),
 
                     # population by education level
@@ -656,20 +656,20 @@ app.layout = html.Div([
                         className="app__content",
                         children=[
                             html.Div(
-                                className="one-half column",
+                                className="one-half-tab2 column bottom__box__tab2",
                                 children=[
                                     html.H4('Education Level',
                                             style={"textAlign": "center"}),
                                     dcc.Graph(id='edu_graph',
-                                              config=config,
-                                              style={"width": "80%"})
+                                              config=config)
                                 ]),
                             html.Div(
                                 className="other-half column",
                                 children=[
                                     html.H5('text description...')
                                 ])
-                        ], style={'marginTop': 50}),
+                        ], 
+                    ),
                 ]),
 
                 # summary of local business structure
@@ -1118,7 +1118,8 @@ def update_edu(clickData, year):
             hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
         layout=go.Layout(
             margin=dict(l=10, r=10, b=10, t=10),
-            template='simple_white'))
+            template='simple_white',
+            plot_bgcolor=colors['purple2']))
 
     if clickData is not None:
         van_df = van_df[(
@@ -1141,7 +1142,7 @@ def update_edu(clickData, year):
         yaxis={'title': "Percent of Total Population"},
         xaxis_title="Level of Education",
         showlegend=True,
-        legend=dict(x=1, y=1, xanchor="right"),
+        legend=dict(x=1, y=1, xanchor="right", bgcolor=colors['purple2']),
         height=300)
 
     return edu_fig
@@ -1304,8 +1305,6 @@ def update_size(clickData, year):
     return size_fig
 
 # update languages table by local area and year
-
-
 @app.callback(
     Output('lang_table', 'figure'),
     [Input('van_map', 'clickData'),
@@ -1347,6 +1346,9 @@ def update_lang(clickData, year):
     lang.reset_index(inplace=True)
     lang = lang[0:5].copy()
 
+    # format long neighbourhood names
+    name_area = re.sub(r"-", "- ", area)
+
     if clickData is not None:
         # format results in table
         table = go.Figure(
@@ -1354,7 +1356,7 @@ def update_lang(clickData, year):
                 go.Table(
                     header=dict(
                         values=['LANGUAGES',
-                                area.upper(),
+                                name_area.upper(),
                                 'METRO VANCOUVER'],
                         fill_color=colors['purple4'],
                         align=['center'],
@@ -1389,12 +1391,11 @@ def update_lang(clickData, year):
                 )
             ]
         )
-
+    table.update_layout(height=300,
+                        margin=dict(l=10, r=10, b=10, t=10))
     return table
 
-# update languages table by local area and year
-
-
+# update ethinicity table by local area and year
 @app.callback(
     Output('eth_table', 'figure'),
     [Input('van_map', 'clickData'),
@@ -1433,6 +1434,9 @@ def update_eth(clickData, year):
     eth.reset_index(inplace=True)
     eth = eth[0:5].copy()
 
+    # format long neighbourhood names
+    name_area = re.sub(r"-", "- ", area)
+
     if clickData is not None:
         # format results in table
         table = go.Figure(
@@ -1440,7 +1444,7 @@ def update_eth(clickData, year):
                 go.Table(
                     header=dict(
                         values=['ETHNICITIES',
-                                area.upper(),
+                                name_area.upper(),
                                 'METRO VANCOUVER'],
                         fill_color=colors['purple4'],
                         align=['center'],
@@ -1475,7 +1479,8 @@ def update_eth(clickData, year):
                 )
             ]
         )
-
+    table.update_layout(height=300,
+                        margin=dict(l=10, r=10, b=10, t=10))
     return table
 
 

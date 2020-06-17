@@ -36,9 +36,11 @@ h6 {
     width: 200px;
     height: 200px;
     border-color: #47476b;
+    font-weight: bold; 
 }
 
 #mainTabs .tab--selected {
+    font-weight: bold; 
     color: #47476b !important;
     border-top-color: #47476b;
 }
@@ -143,6 +145,15 @@ h6 {
 .bottom__box__tab2{
     height: 400px;
     background-color: #47476b;
+    border-radius: 0.55rem;
+    justify-content: center;
+    padding: 10px 10px 100px 10px;
+    color: #ffffff;
+}
+
+.bottom__box__grey{
+    height: 400px;
+    background-color: #afb0b3;
     border-radius: 0.55rem;
     justify-content: center;
     padding: 10px 10px 100px 10px;
