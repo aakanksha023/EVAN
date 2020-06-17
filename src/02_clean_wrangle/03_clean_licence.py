@@ -98,7 +98,6 @@ def main(file_path, mapping_csv, save_to):
     # 3. define conditions to label 1 (success)
     #       current year = Issued, no matter what status in last year
     df['label'] = np.where(df.NextYearStatus == 'Issued', 1, 0)
-
     # drop columns
     df = df.drop(columns=['business_id_lag1', 'folderyear_lag1'])
 

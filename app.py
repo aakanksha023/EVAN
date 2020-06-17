@@ -73,7 +73,8 @@ vis_model = raw_vis_model.drop(columns=census_cols)
 
 vis_model['geometry'] = [
     Point(vis_model['coord-y'].iloc[i],
-          vis_model['coord-x'].iloc[i]) for i in range(len(vis_model['coord-x']))]
+          vis_model[
+              'coord-x'].iloc[i]) for i in range(len(vis_model['coord-x']))]
 vis_model_gpd = gpd.GeoDataFrame(
     vis_model, crs={'init': 'epsg:4326'}, geometry='geometry')
 
@@ -100,11 +101,12 @@ def get_similar_business(p, gpd):
 
     return nearest_data
 
+
 # static pie chart
 def confusion_matrix():
     matrix = metrics.confusion_matrix(y_true=y_valid, y_pred=y_valid_pred)
     tn, fp, fn, tp = matrix.ravel()
-    
+
     values = [tp, fn, fp, tn]
     labels_t = ["True Positive",
                 "False Negative",
@@ -117,26 +119,24 @@ def confusion_matrix():
               'rgb(128, 255, 128)']
 
     return go.Figure(
-            data = go.Pie(
-            labels=labels_t,
-            values=values,
-            hoverinfo='label+value+percent',
-            textinfo='text+value',
-            text=labels,
-            sort=False,
-            marker=dict(
-                colors=colors
+            data=go.Pie(
+                        labels=labels_t,
+                        values=values,
+                        hoverinfo='label+value+percent',
+                        textinfo='text+value',
+                        text=labels,
+                        sort=False,
+                        marker=dict(colors=colors)
+            ),
+
+            layout=go.Layout(
+                             title=f'Confusion Matrix',
+                             margin=dict(l=10, r=10, t=60, b=10),
+                             legend=dict(
+                                         bgcolor='rgba(255,255,255,0)',
+                                         orientation='h'
+                             )
             )
-        ),
-        
-            layout = go.Layout(
-            title=f'Confusion Matrix',
-            margin=dict(l=10, r=10, t=60, b=10),
-            legend=dict(
-                bgcolor='rgba(255,255,255,0)',
-                orientation='h'
-            )
-        )
     )
 
 ######################
@@ -230,7 +230,8 @@ def build_tab1():
                                                     for i in industries
                                                 ],
                                                 style={
-                                                    "border": "0px solid black"},
+                                                    "border": "0px solid black"
+                                                },
                                                 placeholder='Select a business industry'
                                             )
                                         ],
@@ -246,7 +247,8 @@ def build_tab1():
                                                     for i in localareas
                                                 ],
                                                 style={
-                                                    "border": "0px solid black"},
+                                                    "border": "0px solid black"
+                                                },
                                                 placeholder='Select a neighbourhood'
                                             )
                                         ]
@@ -350,7 +352,7 @@ def build_tab3():
                     html.Div(
                         className="graph__container third",
                         children=[
-                            
+
                             # Neighbourhood
                             html.Div(
                                 className="div-for-dropdown3",
@@ -380,7 +382,7 @@ def build_tab3():
                                     )
                                 ],
                             ),
-                            
+
                             # History
                             html.Div(
                                 className="div-for-dropdown3",
@@ -390,14 +392,14 @@ def build_tab3():
                                         options=[
                                             {'label': 'greater than 5 years',
                                              'value': 1},
-                                            {'label': 'less than 5 years', 
+                                            {'label': 'less than 5 years',
                                              'value': 0}
                                         ],
                                         placeholder='History: greater than 5 years'
                                     )
                                 ],
                             ),
-                            
+
                             html.Hr(),
 
                             # Business Name
@@ -412,30 +414,30 @@ def build_tab3():
                                 ],
                             ),
 
-                            # Lattitude
+                            # Latitude
                             html.Div(
                                 className="div-for-input",
                                 children=[
                                     dcc.Input(
                                         id="lat-input3",
                                         type="number",
-                                        placeholder="Lattitude: 49.2822434350563"
+                                        placeholder="Latitude: 49.2822434350563"
                                     )
                                 ],
                             ),
 
-                            # Lontitude
+                            # Longitude
                             html.Div(
                                 className="div-for-input",
                                 children=[
                                     dcc.Input(
                                         id="lon-input3",
                                         type="number",
-                                        placeholder="Longtitude: -123.119500778402"
+                                        placeholder="Longitude: -123.119500778402"
                                     )
                                 ],
                             ),
-                            
+
                             # Fee paid
                             html.Div(
                                 className="div-for-input",
@@ -447,7 +449,7 @@ def build_tab3():
                                     )
                                 ],
                             ),
-                            
+
                             # Number of employees
                             html.Div(
                                 className="div-for-input",
@@ -459,11 +461,11 @@ def build_tab3():
                                     )
                                 ],
                             ),
-                            
+
                             html.Hr(),
 
                             html.P(id="predict_text1"),
-                            
+
                             html.P(id="predict_text2"),
                         ]
 
@@ -478,7 +480,7 @@ def build_tab3():
                 children=[
                     # model map
                     dcc.Graph(id='model-map'),
-                    
+
                     # year slider
                     html.Div(
                         className='div-for-slider3',
@@ -498,7 +500,7 @@ def build_tab3():
                     )
                 ],
             ),
-            
+
             # Confusion matrix
             html.Div(
                 className="one-fourth column confusion__panel",
@@ -510,7 +512,7 @@ def build_tab3():
                                 id='confusion-matrix',
                                 figure=confusion_matrix()
                             )
-                            
+
                         ]
                     )
                 ],
@@ -627,12 +629,12 @@ app.layout = html.Div([
                                 ])
                         ], style={'marginTop': 50}),
 
-                    # population by language
+                    # population by language + ethnicity
                     html.Div(
                         className="app__content",
                         children=[
                             html.Div(
-                                className="one-half column",
+                                className="one-half-tab2 column bottom__box__tab2",
                                 children=[
                                     html.H4('Language Composition',
                                             style={"textAlign": "center"}),
@@ -641,14 +643,14 @@ app.layout = html.Div([
                                 ]
                             ),
                             html.Div(
-                                className="other-half column",
+                                className="other-half-tab2 column bottom__box__tab2",
                                 children=[
                                     html.H4('Ethnic Composition',
                                             style={"textAlign": "center"}),
                                     dcc.Graph(id='eth_table',
                                               config=config)]
                             )
-                        ], style={'marginTop': 50}
+                        ], style={'marginTop': 10}
                     ),
 
                     # population by education level
@@ -656,20 +658,20 @@ app.layout = html.Div([
                         className="app__content",
                         children=[
                             html.Div(
-                                className="one-half column",
+                                className="one-half-tab2 column bottom__box__tab2",
                                 children=[
                                     html.H4('Education Level',
                                             style={"textAlign": "center"}),
                                     dcc.Graph(id='edu_graph',
-                                              config=config,
-                                              style={"width": "80%"})
+                                              config=config)
                                 ]),
                             html.Div(
                                 className="other-half column",
                                 children=[
                                     html.H5('text description...')
                                 ])
-                        ], style={'marginTop': 50}),
+                        ],
+                    ),
                 ]),
 
                 # summary of local business structure
@@ -963,7 +965,7 @@ def update_figure(SelectedIndustry,
                     marker=dict(
                         opacity=opacity,
                         size=4),
-                    hovertemplate="""Business Name: %{customdata[0]}</b><br>Business Type: %{customdata[1]}"""
+                    hovertemplate="Business Name: %{customdata[0]}</b><br>Business Type: %{customdata[1]}"
                 )
             )
         else:
@@ -978,7 +980,7 @@ def update_figure(SelectedIndustry,
                         opacity=opacity,
                         size=4),
                     visible='legendonly',
-                    hovertemplate="""Business Name: %{customdata[0]}</b><br>Business Type: %{customdata[1]}"""
+                    hovertemplate="Business Name: %{customdata[0]}</b><br>Business Type: %{customdata[1]}"
                 )
             )
 
@@ -1118,7 +1120,8 @@ def update_edu(clickData, year):
             hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
         layout=go.Layout(
             margin=dict(l=10, r=10, b=10, t=10),
-            template='simple_white'))
+            template='simple_white',
+            plot_bgcolor=colors['purple2']))
 
     if clickData is not None:
         van_df = van_df[(
@@ -1141,7 +1144,7 @@ def update_edu(clickData, year):
         yaxis={'title': "Percent of Total Population"},
         xaxis_title="Level of Education",
         showlegend=True,
-        legend=dict(x=1, y=1, xanchor="right"),
+        legend=dict(x=1, y=1, xanchor="right", bgcolor=colors['purple2']),
         height=300)
 
     return edu_fig
@@ -1278,7 +1281,8 @@ def update_size(clickData, year):
 
     if clickData is not None:
         van_df = van_df[(
-            van_df.Year == census_year) & (van_df.LocalArea == 'Metro Vancouver')]
+            van_df.Year == census_year) & (
+            van_df.LocalArea == 'Metro Vancouver')]
         van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
                              var_name='Household Size',
                              value_name='Percent of Total Population')
@@ -1303,9 +1307,8 @@ def update_size(clickData, year):
 
     return size_fig
 
+
 # update languages table by local area and year
-
-
 @app.callback(
     Output('lang_table', 'figure'),
     [Input('van_map', 'clickData'),
@@ -1347,6 +1350,9 @@ def update_lang(clickData, year):
     lang.reset_index(inplace=True)
     lang = lang[0:5].copy()
 
+    # format long neighbourhood names
+    name_area = re.sub(r"-", "- ", area)
+
     if clickData is not None:
         # format results in table
         table = go.Figure(
@@ -1354,7 +1360,7 @@ def update_lang(clickData, year):
                 go.Table(
                     header=dict(
                         values=['LANGUAGES',
-                                area.upper(),
+                                name_area.upper(),
                                 'METRO VANCOUVER'],
                         fill_color=colors['purple4'],
                         align=['center'],
@@ -1381,7 +1387,8 @@ def update_lang(clickData, year):
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
-                    cells=dict(values=[lang['index'], round(lang[area]*100, 2)],
+                    cells=dict(values=[lang['index'],
+                               round(lang[area]*100, 2)],
                                fill=dict(color=['white']),
                                align=['center'],
                                font_size=20,
@@ -1389,12 +1396,12 @@ def update_lang(clickData, year):
                 )
             ]
         )
-
+    table.update_layout(height=300,
+                        margin=dict(l=10, r=10, b=10, t=10))
     return table
 
-# update languages table by local area and year
 
-
+# update ethnicity table by local area and year
 @app.callback(
     Output('eth_table', 'figure'),
     [Input('van_map', 'clickData'),
@@ -1433,6 +1440,9 @@ def update_eth(clickData, year):
     eth.reset_index(inplace=True)
     eth = eth[0:5].copy()
 
+    # format long neighbourhood names
+    name_area = re.sub(r"-", "- ", area)
+
     if clickData is not None:
         # format results in table
         table = go.Figure(
@@ -1440,7 +1450,7 @@ def update_eth(clickData, year):
                 go.Table(
                     header=dict(
                         values=['ETHNICITIES',
-                                area.upper(),
+                                name_area.upper(),
                                 'METRO VANCOUVER'],
                         fill_color=colors['purple4'],
                         align=['center'],
@@ -1475,7 +1485,8 @@ def update_eth(clickData, year):
                 )
             ]
         )
-
+    table.update_layout(height=300,
+                        margin=dict(l=10, r=10, b=10, t=10))
     return table
 
 
@@ -1509,10 +1520,10 @@ def update_side_bar(clickData, year):
                 'business_id'].sum()).reset_index()
 
     # biz_df = pd.DataFrame(
-      #  biz_df.groupby(['BusinessIndustry'])[
-       #     'business_id'].sum()).reset_index()
-    #biz = biz_df[biz_df.business_id == biz_df.business_id.max()].reset_index()
-    #biz = biz_df.BusinessIndustry[0]
+    #          biz_df.groupby(['BusinessIndustry'])[
+    #          'business_id'].sum()).reset_index()
+    # biz = biz_df[biz_df.business_id == biz_df.business_id.max()].reset_index()
+    # biz = biz_df.BusinessIndustry[0]
 
     # calculate number of businesses
     biz_num = biz_num.business_id[0]
@@ -1589,14 +1600,14 @@ def update_figure3(SelectedLocalArea,
     lonInitial = -123.121
     zoom = 11
     opacity = 0.5
-    
+
     if (SelectedLocalArea is None) or (
         SelectedYear is None) or (
         SelectedType is None) or (
         SelectedHistory is None) or (
         InputFee is None) or (
         InputEmployee is None):
-        
+
         return go.Figure(
             data=go.Scattermapbox(),
             layout=go.Layout(
@@ -1644,7 +1655,7 @@ def update_figure3(SelectedLocalArea,
     row['nearest_business_count'] = np.nan
     try:
         row['chain'] = vis_model.loc[vis_model.BusinessName ==
-                                       InputName, 'chain'].values[0] + 1
+                                     InputName, 'chain'].values[0] + 1
     except:
         row['chain'] = 1
     row = pd.DataFrame(row, index=[0])
@@ -1660,8 +1671,9 @@ def update_figure3(SelectedLocalArea,
 
     predict_proba = round(max(model.predict_proba(row)[0]), 4)
     predict = model.predict(row)
-    predict_text1 = "Predicted: " + ("will renew " if predict == 1 else "will not renew") 
-    predict_text2 = "Probabiliy: " + str(predict_proba)
+    predict_text1 = "Predicted: " + (
+        "will renew " if predict == 1 else "will not renew")
+    predict_text2 = "Probability: " + str(predict_proba)
 
     if predict == 1:
         df_tab3 = df_tab3[df_tab3.predict == 1]
@@ -1693,7 +1705,7 @@ def update_figure3(SelectedLocalArea,
                 showscale=True,
                 colorscale="RdBu",
                 colorbar=dict(
-                title="Predicted</b><br>Probability"),
+                              title="Predicted</b><br>Probability"),
             ),
             hovertemplate="""Business Name: %{customdata[0]}</b><br>Business Type: %{customdata[1]}</b><br>Business History: %{customdata[2]}</b><br>Actual Label: %{customdata[3]}</b><br>Predicted Label: %{customdata[4]}<extra></extra>
             """

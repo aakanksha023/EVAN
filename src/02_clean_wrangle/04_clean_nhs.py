@@ -53,7 +53,7 @@ def main(nhs_zip, ct_bound_zip, nhs_file, ct_file, area_file, file_path):
     z.extractall(path="data/raw/")
     nhs_boundaries = gpd.read_file(ct_file)
 
-    # read in local areas boundaries
+    # read in local area boundaries
     areas = gpd.read_file(area_file)
 
     # select only census tracts in Vancouver

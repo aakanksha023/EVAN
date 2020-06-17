@@ -4,24 +4,22 @@
 """
 This script performs data wrangling and synthesis for multiple csv
 and saves it to a specified file path. The input licence data needs to
-be the output of 03_clean_wrangle.py script. The ouput will be feeding into
+be the output of 03_clean_wrangle.py script. The output will be feeding into
 machine learning algorithm.
 
-Usage: src/02_clean_wrangle/06_sythesis.py --file_path=<file_path>  \
---save_to=<save_to> 
+Usage: src/02_clean_wrangle/06_synthesis.py --file_path=<file_path>  \
+--save_to=<save_to>
 
 Options:
 --file_path=<file_path>         A txt file storing two-dimensional array,
-                                    specifing the file path for input dataset.
---save_to=<save_to>           This is the file path the processed training
-                                    csv will be saved to
+                                specifing the file path for input dataset.
+--save_to=<save_to>             The file path where the processed training
+                                csv will be saved.
 """
 
 # load packages
 from docopt import docopt
 import pandas as pd
-import zipfile
-import json
 import re
 
 
@@ -146,7 +144,6 @@ def main(file_path, save_to):
     # suppress warning
     pd.options.mode.chained_assignment = None
 
-
     # clean
 
     # only keeping Geom, and Geo Local Area column
@@ -166,7 +163,6 @@ def main(file_path, save_to):
     parking_meters_df = parking_meters_df.merge(
         meter_count_df, on='Geo Local Area', how='left')
 
-    
     ###############
     # Census Data #
     ###############
@@ -177,7 +173,7 @@ def main(file_path, save_to):
         from the start to end
         Args:
             df (pandas dataframe): The dataframe
-            start_year (int): The four digit strat year
+            start_year (int): The four digit start year
             end_year (int): The four digit end year, note end year not included
 
         Returns:
@@ -632,13 +628,13 @@ def main(file_path, save_to):
                      '5 or more persons': '6 or more persons household',
                      '4 to 5 persons': '4 to 5 persons household',
                      '6 or more persons': '6 or more persons household'},
-                     inplace=True)
+            inplace=True)
 
         house_size = house_size[[
-            'LocalArea', '1 person household',
-            '2 persons household', '3 persons household',
-            '4 to 5 persons household',
-            '6 or more persons household']]
+                                 'LocalArea', '1 person household',
+                                 '2 persons household', '3 persons household',
+                                 '4 to 5 persons household',
+                                 '6 or more persons household']]
 
         house_size = fill_missing_year(house_size, start_year, end_year)
         return house_size
@@ -922,7 +918,7 @@ def main(file_path, save_to):
     im_birth_2006 = clean_im_birth(im_birth_2006, 2002, 2007)
     im_birth_2011 = clean_im_birth(im_birth_2011, 2007, 2012)
     im_birth_2016 = clean_im_birth(im_birth_2016, 2012, 2020)
-    
+
     ###################################
     # Insert Cleaning (for modelling) #
     ###################################
@@ -1058,7 +1054,6 @@ def main(file_path, save_to):
     # save to a new csv
     licence_df.rename(columns={'Geo Local Area': 'LocalArea'}).to_csv(
         save_to, index=False)
-   
 
 
 if __name__ == "__main__":
