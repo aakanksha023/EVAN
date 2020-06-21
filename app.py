@@ -923,25 +923,16 @@ def update_line(SelectedIndustry,
                 SelectedBusinessType):
 
     if SelectedIndustry or SelectedLocalArea or SelectedBusinessType:
-        if SelectedIndustry and SelectedLocalArea and SelectedBusinessType:
-            line_df = agg_licence[
-                agg_licence.BusinessIndustry == SelectedIndustry]
+        line_df = agg_licence.copy()
+
+        if SelectedIndustry:
+            line_df = line_df[
+                line_df.BusinessIndustry == SelectedIndustry]
+        if SelectedLocalArea:
             line_df = line_df[line_df.LocalArea == SelectedLocalArea]
+        if SelectedBusinessType:
             line_df = line_df[
                 line_df.BusinessType == SelectedBusinessType]
-        elif SelectedIndustry and SelectedLocalArea:
-            line_df = agg_licence[
-                agg_licence.BusinessIndustry == SelectedIndustry]
-            line_df = line_df[line_df.LocalArea == SelectedLocalArea]
-        elif SelectedBusinessType:
-            line_df = line_df[
-                line_df.BusinessType == SelectedBusinessType]
-        elif SelectedIndustry:
-            line_df = agg_licence[
-                agg_licence.BusinessIndustry == SelectedIndustry]
-        else:
-            line_df = agg_licence[
-                agg_licence.LocalArea == SelectedLocalArea]
 
         line_df = pd.DataFrame(line_df.groupby([
             'FOLDERYEAR'])['business_id'].sum()).reset_index()
