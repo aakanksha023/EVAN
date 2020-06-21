@@ -37,8 +37,8 @@
   .one-half.column                { width: 50%; margin-top: 1%; margin-left: 0.5%}
   .other-half.column              { width: 50%; margin-top: 1%; margin-left: 0.5%; margin-right: 1%;}
     
-  .one-fourth.column              { width: 18%; margin-left: 0.5%;}
-  .two-fourths.column             { width: 60%; margin-left: 1%; margin-right: 1%;}
+  .one-fourth.column              { width: 18%; margin-top: 1%; margin-left: 0.5%;}
+  .two-fourths.column             { width: 60%; margin-top: 1%; margin-left: 1%; margin-right: 1%;}
 
   .one-half-tab2.column           { width: 45%; margin-top: 1%; margin-left: 2.5%; margin-right: 2.5%;}
   .other-half-tab2.column         { width: 45%; margin-top: 1%; margin-left: 2.5%; margin-right: 2.5%;}

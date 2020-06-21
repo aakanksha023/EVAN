@@ -113,10 +113,10 @@ def confusion_matrix():
                 "False Positive",
                 "True Negative"]
     labels = ["TP", "FN", "FP", "TN"]
-    colors = ['rgb(153, 187, 255)',
-              'rgb(255, 102, 102)',
-              'rgb(255, 133, 51)',
-              'rgb(128, 255, 128)']
+    colors = ['forestgreen',
+              'firebrick',
+              'darkorange',
+              'powderblue']
 
     return go.Figure(
             data=go.Pie(
@@ -126,12 +126,15 @@ def confusion_matrix():
                         textinfo='text+value',
                         text=labels,
                         sort=False,
-                        marker=dict(colors=colors)
+                        marker=dict(
+                                    colors=colors,
+                                    line=dict(color='#000000', width=1))
             ),
 
             layout=go.Layout(
                              title=f'Confusion Matrix',
-                             margin=dict(l=10, r=10, t=60, b=10),
+                             margin=dict(l=0, r=0, t=0, b=0),
+                             plot_bgcolor='rgb(0,0,0)',
                              legend=dict(
                                          bgcolor='rgba(255,255,255,0)',
                                          orientation='h'
@@ -184,8 +187,8 @@ boundary_df = boundary_df.merge(pd.DataFrame(
     number_of_businesses).reset_index(), how="left", on='LocalArea')
 
 colors = {
-    'purple5': 'rgb(71, 71, 107)',
-    'purple4': 'rgb(163, 163, 194)',
+    'ubc': 'rgb(82, 82, 122)', # UBC logo color 52527a
+    'deetken': 'rgb(124, 153, 208)', # Deetken logo color 7c99d0
     'purple2': 'rgb(240, 240, 245)',
     'green3': 'rgb(117, 163, 129)'
 }
@@ -503,14 +506,15 @@ def build_tab3():
 
             # Confusion matrix
             html.Div(
-                className="one-fourth column confusion__panel",
+                className="one-fourth column model__input__panel",
                 children=[
                     html.Div(
                         className="graph__container third",
                         children=[
                             dcc.Graph(
                                 id='confusion-matrix',
-                                figure=confusion_matrix()
+                                figure=confusion_matrix(),
+                                config=config
                             )
 
                         ]
@@ -530,20 +534,34 @@ app.layout = html.Div([
         html.H1("Forecasting the Evolution of Vancouver's Business Landscape",
                 style={"textAlign": "center", 'fontFamily': 'Open Sans',
                        'marginTop': 40, 'marginBottom': 40,
-                       'marginLeft': 100, 'marginRight': 100})],
-             style={'Color': '#2E4053'}),
+                       'marginLeft': 100, 'marginRight': 100,
+                       'color': "black"})],
+             ),
 
     # Dividing the dashboard into tabs
     dcc.Tabs(id="mainTabs", children=[
+        
+        # Instruction - tab0
+        dcc.Tab(label='PRODUCT SUMMARY',
+                id='tab0',
+                className='custom-tab',
+                children=[
+        ]),
 
 
         # Define the layout of the first Tab
-        dcc.Tab(label='BUSINESS LICENCE', children=[
+        dcc.Tab(label='BUSINESS LICENCE',
+                id='tab1',
+                className='custom-tab',
+                children=[
             build_tab1()
         ]),
 
         # Define the layout of the second Tab
-        dcc.Tab(label='NEIGHBOURHOOD PROFILES', children=[
+        dcc.Tab(label='NEIGHBOURHOOD PROFILES',
+                id='tab2',
+                className='custom-tab',
+                children=[
 
             # main row with map and summary info
             html.Div(
@@ -595,8 +613,7 @@ app.layout = html.Div([
                             )
                         ]
                     )
-                ],
-                style={'marginTop': 50}
+                ]
 
             ),
 
@@ -688,33 +705,38 @@ app.layout = html.Div([
         ]),
 
         # Define the layout of the third Tab
-        dcc.Tab(label='MACHINE LEARNING MODEL', children=[
+        dcc.Tab(label='MACHINE LEARNING MODEL',
+                id='tab3',
+                className='custom-tab',
+                children=[
             build_tab3()
         ])
     ]),
 
     # main app footer
-    html.Footer([
+    html.Footer(id="footer", children=[
 
-        html.H4("PROJECT PARTNERS", style={
-                "textAlign": "center", 'marginBottom': 50}),
-        dbc.Row([
-            dbc.Col([
-                html.Img(
+        html.H1("Project Partners",
+                style={"textAlign": "center", 'fontFamily': 'Open Sans',
+                       'marginBottom': 10, 'marginTop': 10,
+                       'color': "black"}),
+
+        dbc.Row(children=[
+
+            html.Img(
+                    id="ubc-logo",
                     src="https://brand3.sites.olt.ubc.ca/files/2018/09/5NarrowLogo_ex_768.png",
-                    style={"width": "20%"})
-            ],
-                width=4,
-                align='end'),
-            dbc.Col([
-                html.Img(
+                    style={"width": "20%"}),
+
+            html.Img(
+                    id="deetken-logo",
                     src="https://deetken.com/wp-content/uploads/2019/02/logo-1.png",
-                    style={"width": "20%"})
-            ],
-                width=4)
-        ], justify="center"),
-    ], style={'marginTop': 200}),
-])
+                    style={"width": "20%"}),
+
+            ]),
+
+        ], style={'marginTop': 50}),
+    ])
 
 ###########
 # Updates #
@@ -766,8 +788,8 @@ def update_choropleth(SelectedLocalArea):
         geojson=boundary,
         color="color",
         color_discrete_map={'not-selected': 'white',
-                            'selected': colors['purple5'],
-                            'blank': colors['purple4']},
+                            'selected': colors['ubc'],
+                            'blank': colors['deetken']},
         featureidkey="properties.mapid",
         locations="mapid",
         projection="mercator",
@@ -842,7 +864,7 @@ def update_histogram(SelectedIndustry, SelectedLocalArea):
                     xanchor="left",
                     yanchor="middle",
                     showarrow=False,
-                    font=dict(color=colors['purple5']),
+                    font=dict(color=colors['ubc']),
                 )
                 for xi, yi in zip(histogram_df['x-axis'],
                                   histogram_df['y-axis'])
@@ -963,6 +985,7 @@ def update_figure(SelectedIndustry,
                     mode="markers",
                     name=i,
                     marker=dict(
+                        color=colors['deetken'],
                         opacity=opacity,
                         size=4),
                     hovertemplate="Business Name: %{customdata[0]}</b><br>Business Type: %{customdata[1]}"
@@ -995,10 +1018,11 @@ def update_figure(SelectedIndustry,
                 y=1,
                 bordercolor="Black",
                 borderwidth=0,
-                bgcolor="rgb(71, 71, 107)",
+                bgcolor="rgb(82, 82, 122)",
                 font=dict(
                     family="sans-serif",
-                    size=12
+                    size=12,
+                    color="white"
                 ),
                 orientation="h"
             ),
@@ -1042,8 +1066,8 @@ def update_van_map(clickData):
                                      color="color",
                                      color_discrete_map={
                                          'not-selected': 'white',
-                                         'selected': colors['purple5'],
-                                         'blank': colors['purple4']},
+                                         'selected': colors['ubc'],
+                                         'blank': colors['deetken']},
                                      hover_name='LocalArea',
                                      hover_data={'LocalArea': False,
                                                  'color': False},
@@ -1362,7 +1386,7 @@ def update_lang(clickData, year):
                         values=['LANGUAGES',
                                 name_area.upper(),
                                 'METRO VANCOUVER'],
-                        fill_color=colors['purple4'],
+                        fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
@@ -1383,7 +1407,7 @@ def update_lang(clickData, year):
                 go.Table(
                     header=dict(
                         values=['LANGUAGES', area.upper()],
-                        fill_color=colors['purple4'],
+                        fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
@@ -1452,7 +1476,7 @@ def update_eth(clickData, year):
                         values=['ETHNICITIES',
                                 name_area.upper(),
                                 'METRO VANCOUVER'],
-                        fill_color=colors['purple4'],
+                        fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
@@ -1473,7 +1497,7 @@ def update_eth(clickData, year):
                 go.Table(
                     header=dict(
                         values=['ETHNICITIES', area.upper()],
-                        fill_color=colors['purple4'],
+                        fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
