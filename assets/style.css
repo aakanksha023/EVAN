@@ -113,6 +113,7 @@ h6 {
 }
 
 .map__slider__container {
+    height: 92%;
     margin-top: 1%;
     background-color: #52527a;
     border-radius: 0.55rem;
@@ -138,7 +139,7 @@ h6 {
 }
 
 #confusion-matrix {
-    padding: 10px 10px 100px 10px;
+    padding: 5% 5% 5% 5%;
 }
 
 .bottom__box{
@@ -158,7 +159,7 @@ h6 {
 }
 
 #localarea-map {
-    height: 340px;
+    height: 100%;
     justify-content: center;
     background-color: #52527a;
 }
@@ -174,14 +175,15 @@ h6 {
 }
 
 .first {
-    margin-bottom: 1%;
-    padding: 0.5px 0.5px;
+    height: flex;
+    padding: 0.5px 0.5px 1%;
     color: white;
 }
 
 .second {
-    margin-top: 3px;
-    margin-right: 3px;
+    height: 280px;
+    padding: 2% 2%;
+    margin-top: 3%;
 }
 
 .third {

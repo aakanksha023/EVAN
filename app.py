@@ -152,7 +152,13 @@ licence = licence[licence.Status == 'Issued']
 industries = licence.BusinessIndustry.unique()
 localareas = boundary_df.LocalArea.unique()
 years = sorted(list(vis_model.FOLDERYEAR.unique()))
-businesstypes = vis_model.BusinessType.unique()
+businesstypes = agg_licence.BusinessType.unique()
+
+bt_lookup = {}
+for i in agg_licence.BusinessIndustry.unique():
+    bt_lookup[i] = list(agg_licence.loc[
+        agg_licence.BusinessIndustry == i].BusinessType.unique())
+bt_lookup['allindustry'] = businesstypes
 
 list_of_neighbourhoods = {
     'Arbutus-Ridge': {'lat': 49.254093, 'lon': -123.160461},
@@ -253,6 +259,21 @@ def build_tab1():
                                                     "border": "0px solid black"
                                                 },
                                                 placeholder='Select a neighbourhood'
+                                            )
+                                        ]
+                                    ),
+                                    
+                                    html.Div(
+                                        className="div-for-dropdown",
+                                        children=[
+                                            dcc.Dropdown(
+                                                id="businesstype-dropdown-tab1",
+                                                options=[{'label': k, 'value': k}
+                                                         for k in bt_lookup.keys()],
+                                                style={
+                                                    "border": "0px solid black"
+                                                },
+                                                placeholder='Select a business type'
                                             )
                                         ]
                                     ),
@@ -768,6 +789,16 @@ def update_title_line(SelectedIndustry):
         return "Total Number of Issued Businesses in all Industries by Year"
 
 
+@app.callback(
+    Output('businesstype-dropdown-tab1', 'options'),
+    [Input('industry-dropdown', 'value')])
+def set_bt_options(SelectedIndustry):
+    if SelectedIndustry:
+        return [{'label': i, 'value': i} for i in bt_lookup[SelectedIndustry]]
+    else:
+        return [{'label': i, 'value': i} for i in bt_lookup['allindustry']]
+
+
 # update choropleth
 @app.callback(
     Output("localarea-map", "figure"),
@@ -884,14 +915,27 @@ def update_histogram(SelectedIndustry, SelectedLocalArea):
 @app.callback(
     Output("business-industry-line", "figure"),
     [Input("industry-dropdown", "value"),
-     Input("localarea-dropdown", "value")],
+     Input("localarea-dropdown", "value"),
+     Input('businesstype-dropdown-tab1', 'value')],
 )
-def update_line(SelectedIndustry, SelectedLocalArea):
-    if SelectedIndustry or SelectedLocalArea:
-        if SelectedIndustry and SelectedLocalArea:
+def update_line(SelectedIndustry,
+                SelectedLocalArea,
+                SelectedBusinessType):
+
+    if SelectedIndustry or SelectedLocalArea or SelectedBusinessType:
+        if SelectedIndustry and SelectedLocalArea and SelectedBusinessType:
             line_df = agg_licence[
                 agg_licence.BusinessIndustry == SelectedIndustry]
             line_df = line_df[line_df.LocalArea == SelectedLocalArea]
+            line_df = line_df[
+                line_df.BusinessType == SelectedBusinessType]
+        elif SelectedIndustry and SelectedLocalArea:
+            line_df = agg_licence[
+                agg_licence.BusinessIndustry == SelectedIndustry]
+            line_df = line_df[line_df.LocalArea == SelectedLocalArea]
+        elif SelectedBusinessType:
+            line_df = line_df[
+                line_df.BusinessType == SelectedBusinessType]
         elif SelectedIndustry:
             line_df = agg_licence[
                 agg_licence.BusinessIndustry == SelectedIndustry]
@@ -934,10 +978,12 @@ def update_line(SelectedIndustry, SelectedLocalArea):
     Output('scatter-map', 'figure'),
     [Input('industry-dropdown', 'value'),
      Input('year-slider', 'value'),
-     Input("localarea-dropdown", "value")])
+     Input('localarea-dropdown', 'value'),
+     Input('businesstype-dropdown-tab1', 'value')])
 def update_figure(SelectedIndustry,
                   SelectedYear,
-                  SelectedLocalArea):
+                  SelectedLocalArea,
+                  SelectedBusinessType):
     latInitial = 49.250
     lonInitial = -123.121
     zoom = 11
@@ -951,6 +997,12 @@ def update_figure(SelectedIndustry,
         filtered_df = filtered_df[
             filtered_df.BusinessIndustry == SelectedIndustry]
         opacity = 0.7
+ 
+    # filter licence data for business type
+    if SelectedBusinessType:
+        filtered_df = filtered_df[
+            filtered_df.BusinessType == SelectedBusinessType]
+        opacity = 0.8
 
     # zoom in for selected neighbourhood
     if SelectedLocalArea:
@@ -974,7 +1026,7 @@ def update_figure(SelectedIndustry,
         customdata = pd.DataFrame({
             'Business Name': df_by_status.BusinessName,
             'Business Type': df_by_status.BusinessType,
-        }
+            }
         )
 
         # choose a status to show on map
