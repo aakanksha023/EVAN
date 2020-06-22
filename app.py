@@ -113,30 +113,33 @@ def confusion_matrix():
                 "False Positive",
                 "True Negative"]
     labels = ["TP", "FN", "FP", "TN"]
-    colors = ['rgb(153, 187, 255)',
-              'rgb(255, 102, 102)',
-              'rgb(255, 133, 51)',
-              'rgb(128, 255, 128)']
+    colors = ['forestgreen',
+              'firebrick',
+              'darkorange',
+              'powderblue']
 
     return go.Figure(
-            data=go.Pie(
-                        labels=labels_t,
-                        values=values,
-                        hoverinfo='label+value+percent',
-                        textinfo='text+value',
-                        text=labels,
-                        sort=False,
-                        marker=dict(colors=colors)
-            ),
+        data=go.Pie(
+            labels=labels_t,
+            values=values,
+            hoverinfo='label+value+percent',
+            textinfo='text+value',
+            text=labels,
+            sort=False,
+            marker=dict(
+                colors=colors,
+                line=dict(color='#000000', width=1))
+        ),
 
-            layout=go.Layout(
-                             title=f'Confusion Matrix',
-                             margin=dict(l=10, r=10, t=60, b=10),
-                             legend=dict(
-                                         bgcolor='rgba(255,255,255,0)',
-                                         orientation='h'
-                             )
+        layout=go.Layout(
+            title=f'Confusion Matrix',
+            margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
+            plot_bgcolor='rgb(0,0,0)',
+            legend=dict(
+                bgcolor='rgba(255,255,255,0)',
+                orientation='h'
             )
+        )
     )
 
 ######################
@@ -149,7 +152,13 @@ licence = licence[licence.Status == 'Issued']
 industries = licence.BusinessIndustry.unique()
 localareas = boundary_df.LocalArea.unique()
 years = sorted(list(vis_model.FOLDERYEAR.unique()))
-businesstypes = vis_model.BusinessType.unique()
+businesstypes = agg_licence.BusinessType.unique()
+
+bt_lookup = {}
+for i in agg_licence.BusinessIndustry.unique():
+    bt_lookup[i] = list(agg_licence.loc[
+        agg_licence.BusinessIndustry == i].BusinessType.unique())
+bt_lookup['allindustry'] = businesstypes
 
 list_of_neighbourhoods = {
     'Arbutus-Ridge': {'lat': 49.254093, 'lon': -123.160461},
@@ -184,8 +193,8 @@ boundary_df = boundary_df.merge(pd.DataFrame(
     number_of_businesses).reset_index(), how="left", on='LocalArea')
 
 colors = {
-    'purple5': 'rgb(71, 71, 107)',
-    'purple4': 'rgb(163, 163, 194)',
+    'ubc': 'rgb(82, 82, 122)',  # UBC logo color 52527a
+    'deetken': 'rgb(180, 197, 228)',  # Deetken logo color 7c99d0
     'purple2': 'rgb(240, 240, 245)',
     'green3': 'rgb(117, 163, 129)'
 }
@@ -250,6 +259,21 @@ def build_tab1():
                                                     "border": "0px solid black"
                                                 },
                                                 placeholder='Select a neighbourhood'
+                                            )
+                                        ]
+                                    ),
+                                    
+                                    html.Div(
+                                        className="div-for-dropdown",
+                                        children=[
+                                            dcc.Dropdown(
+                                                id="businesstype-dropdown-tab1",
+                                                options=[{'label': k, 'value': k}
+                                                         for k in bt_lookup.keys()],
+                                                style={
+                                                    "border": "0px solid black"
+                                                },
+                                                placeholder='Select a business type'
                                             )
                                         ]
                                     ),
@@ -347,7 +371,7 @@ def build_tab3():
         className="app__content",
         children=[
             html.Div(
-                className="one-fourth column model__input__panel",
+                className="one-fourth column user__control__panel",
                 children=[
                     html.Div(
                         className="graph__container third",
@@ -503,14 +527,15 @@ def build_tab3():
 
             # Confusion matrix
             html.Div(
-                className="one-fourth column confusion__panel",
+                className="one-fourth column user__control__panel",
                 children=[
                     html.Div(
                         className="graph__container third",
                         children=[
                             dcc.Graph(
                                 id='confusion-matrix',
-                                figure=confusion_matrix()
+                                figure=confusion_matrix(),
+                                config=config
                             )
 
                         ]
@@ -530,190 +555,209 @@ app.layout = html.Div([
         html.H1("Forecasting the Evolution of Vancouver's Business Landscape",
                 style={"textAlign": "center", 'fontFamily': 'Open Sans',
                        'marginTop': 40, 'marginBottom': 40,
-                       'marginLeft': 100, 'marginRight': 100})],
-             style={'Color': '#2E4053'}),
+                       'marginLeft': 100, 'marginRight': 100,
+                       'color': "black"})],
+             ),
 
     # Dividing the dashboard into tabs
     dcc.Tabs(id="mainTabs", children=[
 
+        # Instruction - tab0
+        dcc.Tab(label='PRODUCT SUMMARY',
+                id='tab0',
+                className='custom-tab',
+                children=[
+                ]),
+
 
         # Define the layout of the first Tab
-        dcc.Tab(label='BUSINESS LICENCE', children=[
-            build_tab1()
-        ]),
+        dcc.Tab(label='BUSINESS LICENCE',
+                id='tab1',
+                className='custom-tab',
+                children=[
+                    build_tab1()
+                ]),
 
         # Define the layout of the second Tab
-        dcc.Tab(label='NEIGHBOURHOOD PROFILES', children=[
-
-            # main row with map and summary info
-            html.Div(
-                className='row',
+        dcc.Tab(label='NEIGHBOURHOOD PROFILES',
+                id='tab2',
+                className='custom-tab',
                 children=[
-                    html.Div(
-                        className="app__content",
-                        children=[
-                            # summary info
-                            html.Div(
-                                className="one-third column",
-                                children=[
-                                    html.Div(
-                                        id='summary_info',
-                                        className="graph__container first"
-                                    )
-                                ]
-                            ),
-                            # main map of neighbourhoods
-                            html.Div(
-                                className="two-thirds column map__slider__container",
-                                children=[
-                                    # map
-                                    dcc.Graph(
-                                        id='van_map',
-                                        style={"visibility": "visible"},
-                                        config=config),
 
-                                    # slider
+                    # main row with map and summary info
+                    html.Div(
+                        className='row',
+                        children=[
+                            html.Div(
+                                className="app__content",
+                                children=[
+                                    # summary info
                                     html.Div(
-                                        className='div-for-slider',
+                                        className="one-third column user__control__panel",
                                         children=[
-                                            dcc.Slider(
-                                                id='year_slider_census',
-                                                min=licence['FOLDERYEAR'].min(
-                                                ),
-                                                max=licence['FOLDERYEAR'].max(
-                                                ),
-                                                value=2016,
-                                                marks={str(year): {
-                                                    'label': str(year),
-                                                    'style': {'color': 'white'}}
-                                                    for year in licence['FOLDERYEAR'].unique()},
-                                                step=None
+                                            html.Div(
+                                                id='summary_info',
+                                                className="graph__container first"
+                                            )
+                                        ]
+                                    ),
+                                    # main map of neighbourhoods
+                                    html.Div(
+                                        className="two-thirds column map__slider__container",
+                                        children=[
+                                            # map
+                                            dcc.Graph(
+                                                id='van_map',
+                                                style={
+                                                    "visibility": "visible"},
+                                                config=config),
+
+                                            # slider
+                                            html.Div(
+                                                className='div-for-slider',
+                                                children=[
+                                                    dcc.Slider(
+                                                        id='year_slider_census',
+                                                        min=licence['FOLDERYEAR'].min(
+                                                        ),
+                                                        max=licence['FOLDERYEAR'].max(
+                                                        ),
+                                                        value=2016,
+                                                        marks={str(year): {
+                                                            'label': str(year),
+                                                            'style': {'color': 'white'}}
+                                                            for year in licence['FOLDERYEAR'].unique()},
+                                                        step=None
+                                                    )
+                                                ]
                                             )
                                         ]
                                     )
                                 ]
                             )
                         ]
-                    )
-                ],
-                style={'marginTop': 50}
 
-            ),
+                    ),
 
-            # Adding tabs for summary neighbourhood data
-            dcc.Tabs(id="subTabs", children=[
+                    # Adding tabs for summary neighbourhood data
+                    dcc.Tabs(id="subTabs", children=[
 
-                # summary of local demographics
-                dcc.Tab(label='PEOPLE', children=[
+                        # summary of local demographics
+                        dcc.Tab(label='PEOPLE', children=[
 
-                    html.Div(
-                        className="app__content",
-                        children=[
-                            # population by age
                             html.Div(
-                                className="one-half-tab2 column bottom__box__tab2",
+                                className="app__content",
                                 children=[
-                                    html.H4('Age Distribution',
-                                            style={"textAlign": "center"}),
-                                    dcc.Graph(id='age_graph',
-                                              config=config)
-                                ], ),
-                            # population by household size
-                            html.Div(
-                                className="other-half-tab2 column bottom__box__tab2",
-                                children=[
-                                    html.H4('Household Size',
-                                            style={"textAlign": "center"}),
-                                    dcc.Graph(id='size_graph',
-                                              config=config)
-                                ])
-                        ], style={'marginTop': 50}),
+                                    # population by age
+                                    html.Div(
+                                        className="one-half-tab2 column bottom__box__tab2",
+                                        children=[
+                                            html.H4('Age Distribution',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='age_graph',
+                                                      config=config)
+                                        ], ),
+                                    # population by household size
+                                    html.Div(
+                                        className="other-half-tab2 column bottom__box__tab2",
+                                        children=[
+                                            html.H4('Household Size',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='size_graph',
+                                                      config=config)
+                                        ])
+                                ], style={'marginTop': 50}),
 
-                    # population by language + ethnicity
-                    html.Div(
-                        className="app__content",
-                        children=[
+                            # population by language + ethnicity
                             html.Div(
-                                className="one-half-tab2 column bottom__box__tab2",
+                                className="app__content",
                                 children=[
-                                    html.H4('Language Composition',
-                                            style={"textAlign": "center"}),
-                                    dcc.Graph(id='lang_table',
-                                              config=config)
-                                ]
+                                    html.Div(
+                                        className="one-half-tab2 column bottom__box__tab2",
+                                        children=[
+                                            html.H4('Language Composition',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='lang_table',
+                                                      config=config)
+                                        ]
+                                    ),
+                                    html.Div(
+                                        className="other-half-tab2 column bottom__box__tab2",
+                                        children=[
+                                            html.H4('Ethnic Composition',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='eth_table',
+                                                      config=config)]
+                                    )
+                                ], style={'marginTop': 10}
                             ),
+
+                            # population by education level
                             html.Div(
-                                className="other-half-tab2 column bottom__box__tab2",
+                                className="app__content",
                                 children=[
-                                    html.H4('Ethnic Composition',
-                                            style={"textAlign": "center"}),
-                                    dcc.Graph(id='eth_table',
-                                              config=config)]
-                            )
-                        ], style={'marginTop': 10}
-                    ),
+                                    html.Div(
+                                        className="one-half-tab2 column bottom__box__tab2",
+                                        children=[
+                                            html.H4('Education Level',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='edu_graph',
+                                                      config=config)
+                                        ]),
+                                    html.Div(
+                                        className="other-half column",
+                                        children=[
+                                            html.H5('text description...')
+                                        ])
+                                ],
+                            ),
+                        ]),
 
-                    # population by education level
-                    html.Div(
-                        className="app__content",
-                        children=[
-                            html.Div(
-                                className="one-half-tab2 column bottom__box__tab2",
-                                children=[
-                                    html.H4('Education Level',
-                                            style={"textAlign": "center"}),
-                                    dcc.Graph(id='edu_graph',
-                                              config=config)
-                                ]),
-                            html.Div(
-                                className="other-half column",
-                                children=[
-                                    html.H5('text description...')
-                                ])
-                        ],
-                    ),
+                        # summary of local business structure
+                        dcc.Tab(label='BUSINESSES', children=[
+
+                        ]),
+
+                        # summary of local infrastructure
+                        dcc.Tab(label='INFRASTRUCTURE', children=[
+
+                        ]),
+
+                    ], style={'marginTop': 50}),
                 ]),
-
-                # summary of local business structure
-                dcc.Tab(label='BUSINESSES', children=[
-
-                ]),
-
-                # summary of local infrastructure
-                dcc.Tab(label='INFRASTRUCTURE', children=[
-
-                ]),
-
-            ], style={'marginTop': 50}),
-        ]),
 
         # Define the layout of the third Tab
-        dcc.Tab(label='MACHINE LEARNING MODEL', children=[
-            build_tab3()
-        ])
+        dcc.Tab(label='MACHINE LEARNING MODEL',
+                id='tab3',
+                className='custom-tab',
+                children=[
+                    build_tab3()
+                ])
     ]),
 
     # main app footer
-    html.Footer([
+    html.Footer(id="footer", children=[
 
-        html.H4("PROJECT PARTNERS", style={
-                "textAlign": "center", 'marginBottom': 50}),
-        dbc.Row([
-            dbc.Col([
-                html.Img(
-                    src="https://brand3.sites.olt.ubc.ca/files/2018/09/5NarrowLogo_ex_768.png",
-                    style={"width": "20%"})
-            ],
-                width=4,
-                align='end'),
-            dbc.Col([
-                html.Img(
-                    src="https://deetken.com/wp-content/uploads/2019/02/logo-1.png",
-                    style={"width": "20%"})
-            ],
-                width=4)
-        ], justify="center"),
-    ], style={'marginTop': 200}),
+        html.H1("Project Partners",
+                style={"textAlign": "center", 'fontFamily': 'Open Sans',
+                       'marginBottom': 10, 'marginTop': 10,
+                       'color': "black"}),
+
+        dbc.Row(children=[
+
+            html.Img(
+                id="ubc-logo",
+                src="https://brand3.sites.olt.ubc.ca/files/2018/09/5NarrowLogo_ex_768.png",
+                style={"width": "20%"}),
+
+            html.Img(
+                id="deetken-logo",
+                src="https://deetken.com/wp-content/uploads/2019/02/logo-1.png",
+                style={"width": "20%"}),
+
+        ]),
+
+    ], style={'marginTop': 50}),
 ])
 
 ###########
@@ -745,6 +789,16 @@ def update_title_line(SelectedIndustry):
         return "Total Number of Issued Businesses in all Industries by Year"
 
 
+@app.callback(
+    Output('businesstype-dropdown-tab1', 'options'),
+    [Input('industry-dropdown', 'value')])
+def set_bt_options(SelectedIndustry):
+    if SelectedIndustry:
+        return [{'label': i, 'value': i} for i in bt_lookup[SelectedIndustry]]
+    else:
+        return [{'label': i, 'value': i} for i in bt_lookup['allindustry']]
+
+
 # update choropleth
 @app.callback(
     Output("localarea-map", "figure"),
@@ -766,8 +820,8 @@ def update_choropleth(SelectedLocalArea):
         geojson=boundary,
         color="color",
         color_discrete_map={'not-selected': 'white',
-                            'selected': colors['purple5'],
-                            'blank': colors['purple4']},
+                            'selected': colors['ubc'],
+                            'blank': colors['deetken']},
         featureidkey="properties.mapid",
         locations="mapid",
         projection="mercator",
@@ -779,7 +833,7 @@ def update_choropleth(SelectedLocalArea):
         fitbounds="locations",
         visible=False
     ).update_layout(
-        margin=dict(l=0, r=0, b=0, t=0),
+        margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
         coloraxis_showscale=False,
         showlegend=False)
 
@@ -823,7 +877,7 @@ def update_histogram(SelectedIndustry, SelectedLocalArea):
         columns={sum_col: 'y-axis',
                  'business_id': 'x-axis'})
 
-    x_title = "Count of Unique Businesses"
+    x_title = "Count of Unique Businesses on Log10 Scale"
 
     return go.Figure(
         data=go.Bar(x=histogram_df['x-axis'],
@@ -833,22 +887,23 @@ def update_histogram(SelectedIndustry, SelectedLocalArea):
                     hoverinfo='x'
                     ),
         layout=go.Layout(
-            margin=dict(l=10, r=10, b=20, t=10),
+            margin={'l': 10, 'r': 10, 't': 20, 'b': 10},
             annotations=[
                 dict(
-                    x=xi,
+                    x=np.log10(xi),
                     y=yi,
                     text=yi,
                     xanchor="left",
                     yanchor="middle",
                     showarrow=False,
-                    font=dict(color=colors['purple5']),
+                    font=dict(color=colors['ubc']),
                 )
                 for xi, yi in zip(histogram_df['x-axis'],
                                   histogram_df['y-axis'])
             ],
             xaxis=go.XAxis(
-                title=x_title),
+                title=x_title,
+                type="log"),
             yaxis=go.XAxis(
                 showticklabels=False),
             plot_bgcolor=colors['purple2'],
@@ -860,20 +915,24 @@ def update_histogram(SelectedIndustry, SelectedLocalArea):
 @app.callback(
     Output("business-industry-line", "figure"),
     [Input("industry-dropdown", "value"),
-     Input("localarea-dropdown", "value")],
+     Input("localarea-dropdown", "value"),
+     Input('businesstype-dropdown-tab1', 'value')],
 )
-def update_line(SelectedIndustry, SelectedLocalArea):
-    if SelectedIndustry or SelectedLocalArea:
-        if SelectedIndustry and SelectedLocalArea:
-            line_df = agg_licence[
-                agg_licence.BusinessIndustry == SelectedIndustry]
+def update_line(SelectedIndustry,
+                SelectedLocalArea,
+                SelectedBusinessType):
+
+    if SelectedIndustry or SelectedLocalArea or SelectedBusinessType:
+        line_df = agg_licence.copy()
+
+        if SelectedIndustry:
+            line_df = line_df[
+                line_df.BusinessIndustry == SelectedIndustry]
+        if SelectedLocalArea:
             line_df = line_df[line_df.LocalArea == SelectedLocalArea]
-        elif SelectedIndustry:
-            line_df = agg_licence[
-                agg_licence.BusinessIndustry == SelectedIndustry]
-        else:
-            line_df = agg_licence[
-                agg_licence.LocalArea == SelectedLocalArea]
+        if SelectedBusinessType:
+            line_df = line_df[
+                line_df.BusinessType == SelectedBusinessType]
 
         line_df = pd.DataFrame(line_df.groupby([
             'FOLDERYEAR'])['business_id'].sum()).reset_index()
@@ -891,7 +950,7 @@ def update_line(SelectedIndustry, SelectedLocalArea):
                         marker_color=colors['green3']),
 
         layout=go.Layout(
-            margin=dict(l=10, r=10, b=10, t=10),
+            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
             xaxis=go.XAxis(
                 title="Issue Year",
                 tickmode='linear',
@@ -910,10 +969,12 @@ def update_line(SelectedIndustry, SelectedLocalArea):
     Output('scatter-map', 'figure'),
     [Input('industry-dropdown', 'value'),
      Input('year-slider', 'value'),
-     Input("localarea-dropdown", "value")])
+     Input('localarea-dropdown', 'value'),
+     Input('businesstype-dropdown-tab1', 'value')])
 def update_figure(SelectedIndustry,
                   SelectedYear,
-                  SelectedLocalArea):
+                  SelectedLocalArea,
+                  SelectedBusinessType):
     latInitial = 49.250
     lonInitial = -123.121
     zoom = 11
@@ -927,6 +988,12 @@ def update_figure(SelectedIndustry,
         filtered_df = filtered_df[
             filtered_df.BusinessIndustry == SelectedIndustry]
         opacity = 0.7
+ 
+    # filter licence data for business type
+    if SelectedBusinessType:
+        filtered_df = filtered_df[
+            filtered_df.BusinessType == SelectedBusinessType]
+        opacity = 0.8
 
     # zoom in for selected neighbourhood
     if SelectedLocalArea:
@@ -950,7 +1017,7 @@ def update_figure(SelectedIndustry,
         customdata = pd.DataFrame({
             'Business Name': df_by_status.BusinessName,
             'Business Type': df_by_status.BusinessType,
-        }
+            }
         )
 
         # choose a status to show on map
@@ -989,16 +1056,17 @@ def update_figure(SelectedIndustry,
         data=traces,
 
         layout=go.Layout(
-            margin=go.layout.Margin(l=0, r=0, t=0, b=0),
+            margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
             legend=dict(
                 x=0,
                 y=1,
                 bordercolor="Black",
                 borderwidth=0,
-                bgcolor="rgb(71, 71, 107)",
+                bgcolor="rgb(82, 82, 122)",
                 font=dict(
                     family="sans-serif",
-                    size=12
+                    size=12,
+                    color="white"
                 ),
                 orientation="h"
             ),
@@ -1042,8 +1110,8 @@ def update_van_map(clickData):
                                      color="color",
                                      color_discrete_map={
                                          'not-selected': 'white',
-                                         'selected': colors['purple5'],
-                                         'blank': colors['purple4']},
+                                         'selected': colors['ubc'],
+                                         'blank': colors['deetken']},
                                      hover_name='LocalArea',
                                      hover_data={'LocalArea': False,
                                                  'color': False},
@@ -1119,7 +1187,7 @@ def update_edu(clickData, year):
             marker_color='#19B1BA',
             hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
         layout=go.Layout(
-            margin=dict(l=10, r=10, b=10, t=10),
+            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
             template='simple_white',
             plot_bgcolor=colors['purple2']))
 
@@ -1199,7 +1267,7 @@ def update_age(clickData, year):
             hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
 
         layout=go.Layout(
-            margin=dict(l=10, r=10, b=10, t=10),
+            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
             template='simple_white',
             plot_bgcolor=colors['purple2']))
 
@@ -1275,7 +1343,7 @@ def update_size(clickData, year):
             marker_color='#19B1BA',
             hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
         layout=go.Layout(
-            margin=dict(l=10, r=10, b=10, t=10),
+            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
             template='simple_white',
             plot_bgcolor=colors['purple2']))
 
@@ -1362,7 +1430,7 @@ def update_lang(clickData, year):
                         values=['LANGUAGES',
                                 name_area.upper(),
                                 'METRO VANCOUVER'],
-                        fill_color=colors['purple4'],
+                        fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
@@ -1383,12 +1451,12 @@ def update_lang(clickData, year):
                 go.Table(
                     header=dict(
                         values=['LANGUAGES', area.upper()],
-                        fill_color=colors['purple4'],
+                        fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
                     cells=dict(values=[lang['index'],
-                               round(lang[area]*100, 2)],
+                                       round(lang[area]*100, 2)],
                                fill=dict(color=['white']),
                                align=['center'],
                                font_size=20,
@@ -1397,7 +1465,7 @@ def update_lang(clickData, year):
             ]
         )
     table.update_layout(height=300,
-                        margin=dict(l=10, r=10, b=10, t=10))
+                        margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
     return table
 
 
@@ -1452,7 +1520,7 @@ def update_eth(clickData, year):
                         values=['ETHNICITIES',
                                 name_area.upper(),
                                 'METRO VANCOUVER'],
-                        fill_color=colors['purple4'],
+                        fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
@@ -1473,7 +1541,7 @@ def update_eth(clickData, year):
                 go.Table(
                     header=dict(
                         values=['ETHNICITIES', area.upper()],
-                        fill_color=colors['purple4'],
+                        fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
@@ -1486,7 +1554,7 @@ def update_eth(clickData, year):
             ]
         )
     table.update_layout(height=300,
-                        margin=dict(l=10, r=10, b=10, t=10))
+                        margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
     return table
 
 
@@ -1599,19 +1667,18 @@ def update_figure3(SelectedLocalArea,
     latInitial = 49.250
     lonInitial = -123.121
     zoom = 11
-    opacity = 0.5
 
     if (SelectedLocalArea is None) or (
-        SelectedYear is None) or (
-        SelectedType is None) or (
-        SelectedHistory is None) or (
-        InputFee is None) or (
-        InputEmployee is None):
+            SelectedYear is None) or (
+            SelectedType is None) or (
+            SelectedHistory is None) or (
+            InputFee is None) or (
+            InputEmployee is None):
 
         return go.Figure(
             data=go.Scattermapbox(),
             layout=go.Layout(
-                margin=go.layout.Margin(l=0, r=0, t=0, b=0),
+                margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
                 mapbox=dict(
                     accesstoken=mapbox_access_token,
                     center=dict(
@@ -1631,7 +1698,6 @@ def update_figure3(SelectedLocalArea,
             SelectedLocalArea]['lat']
         lonInitial = list_of_neighbourhoods[
             SelectedLocalArea]['lon']
-        opacity = 1
 
     df_tab3 = vis_model[
         (vis_model.FOLDERYEAR == SelectedYear) & (
@@ -1705,13 +1771,13 @@ def update_figure3(SelectedLocalArea,
                 showscale=True,
                 colorscale="RdBu",
                 colorbar=dict(
-                              title="Predicted</b><br>Probability"),
+                    title="Predicted</b><br>Probability"),
             ),
             hovertemplate="""Business Name: %{customdata[0]}</b><br>Business Type: %{customdata[1]}</b><br>Business History: %{customdata[2]}</b><br>Actual Label: %{customdata[3]}</b><br>Predicted Label: %{customdata[4]}<extra></extra>
             """
         ),
         layout=go.Layout(
-            margin=go.layout.Margin(l=0, r=0, t=0, b=0),
+            margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
             mapbox=dict(
                 accesstoken=mapbox_access_token,
                 center=dict(
