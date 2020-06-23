@@ -68,7 +68,7 @@ def main(file_path, urls):
                         value += len(chunk)
                         bar.update(value)
 
-            print("%s downloaded!\n"%file_name)
+            print("\n%s downloaded!\n"%file_name)
 
     print("All files downloaded!")
 
