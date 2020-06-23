@@ -49,16 +49,15 @@ Deetken Team:
 * Kristiana Powell
 
 
-## How to use this repository
-
-Navigation of files and descriptions of directory structure in the repository. Specific commands will be given in Usage section and example usage will be given in Examples section. 
-
-
 ## Data Requirements
 
 The primary dataset utilized in this project consists of all Vancouver Business Licence applications from 1997 to the current date. This data is made available as part of the city of Vancouver’s [Open Data Portal](https://opendata.vancouver.ca/pages/home/) and regulated under the terms of the [Open Government Licence – Vancouver](https://opendata.vancouver.ca/pages/licence/). The most pertinent features present in this dataset are business type, location, and number of employees.
 
-In addition to the business licence dataset, the Canadian census surveys provide another important source of data for this project. The census data is hosted on the Vancouver Open Data Portal and provides demographic information, such as population density, average income, age distribution, and ethnicity. The current census dataset aggregates the demographic data by Vancouver neighbourhoods. As the project progresses, we may choose to further refine our model by obtaining census data aggregated at the postal code level.
+
+In addition to the business licence dataset, the Canadian census surveys provide another important source of data for this project. The census data is hosted on the Vancouver Open Data Portal and provides demographic information, such as population density, average income, age distribution, and ethnicity. The current census dataset aggregates the demographic data by Vancouver neighbourhoods. In addition, due to the lack of employement and other important information in Vancouver census data in 2011, we use National Census data avaliable on [Statistic Canada](https://www12.statcan.gc.ca/census-recensement/index-eng.cfm) for 2011.
+
+Another data source we have is the parking meters and disability parking zone. These two data is also avaliable at the Open Data Portal.
+For the boudary data of the 22 Vancouver geological areas, we use the local_area_boundary data avaliable on Vancouver's Open Data Portal.
 
 ## Final Report
 
@@ -72,7 +71,6 @@ To replicate the analysis performed in this project, clone this GitHub repositor
 
 ## Data Products
 
-*Description or screenshot of end products and where to find them*
 
 The proposed final product consists of a data pipeline, as well as, a geospatial visualization of Vancouver's business landscape. Users will be able to locate a specific zone on the interactive map and view relevant descriptive information, such as business type distribution and census data [**figure 1**]. The data pipeline will pass processed input data of a specific business to a machine learning model and produce a predicted renewal probability.
 
