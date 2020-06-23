@@ -17,11 +17,10 @@ In particular, developing an understanding of how Vancouver’s business landsca
 ## Table of Contents
 - [Contributing](https://github.com/deetken/evan/blob/master/Contributing.md)
 - [Contributors](#Contributors)
-- [How to use this repository](#how-to-use-this-repository)
 - [Data Requirements](#data-requirements)
+- [Final Report](#Final Report)
 - [Usage](#usage)
 - [Data Products](#data-products)
-- [Examples](#examples)
 - [Package Dependencies](#package-dependencies)
 - [Licence](https://github.com/deetken/evan/blob/master/LICENSE)
 
