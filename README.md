@@ -6,14 +6,12 @@
 
 ## Summary
 
-In the continuing age of digital revolution, data is used ubiquitously among industries and individuals. Everyday problems, such as finding the quickest route home and tracking food deliveries, have been effectively tackled by data. The same approach could be implemented in the public sector, helping to inform policy decisions and future planning. 
+Strategic urban planning provides a framework for achieving socio-economic objectives driven by actionable and sustainable development. Centralized city plans serve to reach these objectives through the coordination of efforts from the government, the private sector, and the community. Importantly, by planning and anticipating a community’s future needs, city leaders are better able to allocate municipal spending, mitigate potential risks, and capitalize on opportunities.
 
-With COVID-19 governing our economy and lifestyle, it is critical to understand the evolution of the city’s neighbourhoods and leverage that to predict potential future outcomes. One way to approach this problem, is to track the evolution of businesses in Vancouver’s diverse neighbourhoods and develop/extract meaningful insights. 
+In particular, developing an understanding of how Vancouver’s business landscape has evolved over time can provide insight into how to efficiently allocate the city’s resources and services. To achieve this we have established two main research objectives. 
 
-To address this we have defined the following research questions for the project: 
-
-* Will a business renew their license in the coming year?  
-* Geospatial summary of Vancouver's business landscape
+* A machine learning model to predict whether a business will renew its licence, given a set of underlying factors.
+* A broader geospatial summary of the evolution of Vancouver’s business landscape
 
 
 ## Table of Contents
@@ -62,6 +60,10 @@ The primary dataset utilized in this project consists of all Vancouver Business 
 
 In addition to the business licence dataset, the Canadian census surveys provide another important source of data for this project. The census data is hosted on the Vancouver Open Data Portal and provides demographic information, such as population density, average income, age distribution, and ethnicity. The current census dataset aggregates the demographic data by Vancouver neighbourhoods. As the project progresses, we may choose to further refine our model by obtaining census data aggregated at the postal code level.
 
+## Final Report
+
+The final report can be found [here](https://github.com/deetken/evan/blob/master/doc/final_report/final_report.pdf).
+
 
 ## Usage
 
@@ -85,7 +87,7 @@ The proposed final product consists of a data pipeline, as well as, a geospatial
 
 ### Python 3.7 and Python packages:
 
-altair==4.0.1
+- altair==4.0.1
 - Datetime==4.3
 - dash==1.6.1
 - dash-bootstrap-components==0.7.2
