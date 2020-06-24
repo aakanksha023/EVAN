@@ -1,5 +1,5 @@
-# author: Xinwen Wang
-# date: 2020-05-21
+# author: Xinwen Wang and Jasmine Qin
+# date: 2020-06-24
 
 """
 This script performs data wrangling and synthesis to licence, census,

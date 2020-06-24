@@ -132,34 +132,39 @@ python3 app.py
 
 ### Python 3.7 and Python packages:
 
-- csv
-- datetime
-- docopt
-- eli5
-- geopandas
-- json
-- keplergl
-- lightgbm
-- matplotlib.pyplot
-- numpy
-- os
-- pandas 
-- progressbar2
-- re
-- requests
-- seaborn
-- shap
-- sklearn
-- time
-- warnings
-- xgboost
-- zipfile
+- altair==4.0.1
+- Datetime==4.3
+- dash==1.6.1
+- dash-bootstrap-components==0.7.2
+- dash-core-components==1.5.1
+- dash-html-components==1.0.2
+- docopt==0.6.2
+- docutils==0.15.2
+- eli5==0.10.1
+- geopandas==0.7.0
+- jupyter_dash==0.2.1
+- jupyter_plotly_dash==0.4.2
+- joblib==0.15.1
+- json5==0.9.4
+- lightgbm==2.3.1
+- numpy==1.18.4
+- pandas==1.0.3
+- progressbar2==3.51.3
+- python-utils==2.4.0
+- plotly==4.8.1
+- re==2.2.1
+- requests==2.23.0
+- scikit-learn==0.22.1
+- seaborn==0.10.1
+- shap==0.34.0
+- shapely==1.7.0
+- zipp==3.1.0
 
 ### R 3.6 and R packages:
 
-- data.table
-- docopt
-- tidyverse
-- rgdal
-- timevis
-- leaflet
+- data.table==1.12.6
+- docopt==0.6.1
+- tidyverse==1.2.1
+- rgdal==1.4.6
+- timevis==0.5
+- leaflet==2.0.3
