@@ -40,6 +40,8 @@
   .one-fourth.column              { width: 18%; margin-top: 1%; margin-left: 0.5%;}
   .two-fourths.column             { width: 60%; margin-top: 1%; margin-left: 1%; margin-right: 1%;}
 
+  .one-fifth.column               { width: 20%; margin-top: 1%; margin-right: 1%;}
+
   .one-half-tab2.column           { width: 45%; margin-top: 1%; margin-left: 2.5%; margin-right: 2.5%;}
   .other-half-tab2.column         { width: 45%; margin-top: 1%; margin-left: 2.5%; margin-right: 2.5%;}
 
@@ -48,8 +50,9 @@
   .offset-by-one-third.column,
   .offset-by-one-third.columns    { margin-left: 10%; margin-right: 10%;}
   .offset-by-two-thirds.column,
-  .offset-by-two-thirds.columns   { margin-left: 10%; }
-
+  .offset-by-two-thirds.columns   { margin-left: 60%; }
+  .offset-by-four-fifths.column,
+  .offset-by-four-fifths.columns   { margin-left: 79%; }
   .offset-by-one-half.column,
   .offset-by-one-half.columns     { margin-left: 52%; }
 

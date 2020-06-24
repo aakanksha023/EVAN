@@ -577,6 +577,20 @@ app.layout = html.Div([
                 id='tab2',
                 className='custom-tab',
                 children=[
+                    html.Div(
+                            className="app__content",
+                            children=[
+                                html.Div(
+                                    className="one-fifth column offset-by-four-fifths",
+                                    children=[
+                                        # clear selection button
+                                        html.Button(id='clearButton',
+                                                    n_clicks=0,
+                                                    children='Clear Neighbourhood Selection'),
+                                    ],
+                                )
+                            ], style={'marginTop': 10, 'marginBottom': 5}
+                    ),
 
                     # main row with map and summary info
                     html.Div(
@@ -627,9 +641,9 @@ app.layout = html.Div([
                                             )
                                         ]
                                     )
-                                ]
+                                ], style={'marginTop': 0}
                             )
-                        ]
+                        ], style={'marginTop': 0}
 
                     ),
 
@@ -1079,7 +1093,6 @@ def update_figure(SelectedIndustry,
 ###############################################################################
 # second tab updates
 
-
 # Define callback to update vancouver map
 @app.callback(
     Output('van_map', 'figure'),
@@ -1136,6 +1149,11 @@ def update_van_map(clickData):
 
     return graph_map
 
+# reset the selections
+@app.callback(Output('van_map', 'clickData'),
+             [Input('clearButton', 'n_clicks')])
+def reset_selection(n_clicks):
+    return None
 
 # update education graph by local area
 @app.callback(

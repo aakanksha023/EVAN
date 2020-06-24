@@ -103,6 +103,17 @@ h6 {
     padding: 0px 0px 0px 0px;
 }
 
+#clearButton {
+    font-size: 1em;
+    text-align: center;
+    color: white;
+    padding: 5px 5px 5px 5px;
+    background-color: #52527a;
+    cursor: pointer;
+    border-radius: 0.55rem;
+    margin: 0px;
+}
+
 /* Graphs
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .graph__title {
