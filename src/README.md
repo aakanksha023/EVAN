@@ -29,22 +29,22 @@ Rscript src/02_clean_wrangle/02_split_licence.R --filepath_in="data/raw" \
 # train set
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/train.csv" \
 --mapping_csv="src/02_clean_wrangle/business_mapping_dictionary.csv" \
---save_to="data/processed/03_train_cleaned.csv"
+--save_to="data/processed/03_cleaned_train.csv"
 
 # validation set
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/validate.csv" \
 --mapping_csv="src/02_clean_wrangle/business_mapping_dictionary.csv" \
---save_to="data/processed/03_validate_cleaned.csv"
+--save_to="data/processed/03_cleaned_validate.csv"
 
 # test set
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/test.csv" \
 --mapping_csv="src/02_clean_wrangle/business_mapping_dictionary.csv" \
---save_to="data/processed/03_test_cleaned.csv"
+--save_to="data/processed/03_cleaned_test.csv"
 
 # combined dataset (train+validation+test)
 python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/combined_licences.csv" \
 --mapping_csv="src/02_clean_wrangle/business_mapping_dictionary.csv" \
---save_to="data/processed/03_combined_licences_cleaned.csv"
+--save_to="data/processed/03_cleaned_combined_licences.csv"
 
 # 4. 04_clean_nhs.py
 
@@ -80,15 +80,15 @@ python3 src/02_clean_wrangle/05_clean_census.py --census_file="data/raw/census_2
 # 6. 06_synthesis.py
 
 # train set
-python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
+python3 src/02_clean_wrangle/06_synthesis.py --path_in="data/processed/03_cleaned_train.csv" \
 --save_to="data/processed/04_combined_train.csv"
 
-# validation set - (change in synthesis_script_input.txt)
-python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
+# validation set
+python3 src/02_clean_wrangle/06_synthesis.py --path_in="data/processed/03_cleaned_validate.csv" \
 --save_to="data/processed/04_combined_validate.csv"
 
-# test set - (change in synthesis_script_input.txt)
-python3 src/02_clean_wrangle/06_synthesis.py --file_path="src/02_clean_wrangle/synthesis_script_input.txt" \
+# test set
+python3 src/02_clean_wrangle/06_synthesis.py --path_in="data/processed/03_cleaned_test.csv" \
 --save_to="data/processed/04_combined_test.csv"
 ```
 

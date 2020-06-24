@@ -20,7 +20,7 @@ def main():
 
     # read data
     licence_df = pd.read_csv(
-        "data/processed/03_combined_licences_cleaned.csv",
+        "data/processed/03_cleaned_combined_licences.csv",
         low_memory=False)
     parking = pd.read_csv(
         "data/raw/parking-meters.csv", sep=';')
