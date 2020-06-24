@@ -601,13 +601,8 @@ app.layout = html.Div([
                                 children=[
                                     # summary info
                                     html.Div(
+                                        id="summary_info",
                                         className="one-third column user__control__panel",
-                                        children=[
-                                            html.Div(
-                                                id='summary_info',
-                                                className="graph__container first"
-                                            )
-                                        ]
                                     ),
                                     # main map of neighbourhoods
                                     html.Div(
@@ -1632,17 +1627,31 @@ def update_side_bar(clickData, year):
     # format html output for the summary stats
     sum_info = html.Div(
         children=[
-            html.H6("Vancouver Neighbourhood:",
+            html.Div(
+                className="graph__container fourth",
+                children=[
+                    html.H6("Vancouver Neighbourhood:",
                     style={"marginBottom": 0}),
-            html.H3(area.upper(), style={"marginTop": 0}),
-            html.H3(f'{pop:,}', style={"marginBottom": 0}),
-            html.H6("Residents in " + str(census_year)),
-            html.H3(f'{age_frac:.1%}', style={"marginBottom": 0}),
-            html.H6(age_group + " Years of Age", style={"marginTop": 0}),
-            html.H3(f'{biz_num:,}', style={"marginBottom": 0}),
-            html.H6("Businesses in " + str(year)),
-        ], style={"textAlign": "center",
-                  "fontFamily": "sans-serif"})
+                    html.H3(area.upper(), 
+                    style={"marginTop": 0,
+                           "marginBottom": 0}),
+                ], style={"textAlign": "center",
+                          "fontFamily": "sans-serif"}
+            ),
+            html.Div(
+                className="graph__container first",
+                children=[
+                    html.H3(f'{pop:,}', style={"marginBottom": 0}),
+                    html.H6("Residents in " + str(census_year)),
+                    html.H3(f'{age_frac:.1%}', style={"marginBottom": 0}),
+                    html.H6(age_group + " Years of Age", style={"marginTop": 0}),
+                    html.H3(f'{biz_num:,}', style={"marginBottom": 0}),
+                    html.H6("Businesses in " + str(year)),
+                ], style={"textAlign": "center",
+                          "fontFamily": "sans-serif",
+                          "marginTop": 5}
+            )
+        ])
 
     return sum_info
 

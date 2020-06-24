@@ -202,3 +202,10 @@ h6 {
     padding: 0px 0px 0px 0px;
     color: white;
 }
+
+.fourth {
+    height: 140px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
