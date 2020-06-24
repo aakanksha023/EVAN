@@ -35,12 +35,6 @@ app = dash.Dash(
 )
 server = app.server
 
-# plotly mapbox public token
-mapbox_access_token = "pk.eyJ1IjoiamFzbWluZXF5aiIsImEiOiJja2Fy\
-c2toN2Ewb3FxMnJsZzhuN3N3azk2In0.SJcixuEa_agNUDz7fFYDEg"
-
-# external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
 #############
 # Read data #
 #############
@@ -1072,11 +1066,10 @@ def update_figure(SelectedIndustry,
             ),
             font={"color": "#ffffff"},
             mapbox=dict(
-                accesstoken=mapbox_access_token,
                 center=dict(
                     lat=latInitial,
                     lon=lonInitial),
-                style="light",
+                style="carto-positron",
                 zoom=zoom,
                 bearing=0
             ),
@@ -1164,7 +1157,7 @@ def update_edu(clickData, year):
     if clickData is not None:
         area = (clickData['points'][0]['location'])
     else:
-        area = 'Metro Vancouver'
+        area = 'City of Vancouver'
 
     edu_df = df[['LocalArea', 'Year',
                  'No certificate/diploma',
@@ -1193,7 +1186,7 @@ def update_edu(clickData, year):
 
     if clickData is not None:
         van_df = van_df[(
-            van_df.Year == census_year) & (van_df.LocalArea == 'Metro Vancouver')]
+            van_df.Year == census_year) & (van_df.LocalArea == 'City of Vancouver')]
         van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
                              var_name='Education',
                              value_name='Percent of Total Population')
@@ -1202,7 +1195,7 @@ def update_edu(clickData, year):
             go.Bar(
                 x=van_df["Education"],
                 y=van_df['Percent of Total Population']*100,
-                name='Metro Vancouver',
+                name='City of Vancouver',
                 marker_color='#afb0b3',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>",
             ))
@@ -1234,7 +1227,7 @@ def update_age(clickData, year):
     else:
         census_year = 2016
 
-    area = 'Metro Vancouver'
+    area = 'City of Vancouver'
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
@@ -1273,7 +1266,7 @@ def update_age(clickData, year):
 
     if clickData is not None:
         van_df = van_df[(
-            van_df.Year == census_year) & (van_df.LocalArea == 'Metro Vancouver')]
+            van_df.Year == census_year) & (van_df.LocalArea == 'City of Vancouver')]
         van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
                              var_name='Age',
                              value_name='Population')
@@ -1285,7 +1278,7 @@ def update_age(clickData, year):
                 marker=dict(
                     color='#afb0b3',
                     size=8),
-                name='Metro Vancouver',
+                name='City of Vancouver',
                 line=dict(width=3),
                 line_shape='spline',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"))
@@ -1308,7 +1301,7 @@ def update_age(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_size(clickData, year):
-    area = 'Metro Vancouver'
+    area = 'City of Vancouver'
     # select nearest census year
     if year <= 2003:
         census_year = 2001
@@ -1350,7 +1343,7 @@ def update_size(clickData, year):
     if clickData is not None:
         van_df = van_df[(
             van_df.Year == census_year) & (
-            van_df.LocalArea == 'Metro Vancouver')]
+            van_df.LocalArea == 'City of Vancouver')]
         van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
                              var_name='Household Size',
                              value_name='Percent of Total Population')
@@ -1359,7 +1352,7 @@ def update_size(clickData, year):
             go.Bar(
                 x=van_df["Household Size"],
                 y=van_df['Percent of Total Population']*100,
-                name='Metro Vancouver',
+                name='City of Vancouver',
                 marker_color='#afb0b3',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
             ))
@@ -1404,11 +1397,11 @@ def update_lang(clickData, year):
     if clickData is not None:
         area = (clickData['points'][0]['location'])
     else:
-        area = 'Metro Vancouver'
+        area = 'City of Vancouver'
 
     # filter data frame by area and year
     lang = lang[(lang.Year == census_year) & (
-        lang.LocalArea.isin([area, 'Metro Vancouver']))]
+        lang.LocalArea.isin([area, 'City of Vancouver']))]
     lang.drop(columns=['Year'], inplace=True)
     lang.set_index('LocalArea', inplace=True)
     lang = lang.T
@@ -1429,14 +1422,14 @@ def update_lang(clickData, year):
                     header=dict(
                         values=['LANGUAGES',
                                 name_area.upper(),
-                                'METRO VANCOUVER'],
+                                'City of Vancouver'],
                         fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
                     cells=dict(values=[lang['index'],
                                        round(lang[area]*100, 2),
-                                       round(lang['Metro Vancouver']*100, 2)],
+                                       round(lang['City of Vancouver']*100, 2)],
                                fill=dict(color=['white']),
                                align=['center'],
                                font_size=20,
@@ -1494,11 +1487,11 @@ def update_eth(clickData, year):
     if clickData is not None:
         area = (clickData['points'][0]['location'])
     else:
-        area = 'Metro Vancouver'
+        area = 'City of Vancouver'
 
     # filter data frame by area and year
     eth = eth[(eth.Year == census_year) & (
-        eth.LocalArea.isin([area, 'Metro Vancouver']))]
+        eth.LocalArea.isin([area, 'City of Vancouver']))]
     eth.drop(columns=['Year'], inplace=True)
     eth.set_index('LocalArea', inplace=True)
     eth = eth.T
@@ -1519,14 +1512,14 @@ def update_eth(clickData, year):
                     header=dict(
                         values=['ETHNICITIES',
                                 name_area.upper(),
-                                'METRO VANCOUVER'],
+                                'City of Vancouver'],
                         fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
                     cells=dict(values=[eth['index'],
                                        round(eth[area]*100, 2),
-                                       round(eth['Metro Vancouver']*100, 2)],
+                                       round(eth['City of Vancouver']*100, 2)],
                                fill=dict(color=['white']),
                                align=['center'],
                                font_size=20,
@@ -1581,7 +1574,7 @@ def update_side_bar(clickData, year):
             biz_df.groupby(['LocalArea', 'FOLDERYEAR'])[
                 'business_id'].sum()).reset_index()
     else:
-        area = 'Metro Vancouver'
+        area = 'City of Vancouver'
         biz_df = agg_licence[(agg_licence.FOLDERYEAR == year)]
         biz_num = pd.DataFrame(
             biz_df.groupby(['FOLDERYEAR'])[
@@ -1680,11 +1673,10 @@ def update_figure3(SelectedLocalArea,
             layout=go.Layout(
                 margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
                 mapbox=dict(
-                    accesstoken=mapbox_access_token,
                     center=dict(
                         lat=latInitial,
                         lon=lonInitial),
-                    style="light",
+                    style="carto-positron",
                     zoom=zoom
                 ),
             ),
@@ -1779,11 +1771,10 @@ def update_figure3(SelectedLocalArea,
         layout=go.Layout(
             margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
             mapbox=dict(
-                accesstoken=mapbox_access_token,
                 center=dict(
                     lat=latInitial,
                     lon=lonInitial),
-                style='light',
+                style="carto-positron",
                 zoom=zoom
             ),
         ),
