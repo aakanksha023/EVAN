@@ -728,8 +728,8 @@ app.layout = html.Div([
                                         children=[
                                             html.H4('Dwelling Type',
                                                     style={"textAlign": "center"}),
-                                            #dcc.Graph(id='dwelling_graph',
-                                                     # config=config)
+                                            dcc.Graph(id='dwelling_graph',
+                                                      config=config)
                                         ])
                                 ], style={'marginTop': 50}),
 
@@ -1629,6 +1629,79 @@ def update_tenure(clickData, year):
         showlegend=False)
 
     return tenure_plot
+
+# update dwelling type graph by local area and year
+@app.callback(
+    Output('dwelling_graph', 'figure'),
+    [Input('van_map', 'clickData'),
+     Input('year_slider_census', 'value')])
+def update_dwelling(clickData, year):
+    # select nearest census year
+    if year <= 2003:
+        census_year = 2001
+    elif year <= 2008:
+        census_year = 2006
+    elif year <= 2013:
+        census_year = 2011
+    else:
+        census_year = 2016
+
+    area = 'City of Vancouver'
+
+    if clickData is not None:
+        area = (clickData['points'][0]['location'])
+    dwel_df = df[['LocalArea',
+                  'Year',
+                  'dwelling_House',
+                  'dwelling_Apartment',
+                  'dwelling_Other']]
+
+    van_df = dwel_df.copy()
+    dwel_df = dwel_df[(dwel_df.Year == census_year)
+                      & (dwel_df.LocalArea == area)]
+    dwel_df = dwel_df.melt(id_vars=['LocalArea', 'Year'],
+                           var_name='Dwelling Type',
+                           value_name='Percent of Total Dwellings')
+
+    dwel_fig = go.Figure(
+        data=go.Bar(
+            x=dwel_df['Dwelling Type'],
+            y=dwel_df['Percent of Total Dwellings']*100,
+            name=area,
+            marker_color='#19B1BA',
+            hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
+        layout=go.Layout(
+            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
+            template='simple_white',
+            plot_bgcolor=colors['purple2']))
+
+    if clickData is not None:
+        van_df = van_df[(
+            van_df.Year == census_year) & (
+            van_df.LocalArea == 'City of Vancouver')]
+        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
+                             var_name='Dwelling Type',
+                             value_name='Percent of Total Dwellings')
+
+        dwel_fig.add_trace(
+            go.Bar(
+                x=van_df['Dwelling Type'],
+                y=van_df['Percent of Total Dwellings']*100,
+                name='City of Vancouver',
+                marker_color='#afb0b3',
+                hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
+            ))
+
+    dwel_fig.update_layout(
+        barmode='group',
+        xaxis_title="Dwelling Type",
+        yaxis_title="Percent of Total Dwellings",
+        showlegend=True,
+        legend=dict(x=1, y=1, xanchor="right",
+                    bgcolor=colors['purple2']),
+        height=350)
+
+    return dwel_fig
 
 @app.callback(
     Output('summary_info', 'children'),
