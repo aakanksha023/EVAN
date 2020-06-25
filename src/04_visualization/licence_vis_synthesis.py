@@ -11,16 +11,18 @@ Usage: src/04_visualization/licence_vis_synthesis.py
 # load packages
 import pandas as pd
 import json
-import csv
 import re
 from joblib import load
+import warnings
+
+warnings.filterwarnings("ignore")
 
 
 def main():
 
     # read data
     licence_df = pd.read_csv(
-        "data/processed/03_combined_licences_cleaned.csv",
+        "data/processed/03_cleaned_combined_licences.csv",
         low_memory=False)
     parking = pd.read_csv(
         "data/raw/parking-meters.csv", sep=';')
@@ -67,12 +69,6 @@ def main():
         df["coord-y"] = df['Geom'].apply(
             lambda p: json.loads(p)['coordinates'][1])
 
-    # save to files
-    licence_df.to_csv("data/processed/vis_licence.csv", index=False)
-    parking.to_csv("data/processed/vis_parking.csv", index=False)
-    disability_parking.to_csv(
-        "data/processed/vis_disability_parking.csv", index=False)
-
     #################
     # Aggregated df #
     #################
@@ -104,27 +100,14 @@ def main():
     df = df.query('Status == "Issued"')
 
     # Industry mapping
-    mapping_dict = {' ': ' '}
-
-    # Read csv and write to dictionary
-    with open("src/02_clean_wrangle/business_mapping_dictionary.csv",
-              mode='r') as csv_file:
-
-        csv_reader = csv.reader(csv_file)
-        for row in csv_reader:
-            mapping_dict[row[0]] = row[1]
-
-    # Remove additional key value pair
-    mapping_dict.pop(' ')
-    mapping_dict.pop('BusinessType')
-
-    # Add BusinessIndustry column
-    df['BusinessIndustry'] = df['BusinessType'].map(mapping_dict)
+    mapping = pd.read_csv("src/02_clean_wrangle/business_mapping_dictionary.csv")
+    df = df.merge(mapping, on=["BusinessType"], how="left")
 
     # Remove 2010 Winter games : Outlier
     df = df[df.BusinessIndustry != 'Historic']
     df = df[df.BusinessIndustry != 'Real estate and rental and leasing']
     df = df[df.LocalArea.notnull()]
+    df = df[df.BusinessIndustry.notnull()]
 
     agg_viz = pd.DataFrame(df.groupby([
         'FOLDERYEAR', 'LocalArea',
@@ -179,9 +162,9 @@ def main():
     vis_model.to_csv("data/processed/vis_model.csv", index=False)
     licence_df.to_csv("data/processed/vis_licence.csv", index=False)
     agg_viz.to_csv("data/processed/vis_agg_licence.csv", index=False)
-    parking.to_csv("data/processed/vis_parking.csv", index=False)
-    disability_parking.to_csv(
-        "data/processed/vis_disability_parking.csv", index=False)
+    # parking.to_csv("data/processed/vis_parking.csv", index=False)
+    # disability_parking.to_csv(
+    #    "data/processed/vis_disability_parking.csv", index=False)
 
 
 if __name__ == "__main__":
