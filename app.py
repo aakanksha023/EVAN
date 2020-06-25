@@ -763,12 +763,12 @@ app.layout = html.Div([
                 ]),
 
         # Define the layout of the third Tab
-        # dcc.Tab(label='MACHINE LEARNING MODEL',
-        #         id='tab3',
-        #         className='custom-tab',
-        #         children=[
-        #             build_tab3()
-        #         ])
+        dcc.Tab(label='MACHINE LEARNING MODEL',
+                id='tab3',
+                className='custom-tab',
+                children=[
+                    build_tab3()
+                ])
     ]),
 
     # main app footer
@@ -1176,12 +1176,6 @@ def update_van_map(clickData):
             opacity=0.7)])
 
     return graph_map
-
-# reset the selections
-@app.callback(Output('van_map', 'clickData'),
-             [Input('clearButton', 'n_clicks')])
-def reset_selection(n_clicks):
-    return None
 
 # update education graph by local area
 @app.callback(
@@ -1817,8 +1811,8 @@ def update_transport(clickData, year):
     Output('parking_graph', 'figure'),
     [Input('van_map', 'clickData')])
 def update_parking(clickData):
-    latInitial = 49.250
-    lonInitial = -123.121
+    latInitial = 49.252
+    lonInitial = -123.140
     zoom = 10.7
     park = parking_df[['LocalArea', 'coord-x', 'coord-y']]
 
@@ -1833,28 +1827,50 @@ def update_parking(clickData):
         lonInitial = list_of_neighbourhoods[
             area]['lon']
 
+    # get count of parking spots
+    num = len(park['coord-x'])
+
     fig = go.Figure(
             data=go.Scattermapbox(
                     lat=park['coord-y'],
                     lon=park['coord-x'],
                     mode="markers",
+                    hoverinfo="none",
                     marker=dict(
-                        opacity=0.8,
+                        opacity=0.6,
                         size=4)
                 ),
             layout=go.Layout(
                 margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
                 height=350,
                 font={"color": "#ffffff"},
-                mapbox=dict(
-                    center=dict(
-                        lat=latInitial,
-                        lon=lonInitial),
-                    style="carto-positron",
-                    zoom=zoom
                 ),
             )
-        )
+
+    fig.update_layout(
+        annotations=[go.layout.Annotation(
+            x=0,
+            y=1,
+            text=("Street Parking Spots: " + f'{num:,}'),
+            showarrow=False,
+            font=dict(
+                family="sans-serif",
+                size=16,
+                color="White"),
+            bordercolor="Black",
+            borderwidth=0,
+            borderpad=6,
+            bgcolor="rgb(71, 71, 107)",
+            opacity=0.7)],
+        mapbox=dict(
+            center=dict(
+                lat=latInitial,
+                lon=lonInitial),
+            style="carto-positron",
+            zoom=zoom,
+            bearing=0)
+    )
+
     return fig
 
 @app.callback(
@@ -1947,6 +1963,12 @@ def update_side_bar(clickData, year):
         ])
 
     return sum_info
+
+# reset the selections
+@app.callback(Output('van_map', 'clickData'),
+             [Input('clearButton', 'n_clicks')])
+def reset_selection(n_clicks):
+    return None
 
 ###############################################################################
 # third tab updates
