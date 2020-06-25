@@ -40,6 +40,7 @@ server = app.server
 #############
 
 df = pd.read_csv("data/processed/census_viz.csv")
+parking_df = gpd.read_file("data/processed/vis_parking.csv")
 licence = pd.read_csv("data/processed/vis_licence.csv")
 boundary_df = gpd.read_file("data/raw/local_area_boundary.geojson"
                             ).rename(columns={'name': 'LocalArea'})
@@ -729,6 +730,29 @@ app.layout = html.Div([
                                             html.H4('Dwelling Type',
                                                     style={"textAlign": "center"}),
                                             dcc.Graph(id='dwelling_graph',
+                                                      config=config)
+                                        ])
+                                ], style={'marginTop': 50}),
+
+                            html.Div(
+                                className="app__content",
+                                children=[
+                                    # transportation mode
+                                    html.Div(
+                                        className="one-half-tab2 column bottom__box__tab2",
+                                        children=[
+                                            html.H4('Dominant form of Transport used by Residents',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='transport_graph',
+                                                      config=config)
+                                        ], ),
+                                    # distribution/count of street parking
+                                    html.Div(
+                                        className="other-half-tab2 column bottom__box__tab2",
+                                        children=[
+                                            html.H4('Street Parking',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='parking_graph',
                                                       config=config)
                                         ])
                                 ], style={'marginTop': 50}),
@@ -1704,6 +1728,134 @@ def update_dwelling(clickData, year):
     dwel_fig.update_yaxes(range=[0, 95])
 
     return dwel_fig
+
+# update transportation graph by local area and year
+@app.callback(
+    Output('transport_graph', 'figure'),
+    [Input('van_map', 'clickData'),
+     Input('year_slider_census', 'value')])
+def update_transport(clickData, year):
+    # select nearest census year
+    if year <= 2003:
+        census_year = 2001
+    elif year <= 2008:
+        census_year = 2006
+    elif year <= 2013:
+        census_year = 2011
+    else:
+        census_year = 2016
+
+    area = 'City of Vancouver'
+
+    if clickData is not None:
+        area = (clickData['points'][0]['location'])
+
+    trans_df = df[['LocalArea',
+                  'Year',
+                  'car as driver',
+                  'car as passenger',
+                  'public transportation',
+                  'walked',
+                  'bicycle',
+                  'other transportation']]
+    trans_df = trans_df.rename(columns={'car as driver': 'Car, as Driver',
+                                'car as passenger': 'Car, as Passenger',
+                                'public transportation': 'Public Transportation',
+                                'walked': 'Walk',
+                                'bicycle': 'Bicycle',
+                                'other transportation': 'Other'})
+
+    van_df = trans_df.copy()
+    trans_df = trans_df[(trans_df.Year == census_year)
+                      & (trans_df.LocalArea == area)]
+    trans_df = trans_df.melt(id_vars=['LocalArea', 'Year'],
+                           var_name='Transport Type',
+                           value_name='Percent of Total Population')
+
+    trans_fig = go.Figure(
+        data=go.Bar(
+            x=trans_df['Transport Type'],
+            y=trans_df['Percent of Total Population']*100,
+            name=area,
+            marker_color='#19B1BA',
+            hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
+        layout=go.Layout(
+            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
+            template='simple_white',
+            plot_bgcolor=colors['purple2']))
+
+    if clickData is not None:
+        van_df = van_df[(
+            van_df.Year == census_year) & (
+            van_df.LocalArea == 'City of Vancouver')]
+        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
+                             var_name='Transport Type',
+                             value_name='Percent of Total Population')
+
+        trans_fig.add_trace(
+            go.Bar(
+                x=van_df['Transport Type'],
+                y=van_df['Percent of Total Population']*100,
+                name='City of Vancouver',
+                marker_color='#afb0b3',
+                hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
+            ))
+
+    trans_fig.update_layout(
+        barmode='group',
+        xaxis_title="Transportation Type",
+        yaxis_title="Percent of Total Population",
+        showlegend=True,
+        legend=dict(x=1, y=1, xanchor="right",
+                    bgcolor=colors['purple2']),
+        height=350)
+
+    return trans_fig
+
+# update parking graph by local area
+@app.callback(
+    Output('parking_graph', 'figure'),
+    [Input('van_map', 'clickData')])
+def update_parking(clickData):
+    latInitial = 49.250
+    lonInitial = -123.121
+    zoom = 10.7
+    park = parking_df[['LocalArea', 'coord-x', 'coord-y']]
+
+    # zoom in for selected neighbourhood
+    if clickData is not None:
+        area = (clickData['points'][0]['location'])
+        zoom = 12
+        park = park[
+            park.LocalArea == area]
+        latInitial = list_of_neighbourhoods[
+            area]['lat']
+        lonInitial = list_of_neighbourhoods[
+            area]['lon']
+
+    fig = go.Figure(
+            data=go.Scattermapbox(
+                    lat=park['coord-y'],
+                    lon=park['coord-x'],
+                    mode="markers",
+                    marker=dict(
+                        opacity=0.8,
+                        size=4)
+                ),
+            layout=go.Layout(
+                margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
+                height=350,
+                font={"color": "#ffffff"},
+                mapbox=dict(
+                    center=dict(
+                        lat=latInitial,
+                        lon=lonInitial),
+                    style="carto-positron",
+                    zoom=zoom
+                ),
+            )
+        )
+    return fig
 
 @app.callback(
     Output('summary_info', 'children'),
