@@ -35,12 +35,6 @@ app = dash.Dash(
 )
 server = app.server
 
-# plotly mapbox public token
-mapbox_access_token = "pk.eyJ1IjoiamFzbWluZXF5aiIsImEiOiJja2Fy\
-c2toN2Ewb3FxMnJsZzhuN3N3azk2In0.SJcixuEa_agNUDz7fFYDEg"
-
-# external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
 #############
 # Read data #
 #############
@@ -575,6 +569,20 @@ app.layout = html.Div([
                 id='tab2',
                 className='custom-tab',
                 children=[
+                    html.Div(
+                            className="app__content",
+                            children=[
+                                html.Div(
+                                    className="one-fifth column offset-by-four-fifths",
+                                    children=[
+                                        # clear selection button
+                                        html.Button(id='clearButton',
+                                                    n_clicks=0,
+                                                    children='Clear Neighbourhood Selection'),
+                                    ],
+                                )
+                            ], style={'marginTop': 10, 'marginBottom': 5}
+                    ),
 
                     # main row with map and summary info
                     html.Div(
@@ -585,13 +593,8 @@ app.layout = html.Div([
                                 children=[
                                     # summary info
                                     html.Div(
+                                        id="summary_info",
                                         className="one-third column user__control__panel",
-                                        children=[
-                                            html.Div(
-                                                id='summary_info',
-                                                className="graph__container first"
-                                            )
-                                        ]
                                     ),
                                     # main map of neighbourhoods
                                     html.Div(
@@ -625,9 +628,9 @@ app.layout = html.Div([
                                             )
                                         ]
                                     )
-                                ]
+                                ], style={'marginTop': 0}
                             )
-                        ]
+                        ], style={'marginTop': 0}
 
                     ),
 
@@ -705,13 +708,30 @@ app.layout = html.Div([
                             ),
                         ]),
 
-                        # summary of local business structure
-                        dcc.Tab(label='BUSINESSES', children=[
-
-                        ]),
-
                         # summary of local infrastructure
                         dcc.Tab(label='INFRASTRUCTURE', children=[
+                            html.Div(
+                                className="app__content",
+                                children=[
+                                    # housing tenure (own vs. rent)
+                                    html.Div(
+                                        className="one-half-tab2 column bottom__box__tab2",
+                                        children=[
+                                            html.H4('Housing Tenure',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='tenure_graph',
+                                                      config=config)
+                                        ], ),
+                                    # distribution of dwelling types
+                                    html.Div(
+                                        className="other-half-tab2 column bottom__box__tab2",
+                                        children=[
+                                            html.H4('Dwelling Type',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='dwelling_graph',
+                                                      config=config)
+                                        ])
+                                ], style={'marginTop': 50}),
 
                         ]),
 
@@ -1064,11 +1084,10 @@ def update_figure(SelectedIndustry,
             ),
             font={"color": "#ffffff"},
             mapbox=dict(
-                accesstoken=mapbox_access_token,
                 center=dict(
                     lat=latInitial,
                     lon=lonInitial),
-                style="light",
+                style="carto-positron",
                 zoom=zoom,
                 bearing=0
             ),
@@ -1077,7 +1096,6 @@ def update_figure(SelectedIndustry,
 
 ###############################################################################
 # second tab updates
-
 
 # Define callback to update vancouver map
 @app.callback(
@@ -1135,6 +1153,11 @@ def update_van_map(clickData):
 
     return graph_map
 
+# reset the selections
+@app.callback(Output('van_map', 'clickData'),
+             [Input('clearButton', 'n_clicks')])
+def reset_selection(n_clicks):
+    return None
 
 # update education graph by local area
 @app.callback(
@@ -1156,7 +1179,7 @@ def update_edu(clickData, year):
     if clickData is not None:
         area = (clickData['points'][0]['location'])
     else:
-        area = 'Metro Vancouver'
+        area = 'City of Vancouver'
 
     edu_df = df[['LocalArea', 'Year',
                  'No certificate/diploma',
@@ -1185,7 +1208,7 @@ def update_edu(clickData, year):
 
     if clickData is not None:
         van_df = van_df[(
-            van_df.Year == census_year) & (van_df.LocalArea == 'Metro Vancouver')]
+            van_df.Year == census_year) & (van_df.LocalArea == 'City of Vancouver')]
         van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
                              var_name='Education',
                              value_name='Percent of Total Population')
@@ -1194,7 +1217,7 @@ def update_edu(clickData, year):
             go.Bar(
                 x=van_df["Education"],
                 y=van_df['Percent of Total Population']*100,
-                name='Metro Vancouver',
+                name='City of Vancouver',
                 marker_color='#afb0b3',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>",
             ))
@@ -1205,7 +1228,7 @@ def update_edu(clickData, year):
         xaxis_title="Level of Education",
         showlegend=True,
         legend=dict(x=1, y=1, xanchor="right", bgcolor=colors['purple2']),
-        height=300)
+        height=350)
 
     return edu_fig
 
@@ -1226,7 +1249,7 @@ def update_age(clickData, year):
     else:
         census_year = 2016
 
-    area = 'Metro Vancouver'
+    area = 'City of Vancouver'
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
@@ -1265,7 +1288,7 @@ def update_age(clickData, year):
 
     if clickData is not None:
         van_df = van_df[(
-            van_df.Year == census_year) & (van_df.LocalArea == 'Metro Vancouver')]
+            van_df.Year == census_year) & (van_df.LocalArea == 'City of Vancouver')]
         van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
                              var_name='Age',
                              value_name='Population')
@@ -1277,7 +1300,7 @@ def update_age(clickData, year):
                 marker=dict(
                     color='#afb0b3',
                     size=8),
-                name='Metro Vancouver',
+                name='City of Vancouver',
                 line=dict(width=3),
                 line_shape='spline',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"))
@@ -1289,7 +1312,7 @@ def update_age(clickData, year):
         legend=dict(x=1, y=1,
                     xanchor="right",
                     bgcolor=colors['purple2']),
-        height=300)
+        height=350)
 
     return age_fig
 
@@ -1300,7 +1323,7 @@ def update_age(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_size(clickData, year):
-    area = 'Metro Vancouver'
+    area = 'City of Vancouver'
     # select nearest census year
     if year <= 2003:
         census_year = 2001
@@ -1342,7 +1365,7 @@ def update_size(clickData, year):
     if clickData is not None:
         van_df = van_df[(
             van_df.Year == census_year) & (
-            van_df.LocalArea == 'Metro Vancouver')]
+            van_df.LocalArea == 'City of Vancouver')]
         van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
                              var_name='Household Size',
                              value_name='Percent of Total Population')
@@ -1351,7 +1374,7 @@ def update_size(clickData, year):
             go.Bar(
                 x=van_df["Household Size"],
                 y=van_df['Percent of Total Population']*100,
-                name='Metro Vancouver',
+                name='City of Vancouver',
                 marker_color='#afb0b3',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
             ))
@@ -1363,7 +1386,7 @@ def update_size(clickData, year):
         showlegend=True,
         legend=dict(x=1, y=1, xanchor="right",
                     bgcolor=colors['purple2']),
-        height=300)
+        height=350)
 
     return size_fig
 
@@ -1396,11 +1419,11 @@ def update_lang(clickData, year):
     if clickData is not None:
         area = (clickData['points'][0]['location'])
     else:
-        area = 'Metro Vancouver'
+        area = 'City of Vancouver'
 
     # filter data frame by area and year
     lang = lang[(lang.Year == census_year) & (
-        lang.LocalArea.isin([area, 'Metro Vancouver']))]
+        lang.LocalArea.isin([area, 'City of Vancouver']))]
     lang.drop(columns=['Year'], inplace=True)
     lang.set_index('LocalArea', inplace=True)
     lang = lang.T
@@ -1421,14 +1444,14 @@ def update_lang(clickData, year):
                     header=dict(
                         values=['LANGUAGES',
                                 name_area.upper(),
-                                'METRO VANCOUVER'],
+                                'City of Vancouver'],
                         fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
                     cells=dict(values=[lang['index'],
                                        round(lang[area]*100, 2),
-                                       round(lang['Metro Vancouver']*100, 2)],
+                                       round(lang['City of Vancouver']*100, 2)],
                                fill=dict(color=['white']),
                                align=['center'],
                                font_size=20,
@@ -1486,11 +1509,11 @@ def update_eth(clickData, year):
     if clickData is not None:
         area = (clickData['points'][0]['location'])
     else:
-        area = 'Metro Vancouver'
+        area = 'City of Vancouver'
 
     # filter data frame by area and year
     eth = eth[(eth.Year == census_year) & (
-        eth.LocalArea.isin([area, 'Metro Vancouver']))]
+        eth.LocalArea.isin([area, 'City of Vancouver']))]
     eth.drop(columns=['Year'], inplace=True)
     eth.set_index('LocalArea', inplace=True)
     eth = eth.T
@@ -1511,14 +1534,14 @@ def update_eth(clickData, year):
                     header=dict(
                         values=['ETHNICITIES',
                                 name_area.upper(),
-                                'METRO VANCOUVER'],
+                                'City of Vancouver'],
                         fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
                     cells=dict(values=[eth['index'],
                                        round(eth[area]*100, 2),
-                                       round(eth['Metro Vancouver']*100, 2)],
+                                       round(eth['City of Vancouver']*100, 2)],
                                fill=dict(color=['white']),
                                align=['center'],
                                font_size=20,
@@ -1549,6 +1572,136 @@ def update_eth(clickData, year):
                         margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
     return table
 
+# update housing tenure graph by local area and year
+@app.callback(
+    Output('tenure_graph', 'figure'),
+    [Input('van_map', 'clickData'),
+     Input('year_slider_census', 'value')])
+def update_tenure(clickData, year):
+    # select nearest census year
+    if year <= 2003:
+        census_year = 2001
+    elif year <= 2008:
+        census_year = 2006
+    elif year <= 2013:
+        census_year = 2011
+    else:
+        census_year = 2016
+    
+    area = 'City of Vancouver'
+
+    if clickData is not None:
+        area = (clickData['points'][0]['location'])
+
+    tenure_df = df[['LocalArea', 'Year',
+                 'Owned shelter',
+                 'Rented shelter']]
+
+    tenure_df = tenure_df[(tenure_df.Year == census_year) & (tenure_df.LocalArea == area)]
+    tenure_df = tenure_df.melt(id_vars=['LocalArea', 'Year'],
+                         var_name='Tenure',
+                         value_name='Percent of Housing')
+
+    colours = ['forestgreen',
+               '#19B1BA']
+
+    tenure_plot= go.Figure(
+        data=go.Pie(
+            labels= tenure_df["Tenure"],
+            values=tenure_df['Percent of Housing'],
+            textinfo='label+percent',
+            textfont=dict(
+                size=20,
+                color="white"),
+            hoverinfo="none",
+            marker=dict(
+                colors=colours,
+                line=dict(color='white', width=2)),
+            sort=False,
+        ),
+
+        layout=go.Layout(
+            margin={'l': 0, 'r': 0, 't': 20, 'b': 20},
+            plot_bgcolor=colors['purple2'],
+        )
+    )
+    tenure_plot.update_layout(
+        showlegend=False)
+
+    return tenure_plot
+
+# update dwelling type graph by local area and year
+@app.callback(
+    Output('dwelling_graph', 'figure'),
+    [Input('van_map', 'clickData'),
+     Input('year_slider_census', 'value')])
+def update_dwelling(clickData, year):
+    # select nearest census year
+    if year <= 2003:
+        census_year = 2001
+    elif year <= 2008:
+        census_year = 2006
+    elif year <= 2013:
+        census_year = 2011
+    else:
+        census_year = 2016
+
+    area = 'City of Vancouver'
+
+    if clickData is not None:
+        area = (clickData['points'][0]['location'])
+    dwel_df = df[['LocalArea',
+                  'Year',
+                  'dwelling_House',
+                  'dwelling_Apartment',
+                  'dwelling_Other']]
+
+    van_df = dwel_df.copy()
+    dwel_df = dwel_df[(dwel_df.Year == census_year)
+                      & (dwel_df.LocalArea == area)]
+    dwel_df = dwel_df.melt(id_vars=['LocalArea', 'Year'],
+                           var_name='Dwelling Type',
+                           value_name='Percent of Total Dwellings')
+
+    dwel_fig = go.Figure(
+        data=go.Bar(
+            x=dwel_df['Dwelling Type'],
+            y=dwel_df['Percent of Total Dwellings']*100,
+            name=area,
+            marker_color='#19B1BA',
+            hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
+        layout=go.Layout(
+            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
+            template='simple_white',
+            plot_bgcolor=colors['purple2']))
+
+    if clickData is not None:
+        van_df = van_df[(
+            van_df.Year == census_year) & (
+            van_df.LocalArea == 'City of Vancouver')]
+        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
+                             var_name='Dwelling Type',
+                             value_name='Percent of Total Dwellings')
+
+        dwel_fig.add_trace(
+            go.Bar(
+                x=van_df['Dwelling Type'],
+                y=van_df['Percent of Total Dwellings']*100,
+                name='City of Vancouver',
+                marker_color='#afb0b3',
+                hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
+            ))
+
+    dwel_fig.update_layout(
+        barmode='group',
+        xaxis_title="Dwelling Type",
+        yaxis_title="Percent of Total Dwellings",
+        showlegend=True,
+        legend=dict(x=1, y=1, xanchor="right",
+                    bgcolor=colors['purple2']),
+        height=350)
+
+    return dwel_fig
 
 @app.callback(
     Output('summary_info', 'children'),
@@ -1573,7 +1726,7 @@ def update_side_bar(clickData, year):
             biz_df.groupby(['LocalArea', 'FOLDERYEAR'])[
                 'business_id'].sum()).reset_index()
     else:
-        area = 'Metro Vancouver'
+        area = 'City of Vancouver'
         biz_df = agg_licence[(agg_licence.FOLDERYEAR == year)]
         biz_num = pd.DataFrame(
             biz_df.groupby(['FOLDERYEAR'])[
@@ -1613,17 +1766,31 @@ def update_side_bar(clickData, year):
     # format html output for the summary stats
     sum_info = html.Div(
         children=[
-            html.H6("Vancouver Neighbourhood:",
+            html.Div(
+                className="graph__container fourth",
+                children=[
+                    html.H6("Vancouver Neighbourhood:",
                     style={"marginBottom": 0}),
-            html.H3(area.upper(), style={"marginTop": 0}),
-            html.H3(f'{pop:,}', style={"marginBottom": 0}),
-            html.H6("Residents in " + str(census_year)),
-            html.H3(f'{age_frac:.1%}', style={"marginBottom": 0}),
-            html.H6(age_group + " Years of Age", style={"marginTop": 0}),
-            html.H3(f'{biz_num:,}', style={"marginBottom": 0}),
-            html.H6("Businesses in " + str(year)),
-        ], style={"textAlign": "center",
-                  "fontFamily": "sans-serif"})
+                    html.H3(area.upper(), 
+                    style={"marginTop": 0,
+                           "marginBottom": 0}),
+                ], style={"textAlign": "center",
+                          "fontFamily": "sans-serif"}
+            ),
+            html.Div(
+                className="graph__container first",
+                children=[
+                    html.H3(f'{pop:,}', style={"marginBottom": 0}),
+                    html.H6("Residents in " + str(census_year)),
+                    html.H3(f'{age_frac:.1%}', style={"marginBottom": 0}),
+                    html.H6(age_group + " Years of Age", style={"marginTop": 0}),
+                    html.H3(f'{biz_num:,}', style={"marginBottom": 0}),
+                    html.H6("Businesses in " + str(year)),
+                ], style={"textAlign": "center",
+                          "fontFamily": "sans-serif",
+                          "marginTop": 5}
+            )
+        ])
 
     return sum_info
 
@@ -1672,11 +1839,10 @@ def update_figure3(SelectedLocalArea,
             layout=go.Layout(
                 margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
                 mapbox=dict(
-                    accesstoken=mapbox_access_token,
                     center=dict(
                         lat=latInitial,
                         lon=lonInitial),
-                    style="light",
+                    style="carto-positron",
                     zoom=zoom
                 ),
             ),
@@ -1771,11 +1937,10 @@ def update_figure3(SelectedLocalArea,
         layout=go.Layout(
             margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
             mapbox=dict(
-                accesstoken=mapbox_access_token,
                 center=dict(
                     lat=latInitial,
                     lon=lonInitial),
-                style='light',
+                style="carto-positron",
                 zoom=zoom
             ),
         ),
