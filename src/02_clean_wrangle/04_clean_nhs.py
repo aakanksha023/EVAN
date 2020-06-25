@@ -9,8 +9,6 @@ with the census data.
 
 Usage: src/02_clean_wrangle/04_clean_nhs.py --nhs_zip=<nhs_zip> \
 --ct_bound_zip=<ct_bound_zip> \
---nhs_file=<nhs_file> \
---ct_file=<ct_file> \
 --area_file=<area_file> \
 --file_path=<file_path>
 
@@ -19,10 +17,6 @@ Options:
                                     the NHS data.
 --ct_bound_zip=<ct_bound_zip>       Path to the zip file containing
                                     the census tract boundaries.
---nhs_file=<nhs_file>               Path to the csv file containing the NHS
-                                    data for the province of interest.
---ct_file=<ct_file>                 Path to the .shp file containing the
-                                    census tract boundaries data.
 --area_file=<area_file>             Path to the geojson file containing the
                                     neighborhood boundaries data.
 --file_path=<file_path>             Path to the exported files.
@@ -39,11 +33,11 @@ import zipfile
 opt = docopt(__doc__)
 
 
-def main(nhs_zip, ct_bound_zip, nhs_file, ct_file, area_file, file_path):
+def main(nhs_zip, ct_bound_zip, area_file, file_path):
 
     # read NHS data from zip file
     with zipfile.ZipFile(nhs_zip, "r") as z:
-        with z.open(nhs_file) as f:
+        with z.open("99-004-XWE2011001-401-BC.csv") as f:
             nhs = pd.read_csv(f,
                               encoding='latin-1',
                               usecols=[0, 2, 3, 4, 5, 6, 8, 10, 12])
@@ -51,7 +45,7 @@ def main(nhs_zip, ct_bound_zip, nhs_file, ct_file, area_file, file_path):
     # extract and read boundary data from zip file
     z = zipfile.ZipFile(ct_bound_zip)
     z.extractall(path="data/raw/")
-    nhs_boundaries = gpd.read_file(ct_file)
+    nhs_boundaries = gpd.read_file("data/raw/gct_000b11a_e.shp")
 
     # read in local area boundaries
     areas = gpd.read_file(area_file)
@@ -123,5 +117,5 @@ def main(nhs_zip, ct_bound_zip, nhs_file, ct_file, area_file, file_path):
 
 
 if __name__ == "__main__":
-    main(opt["--nhs_zip"], opt["--ct_bound_zip"], opt["--nhs_file"],
-         opt["--ct_file"], opt["--area_file"], opt["--file_path"])
+    main(opt["--nhs_zip"], opt["--ct_bound_zip"],
+         opt["--area_file"], opt["--file_path"])

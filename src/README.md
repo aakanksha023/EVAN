@@ -3,9 +3,16 @@
 
 ## Usage
 
-### 1. Using Bash/Terminal 
-
 To replicate the analysis performed in this project, clone this GitHub repository, install the required [dependencies](#package-dependencies) listed below, and run the following commands in your command line/terminal from the root directory of this project:
+
+### 1. Makefile
+```{bash}
+make all
+
+make clean
+```
+
+### 2. Using Bash/Terminal
 
 **Part 1: Download Data**  
 ```{bash}
@@ -50,8 +57,6 @@ python3 src/02_clean_wrangle/03_clean_licence.py --file_path="data/processed/com
 
 python3 src/02_clean_wrangle/04_clean_nhs.py --nhs_zip="data/raw/nhs_census_2011.zip" \
 --ct_bound_zip="data/raw/census_boundaries_2011.zip" \
---nhs_file="99-004-XWE2011001-401-BC.csv" \
---ct_file="data/raw/gct_000b11a_e.shp" \
 --area_file="data/raw/local_area_boundary.geojson" \
 --file_path="data/processed/nhs/"
 
