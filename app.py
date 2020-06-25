@@ -739,12 +739,12 @@ app.layout = html.Div([
                 ]),
 
         # Define the layout of the third Tab
-        dcc.Tab(label='MACHINE LEARNING MODEL',
-                id='tab3',
-                className='custom-tab',
-                children=[
-                    build_tab3()
-                ])
+        # dcc.Tab(label='MACHINE LEARNING MODEL',
+        #         id='tab3',
+        #         className='custom-tab',
+        #         children=[
+        #             build_tab3()
+        #         ])
     ]),
 
     # main app footer
@@ -1182,11 +1182,11 @@ def update_edu(clickData, year):
         area = 'City of Vancouver'
 
     edu_df = df[['LocalArea', 'Year',
-                 'No certificate/diploma',
-                 'High school',
-                 'Apprenticeship/Trades',
+                 'University',
                  'College',
-                 'University']]
+                 'Apprenticeship/Trades',
+                 'High school',
+                 'No certificate/diploma']]
 
     van_df = edu_df.copy()
     edu_df = edu_df[(edu_df.Year == census_year) & (edu_df.LocalArea == area)]
@@ -1229,7 +1229,6 @@ def update_edu(clickData, year):
         showlegend=True,
         legend=dict(x=1, y=1, xanchor="right", bgcolor=colors['purple2']),
         height=350)
-
     return edu_fig
 
 
@@ -1594,8 +1593,8 @@ def update_tenure(clickData, year):
         area = (clickData['points'][0]['location'])
 
     tenure_df = df[['LocalArea', 'Year',
-                 'Owned shelter',
-                 'Rented shelter']]
+                 'Owned',
+                 'Rented']]
 
     tenure_df = tenure_df[(tenure_df.Year == census_year) & (tenure_df.LocalArea == area)]
     tenure_df = tenure_df.melt(id_vars=['LocalArea', 'Year'],
@@ -1626,7 +1625,8 @@ def update_tenure(clickData, year):
         )
     )
     tenure_plot.update_layout(
-        showlegend=False)
+        showlegend=False,
+        height=350)
 
     return tenure_plot
 
@@ -1650,11 +1650,12 @@ def update_dwelling(clickData, year):
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+
     dwel_df = df[['LocalArea',
                   'Year',
-                  'dwelling_House',
-                  'dwelling_Apartment',
-                  'dwelling_Other']]
+                  'Apartment (<5 storeys)',
+                  'Apartment (5+ storeys)',
+                  'House']]
 
     van_df = dwel_df.copy()
     dwel_df = dwel_df[(dwel_df.Year == census_year)
@@ -1700,6 +1701,7 @@ def update_dwelling(clickData, year):
         legend=dict(x=1, y=1, xanchor="right",
                     bgcolor=colors['purple2']),
         height=350)
+    dwel_fig.update_yaxes(range=[0, 95])
 
     return dwel_fig
 
