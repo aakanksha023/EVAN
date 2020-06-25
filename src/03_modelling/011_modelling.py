@@ -69,6 +69,16 @@ def main(file_path1, file_path2, file_path3, save_to1, save_to2):
     validation = pd.read_csv(file_path2, low_memory=False)
     #test = pd.read_csv(file_path3, low_memory=False)
 
+    def feature_engineering(df):
+        df = df[df.LocalArea.notnull()]
+        return df.drop(columns=label), df['label']
+
+    #df_list = [train, validation, test]
+    df_list = [train, validation]
+    for df in df_list:
+        df.drop(columns=['business_id','BusinessName', 'BusinessTradeName','Status',
+                      'BusinessSubType','Geom','NextYearStatus','BusinessIndustry'],inplace=True)
+
     #list all categorical varibles and numeric variables
     cat_vars = ['FOLDERYEAR', 'BusinessType', 'LocalArea']
     label = ['label']
@@ -92,16 +102,6 @@ def main(file_path1, file_path2, file_path3, save_to1, save_to2):
             ('num', numeric_transformer, num_vars),
             ('cat', categorical_transformer, cat_vars)
         ])
-
-    def feature_engineering(df):
-        df = df[df.LocalArea.notnull()]
-        return df.drop(columns=label), df['label']
-
-    #df_list = [train, validation, test]
-    df_list = [train, validation]
-    for df in df_list:
-        df.drop(columns=['business_id','BusinessName', 'BusinessTradeName','Status',
-                      'BusinessSubType','Geom','NextYearStatus','BusinessIndustry'],inplace=True)
 
 
     X_train, y_train = feature_engineering(train)
@@ -203,7 +203,7 @@ def main(file_path1, file_path2, file_path3, save_to1, save_to2):
     
     df_list = [lr_confusion, lr_accuracy, lgbm_confusion, lgbm_accuracy]
     df_name = ['lr_confusion', 'lr_accuracy', 'lgbm_confusion', 'lgbm_accuracy']
-    writer = pd.ExcelWriter(save_to)
+    writer = pd.ExcelWriter(save_to1)
     for i, df in enumerate(df_list):
         df.to_excel(writer,df_name[i])
     writer.save() 
