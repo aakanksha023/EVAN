@@ -21,6 +21,9 @@ import numpy as np
 import math
 import json
 from collections import Counter
+import warnings
+
+warnings.filterwarnings("ignore")
 
 opt = docopt(__doc__)
 

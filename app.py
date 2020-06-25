@@ -62,7 +62,7 @@ y_valid_pred = raw_vis_model[raw_vis_model.type == 'valid']['predict']
 # load model
 model = load('src/03_modelling/final_model.joblib')
 
-census_cols = list(raw_vis_model.iloc[:, 16:111].columns)
+census_cols = list(raw_vis_model.iloc[:, 14:109].columns)
 vis_model = raw_vis_model.drop(columns=census_cols)
 
 vis_model['geometry'] = [
@@ -546,7 +546,7 @@ app.layout = html.Div([
     # Main app header
     html.Div([
         # Setting the main title of the Dashboard
-        html.H1("Forecasting the Evolution of Vancouver's Business Landscape",
+        html.H1("Understanding the Evolution of Vancouver's Business Landscape",
                 style={"textAlign": "center", 'fontFamily': 'Open Sans',
                        'marginTop': 40, 'marginBottom': 40,
                        'marginLeft': 100, 'marginRight': 100,
@@ -555,14 +555,6 @@ app.layout = html.Div([
 
     # Dividing the dashboard into tabs
     dcc.Tabs(id="mainTabs", children=[
-
-        # Instruction - tab0
-        dcc.Tab(label='PRODUCT SUMMARY',
-                id='tab0',
-                className='custom-tab',
-                children=[
-                ]),
-
 
         # Define the layout of the first Tab
         dcc.Tab(label='BUSINESS LICENCE',

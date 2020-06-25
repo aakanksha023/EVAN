@@ -1,171 +1,83 @@
-# author: Xinwen Wang
-# date: 2020-05-21
+# author: Xinwen Wang and Jasmine Qin
+# date: 2020-06-24
 
 """
-This script performs data wrangling and synthesis for multiple csv
-and saves it to a specified file path. The input licence data needs to
+This script performs data wrangling and synthesis to licence, census,
+and parking datasets and saves the combined dataset
+to a specified file path. The input licence data needs to
 be the output of 03_clean_wrangle.py script. The output will be feeding into
-machine learning algorithm.
+feature engineering script.
 
-Usage: src/02_clean_wrangle/06_synthesis.py --file_path=<file_path>  \
+Usage: src/02_clean_wrangle/06_synthesis.py --path_in=<path_in>  \
 --save_to=<save_to>
 
 Options:
---file_path=<file_path>         A txt file storing two-dimensional array,
-                                specifing the file path for input dataset.
+--path_in=<path_in>             This is the file path of the csv
+                                  to be synthesized.
 --save_to=<save_to>             The file path where the processed training
-                                csv will be saved.
+                                  csv will be saved.
 """
 
 # load packages
 from docopt import docopt
 import pandas as pd
 import re
+import os
+import warnings
 
+pd.options.mode.chained_assignment = None
+warnings.filterwarnings("ignore")
 
 opt = docopt(__doc__)
 
 
-def main(file_path, save_to):
+def main(path_in, save_to):
 
-    # read files
+    ####################
+    # Licence Cleaning # - for modelling
+    ####################
 
-    with open(file_path, 'r') as file:
-        file_path = file.read().replace('\n', '')
+    licence_df = pd.read_csv(path_in)
+    licence_df = licence_df.astype({'FOLDERYEAR': 'int'})
 
-    file_path = file_path.strip('[]')
-    file_path = re.findall(r'\([^\)\(]*\)', file_path)
+    # 1. Remove status != Issued
+    licence_df = licence_df[licence_df.Status == 'Issued']
 
-    file_lis = []
+    # 2. Filter out unused columns
+    cols_not_used = ['LicenceRSN',
+                     'LicenceNumber',
+                     'LicenceRevisionNumber',
+                     'IssuedDate',
+                     'ExpiredDate',
+                     'Unit',
+                     'UnitType',
+                     'House',
+                     'Street',
+                     'City',
+                     'Province',
+                     'Country',
+                     'PostalCode',
+                     'ExtractDate']
 
-    for file in file_path:
-        file_name = file.strip('()')
-        file_lis.append(file_name)
+    licence_df = licence_df.drop(columns=cols_not_used)
 
-    disability_parking_df = pd.read_csv(file_lis[0], sep=';')
-    parking_meters_df = pd.read_csv(file_lis[1], sep=';')
+    # 3. Remove null BusinessIndustry
+    licence_df = licence_df[licence_df.BusinessIndustry.notnull()]
 
-    licence_df = pd.read_csv(file_lis[2], low_memory=False)
+    ####################
+    # Census Functions #
+    ####################
 
-    # census
-    family_2001 = pd.read_csv(file_lis[5])
-    family_2006 = pd.read_csv(file_lis[6])
-    family_2011 = pd.read_csv(file_lis[7])
-    family_2016 = pd.read_csv(file_lis[8])
-    language_2001 = pd.read_csv(file_lis[9])
-    language_2006 = pd.read_csv(file_lis[10])
-    language_2011 = pd.read_csv(file_lis[11])
-    language_2016 = pd.read_csv(file_lis[12])
-    marital_2001 = pd.read_csv(file_lis[13])
-    marital_2006 = pd.read_csv(file_lis[14])
-    marital_2011 = pd.read_csv(file_lis[15])
-    marital_2016 = pd.read_csv(file_lis[16])
-    population_2001 = pd.read_csv(file_lis[17])
-    population_2006 = pd.read_csv(file_lis[18])
-    population_2011 = pd.read_csv(file_lis[19])
-    population_2016 = pd.read_csv(file_lis[20])
-    minority_2001 = pd.read_csv(file_lis[21])
-    minority_2006 = pd.read_csv(file_lis[22])
-    minority_2011 = pd.read_csv(file_lis[23])
-    minority_2016 = pd.read_csv(file_lis[24])
-    dwelling_2001 = pd.read_csv(file_lis[25])
-    dwelling_2006 = pd.read_csv(file_lis[26])
-    dwelling_2011 = pd.read_csv(file_lis[27])
-    dwelling_2016 = pd.read_csv(file_lis[28])
-    shelter_2001 = pd.read_csv(file_lis[29])
-    shelter_2006 = pd.read_csv(file_lis[30])
-    shelter_2011 = pd.read_csv(file_lis[31])
-    shelter_2016 = pd.read_csv(file_lis[32])
-    lone_parent_2001 = pd.read_csv(file_lis[33])
-    lone_parent_2006 = pd.read_csv(file_lis[34])
-    lone_parent_2011 = pd.read_csv(file_lis[35])
-    lone_parent_2016 = pd.read_csv(file_lis[36])
-    imgra_period_2001 = pd.read_csv(file_lis[37])
-    imgra_period_2006 = pd.read_csv(file_lis[38])
-    imgra_period_2011 = pd.read_csv(file_lis[39])
-    imgra_period_2016 = pd.read_csv(file_lis[40])
-    citizen_2001 = pd.read_csv(file_lis[41])
-    citizen_2006 = pd.read_csv(file_lis[42])
-    citizen_2011 = pd.read_csv(file_lis[43])
-    citizen_2016 = pd.read_csv(file_lis[44])
-    generation_2001 = pd.read_csv(file_lis[45])
-    generation_2006 = pd.read_csv(file_lis[46])
-    generation_2011 = pd.read_csv(file_lis[47])
-    generation_2016 = pd.read_csv(file_lis[48])
-    household_size_2001 = pd.read_csv(file_lis[49])
-    household_size_2006 = pd.read_csv(file_lis[50])
-    household_size_2011 = pd.read_csv(file_lis[51])
-    household_size_2016 = pd.read_csv(file_lis[52])
-    household_type_2001 = pd.read_csv(file_lis[53])
-    household_type_2006 = pd.read_csv(file_lis[54])
-    household_type_2011 = pd.read_csv(file_lis[55])
-    household_type_2016 = pd.read_csv(file_lis[56])
-    imgra_age_2001 = pd.read_csv(file_lis[57])
-    imgra_age_2006 = pd.read_csv(file_lis[58])
-    imgra_age_2011 = pd.read_csv(file_lis[59])
-    imgra_age_2016 = pd.read_csv(file_lis[60])
-    industry_2001 = pd.read_csv(file_lis[61])
-    industry_2006 = pd.read_csv(file_lis[62])
-    industry_2011 = pd.read_csv(file_lis[63])
-    industry_2016 = pd.read_csv(file_lis[64])
-    labour_2001 = pd.read_csv(file_lis[65])
-    labour_2006 = pd.read_csv(file_lis[66])
-    labour_2011 = pd.read_csv(file_lis[67])
-    labour_2016 = pd.read_csv(file_lis[68])
-    mobility_2001 = pd.read_csv(file_lis[69])
-    mobility_2006 = pd.read_csv(file_lis[70])
-    mobility_2011 = pd.read_csv(file_lis[71])
-    mobility_2016 = pd.read_csv(file_lis[72])
-    occupation_2001 = pd.read_csv(file_lis[73])
-    occupation_2006 = pd.read_csv(file_lis[74])
-    occupation_2011 = pd.read_csv(file_lis[75])
-    occupation_2016 = pd.read_csv(file_lis[76])
-    time_worked_2001 = pd.read_csv(file_lis[77])
-    time_worked_2006 = pd.read_csv(file_lis[78])
-    time_worked_2011 = pd.read_csv(file_lis[79])
-    time_worked_2016 = pd.read_csv(file_lis[80])
-    transport_2001 = pd.read_csv(file_lis[81])
-    transport_2006 = pd.read_csv(file_lis[82])
-    transport_2011 = pd.read_csv(file_lis[83])
-    transport_2016 = pd.read_csv(file_lis[84])
-    workplace_2001 = pd.read_csv(file_lis[85])
-    workplace_2006 = pd.read_csv(file_lis[86])
-    workplace_2011 = pd.read_csv(file_lis[87])
-    workplace_2016 = pd.read_csv(file_lis[88])
-    education_2001 = pd.read_csv(file_lis[89])
-    education_2006 = pd.read_csv(file_lis[90])
-    education_2011 = pd.read_csv(file_lis[91])
-    education_2016 = pd.read_csv(file_lis[92])
-    im_birth_2001 = pd.read_csv(file_lis[93])
-    im_birth_2006 = pd.read_csv(file_lis[94])
-    im_birth_2011 = pd.read_csv(file_lis[95])
-    im_birth_2016 = pd.read_csv(file_lis[96])
+    def merge_data(df_list, licence_df):
 
-    # suppress warning
-    pd.options.mode.chained_assignment = None
+        whole = pd.concat([i for i in df_list])
+        whole = whole.rename(columns={"Year": "FOLDERYEAR"})
+        licence_df = licence_df.merge(
+            whole,
+            on=["LocalArea", "FOLDERYEAR"],
+            how='left')
 
-    # clean
-
-    # only keeping Geom, and Geo Local Area column
-    disability_parking_df = disability_parking_df[['Geom', 'Geo Local Area']]
-    # groupby Local area to get a count of how many parking in a local area
-    area_count_df = disability_parking_df.groupby('Geo Local Area').count()
-    area_count_df.rename(columns={'Geom': 'Disability parking'}, inplace=True)
-    # this is kept for individual point/for vis
-    disability_parking_df = disability_parking_df.merge(
-        area_count_df, on='Geo Local Area', how='left')
-
-    # same processing as disability dataset
-    parking_meters_df = parking_meters_df[['Geom', 'Geo Local Area']]
-    meter_count_df = parking_meters_df.groupby('Geo Local Area').count()
-    meter_count_df.rename(columns={'Geom': 'Parking meters'}, inplace=True)
-    # this is kept for individual point
-    parking_meters_df = parking_meters_df.merge(
-        meter_count_df, on='Geo Local Area', how='left')
-
-    ###############
-    # Census Data #
-    ###############
+        return licence_df
 
     def fill_missing_year(df, start_year, end_year):
         """
@@ -197,8 +109,7 @@ def main(file_path, save_to):
 
         return df
 
-    # family sub-data
-    def clean_family(family, start_year, end_year):
+    def clean_couples_family_structure(family, start_year, end_year):
         """
         This function cleans the family census data
         Args:
@@ -232,13 +143,7 @@ def main(file_path, save_to):
 
         return family
 
-    family_2001 = clean_family(family_2001, 1997, 2002)
-    family_2006 = clean_family(family_2006, 2002, 2007)
-    family_2011 = clean_family(family_2011, 2007, 2012)
-    family_2016 = clean_family(family_2016, 2012, 2020)
-
-    # language sub-data
-    def clean_language(language, start_year, end_year):
+    def clean_detailed_language(language, start_year, end_year):
         """
         This function cleans the language census data
         Args:
@@ -277,13 +182,7 @@ def main(file_path, save_to):
             language, start_year, end_year)
         return language
 
-    language_2001 = clean_language(language_2001, 1997, 2002)
-    language_2006 = clean_language(language_2006, 2002, 2007)
-    language_2011 = clean_language(language_2011, 2007, 2012)
-    language_2016 = clean_language(language_2016, 2012, 2020)
-
-    # marital sub-data
-    def clean_marital(marital, start_year, end_year):
+    def clean_marital_status(marital, start_year, end_year):
         """
         This function cleans the marital census data
         Args:
@@ -315,12 +214,6 @@ def main(file_path, save_to):
         marital = fill_missing_year(marital, start_year, end_year)
         return marital
 
-    marital_2001 = clean_marital(marital_2001, 1997, 2002)
-    marital_2006 = clean_marital(marital_2006, 2002, 2007)
-    marital_2011 = clean_marital(marital_2011, 2007, 2012)
-    marital_2016 = clean_marital(marital_2016, 2012, 2020)
-
-    # population sub-data
     def clean_age(age, start_year, end_year):
         """
         This function cleans the marital census data
@@ -366,12 +259,6 @@ def main(file_path, save_to):
         age = fill_missing_year(age, start_year, end_year)
         return age
 
-    age_2001 = clean_age(population_2001, 1997, 2002)
-    age_2006 = clean_age(population_2006, 2002, 2007)
-    age_2011 = clean_age(population_2011, 2007, 2012)
-    age_2016 = clean_age(population_2016, 2012, 2020)
-
-    # gender
     def clean_gender(gender, start_year, end_year):
 
         gender = gender.iloc[:, 1:4].pivot(
@@ -388,13 +275,7 @@ def main(file_path, save_to):
         gender = fill_missing_year(gender, start_year, end_year)
         return gender
 
-    gender_2001 = clean_gender(population_2001, 1997, 2002)
-    gender_2006 = clean_gender(population_2006, 2002, 2007)
-    gender_2011 = clean_gender(population_2011, 2007, 2012)
-    gender_2016 = clean_gender(population_2016, 2012, 2020)
-
-    # visible minority
-    def clean_minority(mino, start_year, end_year):
+    def clean_visible_minority(mino, start_year, end_year):
 
         if start_year == 2007:
             mino = mino[mino.Type == 'Total']
@@ -416,13 +297,7 @@ def main(file_path, save_to):
         mino = fill_missing_year(mino, start_year, end_year)
         return mino
 
-    minority_2001 = clean_minority(minority_2001, 1997, 2002)
-    minority_2006 = clean_minority(minority_2006, 2002, 2007)
-    minority_2011 = clean_minority(minority_2011, 2007, 2012)
-    minority_2016 = clean_minority(minority_2016, 2012, 2020)
-
-    # dwelling
-    def clean_dwelling(dwel, start_year, end_year):
+    def clean_structural_dwelling_type(dwel, start_year, end_year):
 
         dwel['dwelling_House'] = (dwel['Single-detached house'] +
                                   dwel['Semi-detached house'] +
@@ -445,8 +320,8 @@ def main(file_path, save_to):
                     'Apartment, building that has five or more storeys'
                 ])/dwel['Total']
             dwel['dwelling_Other'] = 1 - dwel[
-                    'dwelling_Apartment'] - dwel[
-                    'dwelling_House']
+                'dwelling_Apartment'] - dwel[
+                'dwelling_House']
 
         else:
             dwel['dwelling_Apartment'] = (dwel[
@@ -456,8 +331,8 @@ def main(file_path, save_to):
                 'Apartment, building that has fewer than five storeys'
             ])/dwel['Total']
             dwel['dwelling_Other'] = 1 - dwel[
-                    'dwelling_Apartment'] - dwel[
-                    'dwelling_House']
+                'dwelling_Apartment'] - dwel[
+                'dwelling_House']
 
         dwel = dwel[['LocalArea',
                      'dwelling_House',
@@ -467,13 +342,7 @@ def main(file_path, save_to):
         dwel = fill_missing_year(dwel, start_year, end_year)
         return dwel
 
-    dwelling_2001 = clean_dwelling(dwelling_2001, 1997, 2002)
-    dwelling_2006 = clean_dwelling(dwelling_2006, 2002, 2007)
-    dwelling_2011 = clean_dwelling(dwelling_2011, 2007, 2012)
-    dwelling_2016 = clean_dwelling(dwelling_2016, 2012, 2020)
-
-    # shelter tenure
-    def clean_shelter(shel, start_year, end_year):
+    def clean_shelter_tenure(shel, start_year, end_year):
 
         if start_year == 2007:
             shel = shel.query('Type == "Total"')
@@ -492,12 +361,6 @@ def main(file_path, save_to):
         shel = fill_missing_year(shel, start_year, end_year)
         return shel
 
-    shelter_2001 = clean_shelter(shelter_2001, 1997, 2002)
-    shelter_2006 = clean_shelter(shelter_2006, 2002, 2007)
-    shelter_2011 = clean_shelter(shelter_2011, 2007, 2012)
-    shelter_2016 = clean_shelter(shelter_2016, 2012, 2020)
-
-    # lone parent
     def clean_lone_parent(lone, start_year, end_year):
         lone['Female lone parent'] = lone[
             'Female parent'] / lone['Total lone-parent families']
@@ -511,12 +374,6 @@ def main(file_path, save_to):
         lone = fill_missing_year(lone, start_year, end_year)
         return lone
 
-    lone_parent_2001 = clean_lone_parent(lone_parent_2001, 1997, 2002)
-    lone_parent_2006 = clean_lone_parent(lone_parent_2006, 2002, 2007)
-    lone_parent_2011 = clean_lone_parent(lone_parent_2011, 2007, 2012)
-    lone_parent_2016 = clean_lone_parent(lone_parent_2016, 2012, 2020)
-
-    # immigrates_period
     def clean_imgra_period(im_p, start_year, end_year):
         # note that start year should only be 1997 or 2002 or 2007 or 2012
         if start_year == 1997:
@@ -562,14 +419,7 @@ def main(file_path, save_to):
         im_p = fill_missing_year(im_p, start_year, end_year)
         return im_p
 
-    # imgra_period_2001 = clean_imgra_period(imgra_period_2001, 1997, 2002)
-    # imgra_period_2006 = clean_imgra_period(imgra_period_2006, 2002, 2007)
-    # note this is not an error, intentional using 2016
-    # imgra_period_2011 = clean_imgra_period(imgra_period_2016, 2007, 2012)
-    # imgra_period_2016 = clean_imgra_period(imgra_period_2016, 2012, 2020)
-
-    # citizenship
-    def clean_citizen(citizen, start_year, end_year):
+    def clean_citizenship(citizen, start_year, end_year):
 
         if start_year == 2007:
             citizen = citizen[citizen['Unnamed: 0'] == 0]
@@ -593,13 +443,7 @@ def main(file_path, save_to):
         citizen = fill_missing_year(citizen, start_year, end_year)
         return citizen
 
-    citizen_2001 = clean_citizen(citizen_2001, 1997, 2002)
-    citizen_2006 = clean_citizen(citizen_2006, 2002, 2007)
-    citizen_2011 = clean_citizen(citizen_2011, 2007, 2012)
-    citizen_2016 = clean_citizen(citizen_2016, 2012, 2020)
-
-    # generation
-    def clean_generation(gen, start_year, end_year):
+    def clean_generation_status(gen, start_year, end_year):
         for i in gen.columns[3:]:
             gen[i] = gen[i]/gen[gen.columns[2]]
 
@@ -607,12 +451,6 @@ def main(file_path, save_to):
         gen = fill_missing_year(gen, start_year, end_year)
         return gen
 
-    generation_2001 = clean_generation(generation_2001, 1997, 2002)
-    generation_2006 = clean_generation(generation_2006, 2002, 2007)
-    generation_2011 = clean_generation(generation_2011, 2007, 2012)
-    generation_2016 = clean_generation(generation_2016, 2012, 2020)
-
-    # household size
     def clean_household_size(house_size, start_year, end_year):
 
         col_lis = list(house_size.columns)[3:8]
@@ -631,20 +469,14 @@ def main(file_path, save_to):
             inplace=True)
 
         house_size = house_size[[
-                                 'LocalArea', '1 person household',
-                                 '2 persons household', '3 persons household',
-                                 '4 to 5 persons household',
-                                 '6 or more persons household']]
+            'LocalArea', '1 person household',
+            '2 persons household', '3 persons household',
+            '4 to 5 persons household',
+            '6 or more persons household']]
 
         house_size = fill_missing_year(house_size, start_year, end_year)
         return house_size
 
-    household_size_2001 = clean_household_size(household_size_2001, 1997, 2002)
-    household_size_2006 = clean_household_size(household_size_2006, 2002, 2007)
-    household_size_2011 = clean_household_size(household_size_2011, 2007, 2012)
-    household_size_2016 = clean_household_size(household_size_2016, 2012, 2020)
-
-    # household type
     def clean_household_type(house_type, start_year, end_year):
         for i in house_type.columns[3:]:
             house_type[i] = house_type[
@@ -660,12 +492,6 @@ def main(file_path, save_to):
         house_type = fill_missing_year(house_type, start_year, end_year)
         return house_type
 
-    household_type_2001 = clean_household_type(household_type_2001, 1997, 2002)
-    household_type_2006 = clean_household_type(household_type_2006, 2002, 2007)
-    household_type_2011 = clean_household_type(household_type_2011, 2007, 2012)
-    household_type_2016 = clean_household_type(household_type_2016, 2012, 2020)
-
-    # immigration age
     def clean_imgra_age(img_age, start_year, end_year):
 
         img_age.rename(
@@ -690,13 +516,6 @@ def main(file_path, save_to):
         img_age = fill_missing_year(img_age, start_year, end_year)
         return img_age
 
-    # imgra_age_2001 = imgra_age_2006.copy()
-    # imgra_age_2001 = clean_imgra_age(imgra_age_2001, 2002, 2007)
-    # imgra_age_2006 = clean_imgra_age(imgra_age_2006, 2002, 2007)
-    # imgra_age_2011 = clean_imgra_age(imgra_age_2011, 2007, 2012)
-    # imgra_age_2016 = clean_imgra_age(imgra_age_2016, 2012, 2020)
-
-    # industry
     def clean_industry(ind, start_year, end_year):
 
         col_lis = list(ind.columns)[5:]
@@ -712,13 +531,7 @@ def main(file_path, save_to):
         ind = fill_missing_year(ind, start_year, end_year)
         return ind
 
-    industry_2001 = clean_industry(industry_2001, 1997, 2002)
-    industry_2006 = clean_industry(industry_2006, 2002, 2007)
-    industry_2011 = clean_industry(industry_2011, 2007, 2012)
-    industry_2016 = clean_industry(industry_2016, 2012, 2020)
-
-    # labour force
-    def clean_labour_force(labour, start_year, end_year):
+    def clean_labour_force_status(labour, start_year, end_year):
         labour = labour[labour['Type'] == 'Total']
 
         labour = labour[['LocalArea',
@@ -728,12 +541,6 @@ def main(file_path, save_to):
         labour = fill_missing_year(labour, start_year, end_year)
         return labour
 
-    labour_2001 = clean_labour_force(labour_2001, 1997, 2002)
-    labour_2006 = clean_labour_force(labour_2006, 2002, 2007)
-    labour_2011 = clean_labour_force(labour_2011, 2007, 2012)
-    labour_2016 = clean_labour_force(labour_2016, 2012, 2020)
-
-    # mobility
     def clean_mobility(mob, start_year, end_year):
 
         mob['total'] = mob[
@@ -755,12 +562,6 @@ def main(file_path, save_to):
         mob = fill_missing_year(mob, start_year, end_year)
         return mob
 
-    mobility_2001 = clean_mobility(mobility_2001, 1997, 2002)
-    mobility_2006 = clean_mobility(mobility_2006, 2002, 2007)
-    mobility_2011 = clean_mobility(mobility_2011, 2007, 2012)
-    mobility_2016 = clean_mobility(mobility_2016, 2012, 2020)
-
-    # occupation
     def clean_occupation(occ, start_year, end_year):
 
         occ['total'] = occ[
@@ -780,13 +581,7 @@ def main(file_path, save_to):
         occ = fill_missing_year(occ, start_year, end_year)
         return occ
 
-    occupation_2001 = clean_occupation(occupation_2001, 1997, 2002)
-    occupation_2006 = clean_occupation(occupation_2006, 2002, 2007)
-    occupation_2011 = clean_occupation(occupation_2011, 2007, 2012)
-    occupation_2016 = clean_occupation(occupation_2016, 2012, 2020)
-
-    # time_worked
-    def time_worked(tw, start_year, end_year):
+    def clean_time_worked(tw, start_year, end_year):
 
         tw = tw.query('Type == "Total"')
         col_lis = list(tw.columns)[4:6]
@@ -802,13 +597,7 @@ def main(file_path, save_to):
         tw = fill_missing_year(tw, start_year, end_year)
         return tw
 
-    time_worked_2001 = time_worked(time_worked_2001, 1997, 2002)
-    time_worked_2006 = time_worked(time_worked_2006, 2002, 2007)
-    time_worked_2011 = time_worked(time_worked_2011, 2007, 2012)
-    time_worked_2016 = time_worked(time_worked_2016, 2012, 2020)
-
-    # transit
-    def clean_transport(trans, start_year, end_year):
+    def clean_transport_mode(trans, start_year, end_year):
 
         trans = trans.query('Type == "Total"')
 
@@ -823,13 +612,7 @@ def main(file_path, save_to):
         trans = fill_missing_year(trans, start_year, end_year)
         return trans
 
-    transport_2001 = clean_transport(transport_2001, 1997, 2002)
-    transport_2006 = clean_transport(transport_2006, 2002, 2007)
-    transport_2011 = clean_transport(transport_2011, 2007, 2012)
-    transport_2016 = clean_transport(transport_2016, 2012, 2020)
-
-    # workplace
-    def clean_workplace(wp, start_year, end_year):
+    def clean_workplace_status(wp, start_year, end_year):
 
         wp = wp.query('Type == "Total"')
 
@@ -849,12 +632,6 @@ def main(file_path, save_to):
         wp = fill_missing_year(wp, start_year, end_year)
         return wp
 
-    workplace_2001 = clean_workplace(workplace_2001, 1997, 2002)
-    workplace_2006 = clean_workplace(workplace_2006, 2002, 2007)
-    workplace_2011 = clean_workplace(workplace_2011, 2007, 2012)
-    workplace_2016 = clean_workplace(workplace_2016, 2012, 2020)
-
-    # education
     def clean_education(education, start_year, end_year):
 
         if start_year == 1997:
@@ -887,13 +664,7 @@ def main(file_path, save_to):
         education = fill_missing_year(education, start_year, end_year)
         return education
 
-    education_2001 = clean_education(education_2001, 1997, 2002)
-    education_2006 = clean_education(education_2006, 2002, 2007)
-    education_2011 = clean_education(education_2011, 2007, 2012)
-    education_2016 = clean_education(education_2016, 2012, 2020)
-
-    # birth place
-    def clean_im_birth(im_birth, start_year, end_year):
+    def clean_immigration_birth_place(im_birth, start_year, end_year):
 
         if start_year == 2007:
             im_birth = im_birth.query('Type == "Total"')
@@ -914,54 +685,78 @@ def main(file_path, save_to):
         im_birth = fill_missing_year(im_birth, start_year, end_year)
         return im_birth
 
-    im_birth_2001 = clean_im_birth(im_birth_2001, 1997, 2002)
-    im_birth_2006 = clean_im_birth(im_birth_2006, 2002, 2007)
-    im_birth_2011 = clean_im_birth(im_birth_2011, 2007, 2012)
-    im_birth_2016 = clean_im_birth(im_birth_2016, 2012, 2020)
-
-    ###################################
-    # Insert Cleaning (for modelling) #
-    ###################################
-
-    # 1. Remove status != Issued
-    licence_df = licence_df[licence_df.Status == 'Issued']
-
-    # 2. Filter out unused columns
-    cols_not_used = ['LicenceRSN',
-                     'LicenceNumber',
-                     'LicenceRevisionNumber',
-                     'IssuedDate',
-                     'ExpiredDate',
-                     'Unit',
-                     'UnitType',
-                     'House',
-                     'Street',
-                     'City',
-                     'Province',
-                     'Country',
-                     'PostalCode',
-                     'ExtractDate']
-
-    licence_df = licence_df.drop(columns=cols_not_used)
-
-    # 3. Remove null BusinessIndustry
-    licence_df = licence_df[licence_df.BusinessIndustry.notnull()]
-
     ################
-    # Synthesizing #
+    # Merge Census #
     ################
 
-    # synthesis merging function
-    def merge_data(df1, df2, df3, df4, licence_df):
+    list_years = {2001: [1997, 2002],
+                  2006: [2002, 2007],
+                  2011: [2007, 2012],
+                  2016: [2012, 2020]}
+    excluded = ["official_language", "worker_class",
+                "immigration_period", "immigration_age"]
 
-        whole = pd.concat([df1, df2, df3, df4])
-        whole.rename(columns={'LocalArea': 'Geo Local Area',
-                              'Year': 'FOLDERYEAR'}, inplace=True)
-        licence_df = licence_df.merge(
-            whole, on=['Geo Local Area', 'FOLDERYEAR'], how='left')
+    file_names = [os.path.splitext(entry.name)[0]
+                  for entry in os.scandir("data/processed/census_2001")
+                  if os.path.splitext(entry.name)[0]
+                  not in excluded and entry.is_file()]
 
-        return licence_df
+    for f in file_names:
+        df_f = []
+        for y in list_years.keys():
+            # read csv
+            df_y = pd.read_csv("data/processed/census_" + str(y) + "/" + f + ".csv")
 
+            # clean dataframe
+            if f == "population_age_sex":
+                func_name = "clean_age"
+            else:
+                func_name = "clean_" + f
+
+            df_f.append(eval(func_name)(df_y,
+                                        list_years[y][0],
+                                        list_years[y][1]))
+
+        # merge dataframes
+        licence_df = merge_data(df_f, licence_df)
+
+        if f == "population_age_sex":
+            df_f = []
+            for y in list_years.keys():
+                df_y = pd.read_csv("data/processed/census_" + str(y) + "/" + f + ".csv")
+
+                df_f.append(clean_gender(df_y,
+                                         list_years[y][0],
+                                         list_years[y][1]))
+
+            licence_df = merge_data(df_f, licence_df)
+
+    #################
+    # Merge Parking #
+    #################
+
+    disability_parking_df = pd.read_csv(
+        "data/raw/disability-parking.csv", sep=';')
+    parking_meters_df = pd.read_csv(
+        "data/raw/parking-meters.csv", sep=';')
+
+    # only keeping Geom, and Geo Local Area column
+    disability_parking_df = disability_parking_df[['Geom', 'Geo Local Area']]
+    # groupby Local area to get a count of how many parking in a local area
+    area_count_df = disability_parking_df.groupby('Geo Local Area').count()
+    area_count_df.rename(columns={'Geom': 'Disability parking'}, inplace=True)
+    # this is kept for individual point/for vis
+    disability_parking_df = disability_parking_df.merge(
+        area_count_df, on='Geo Local Area', how='left')
+
+    # same processing as disability dataset
+    parking_meters_df = parking_meters_df[['Geom', 'Geo Local Area']]
+    meter_count_df = parking_meters_df.groupby('Geo Local Area').count()
+    meter_count_df.rename(columns={'Geom': 'Parking meters'}, inplace=True)
+    # this is kept for individual point
+    parking_meters_df = parking_meters_df.merge(
+        meter_count_df, on='Geo Local Area', how='left')
+    
     # combine two parking
     final_parking_df = meter_count_df.merge(
         area_count_df, on='Geo Local Area', how='outer')
@@ -971,90 +766,13 @@ def main(file_path, save_to):
     licence_df = licence_df.merge(
         final_parking_df, on='Geo Local Area', how='left')
 
-    # change folderyear to be int
-    licence_df = licence_df.astype({'FOLDERYEAR': 'int'})
+    #############
+    # Save File #
+    #############
 
-    # combine with census data
-    licence_df = merge_data(family_2001, family_2006,
-                            family_2011, family_2016, licence_df)
-
-    licence_df = merge_data(language_2001, language_2006,
-                            language_2011, language_2016, licence_df)
-
-    licence_df = merge_data(marital_2001, marital_2006,
-                            marital_2011, marital_2016, licence_df)
-
-    licence_df = merge_data(age_2001, age_2006,
-                            age_2011, age_2016, licence_df)
-
-    licence_df = merge_data(gender_2001, gender_2006,
-                            gender_2011, gender_2016, licence_df)
-
-    licence_df = merge_data(minority_2001, minority_2006,
-                            minority_2011, minority_2016, licence_df)
-
-    licence_df = merge_data(dwelling_2001, dwelling_2006,
-                            dwelling_2011, dwelling_2016, licence_df)
-
-    licence_df = merge_data(shelter_2001, shelter_2006,
-                            shelter_2011, shelter_2016, licence_df)
-
-    licence_df = merge_data(lone_parent_2001, lone_parent_2006,
-                            lone_parent_2011, lone_parent_2016, licence_df)
-
-    # licence_df = merge_data(imgra_period_2001, imgra_period_2006,
-    #                        imgra_period_2011, imgra_period_2016, licence_df)
-
-    licence_df = merge_data(citizen_2001, citizen_2006,
-                            citizen_2011, citizen_2016, licence_df)
-
-    licence_df = merge_data(generation_2001, generation_2006,
-                            generation_2011, generation_2016, licence_df)
-
-    licence_df = merge_data(household_size_2001,
-                            household_size_2006,
-                            household_size_2011,
-                            household_size_2016, licence_df)
-
-    licence_df = merge_data(household_type_2001,
-                            household_type_2006,
-                            household_type_2011,
-                            household_type_2016, licence_df)
-
-    # licence_df = merge_data(imgra_age_2001, imgra_age_2006,
-    #                        imgra_age_2011, imgra_age_2016, licence_df)
-
-    licence_df = merge_data(industry_2001, industry_2006,
-                            industry_2011, industry_2016, licence_df)
-
-    licence_df = merge_data(labour_2001, labour_2006,
-                            labour_2011, labour_2016, licence_df)
-
-    licence_df = merge_data(mobility_2001, mobility_2006,
-                            mobility_2011, mobility_2016, licence_df)
-
-    licence_df = merge_data(occupation_2001, occupation_2006,
-                            occupation_2011, occupation_2016, licence_df)
-
-    licence_df = merge_data(time_worked_2001, time_worked_2006,
-                            time_worked_2011, time_worked_2016, licence_df)
-
-    licence_df = merge_data(transport_2001, transport_2006,
-                            transport_2011, transport_2016, licence_df)
-
-    licence_df = merge_data(workplace_2001, workplace_2006,
-                            workplace_2011, workplace_2016, licence_df)
-
-    licence_df = merge_data(education_2001, education_2006,
-                            education_2011, education_2016, licence_df)
-
-    licence_df = merge_data(im_birth_2001, im_birth_2006,
-                            im_birth_2011, im_birth_2016, licence_df)
-
-    # save to a new csv
     licence_df.rename(columns={'Geo Local Area': 'LocalArea'}).to_csv(
         save_to, index=False)
 
 
 if __name__ == "__main__":
-    main(opt["--file_path"], opt["--save_to"])
+    main(opt["--path_in"], opt["--save_to"])
