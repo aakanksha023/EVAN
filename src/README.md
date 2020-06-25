@@ -108,6 +108,11 @@ python3 src/03_modelling/07_feature_engineering.py --file_path="data/processed/0
 # test set
 python3 src/03_modelling/07_feature_engineering.py --file_path="data/processed/04_combined_test.csv" \
 --save_to="data/processed/05_feat_eng_test.csv"
+
+# 8. 011_modelling.py
+python3 src/03_modelling/011_modelling.py --file_path1="data/processed/05_feat_eng_train.csv" \
+--file_path2="data/processed/05_feat_eng_validate.csv" --file_path3="data/processed/05_feat_eng_test.csv" \
+--save_to1="src/03_modelling/model_performance.xlsx" --save_to2="src/03_modelling/important_feature.csv"
 ```
 
 **Part 4: Visualization**
