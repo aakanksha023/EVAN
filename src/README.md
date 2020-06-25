@@ -6,14 +6,18 @@
 To replicate the analysis performed in this project, clone this GitHub repository, install the required [dependencies](#package-dependencies) listed below, and run the following commands in your command line/terminal from the root directory of this project:
 
 ### 1. Using makefile
+To generate all required datasets for the model and dashboard:
 ```{bash}
-# To generate all required datasets for the model and dashboard:
 make all
+```
 
-# To view dashboard locally:
+To view dashboard locally:
+```{bash}
 python3 app.py
+```
 
-# To remove generated files:
+To remove generated files:
+```{bash}
 make clean
 ```
 
