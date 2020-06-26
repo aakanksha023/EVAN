@@ -338,45 +338,54 @@ def main(path_in, path_out, area_file):
             dwel: A cleaned pandas dataframe
         """
 
-        dwel['dwelling_House'] = (dwel['Single-detached house'] +
-                                  dwel['Semi-detached house'] +
-                                  dwel['Row house']) / dwel['Total']
+        dwel['House'] = (dwel[
+            'Single-detached house'] + dwel[
+            'Semi-detached house'] + dwel[
+            'Row house']) / dwel['Total']
 
         if year == 2001:
-            dwel['dwelling_Apartment'] = (dwel[
+            dwel['Apartment (<5 storeys)'] = (dwel[
                     'Apartment, detached duplex'] + dwel[
-                    'Apartment, building that has five or more storeys'] + dwel[
                     'Apartment, building that has fewer than five storeys'
                     ]) / dwel['Total']
+            dwel['Apartment (5+ storeys)'] =  dwel[
+                    'Apartment, building that has five or more storeys'
+                    ] / dwel['Total']
 
             dwel['dwelling_Other'] = (
                 dwel['Other single-attached house'] + dwel[
                     'Movable dwelling']) / dwel['Total']
 
         elif year == 2006:
-            dwel['dwelling_Apartment'] = (dwel[
-                 'Apartment, duplex'] + dwel[
-                 'Apartment, building that has five or more storeys'
-                ])/dwel['Total']
+            dwel['Apartment (<5 storeys)'] = dwel[
+                 'Apartment, duplex'] /dwel['Total']
+            dwel['Apartment (5+ storeys)'] =  dwel[
+                    'Apartment, building that has five or more storeys'
+                    ] / dwel['Total']
 
             dwel['dwelling_Other'] = 1 - dwel[
-                'dwelling_Apartment'] - dwel[
-                'dwelling_House']
+                    'Apartment (5+ storeys)'] - dwel[
+                    'Apartment (<5 storeys)'] - dwel[
+                    'House']
 
         else:
-            dwel['dwelling_Apartment'] = (dwel[
+            dwel['Apartment (<5 storeys)'] = (dwel[
                  'Apartment, detached duplex'] + dwel[
-                 'Apartment, building that has five or more storeys'] + dwel[
                  'Apartment, building that has fewer than five storeys'
                 ]) / dwel['Total']
+            dwel['Apartment (5+ storeys)'] =  dwel[
+                    'Apartment, building that has five or more storeys'
+                    ] / dwel['Total']
 
             dwel['dwelling_Other'] = 1 - dwel[
-                    'dwelling_Apartment'] - dwel[
-                    'dwelling_House']
+                    'Apartment (5+ storeys)'] - dwel[
+                    'Apartment (<5 storeys)'] - dwel[
+                    'House']
 
         dwel = dwel[['LocalArea',
-                     'dwelling_House',
-                     'dwelling_Apartment',
+                     'Apartment (5+ storeys)',
+                     'Apartment (<5 storeys)',
+                     'House',
                      'dwelling_Other']]
 
         return dwel
@@ -400,10 +409,10 @@ def main(path_in, path_out, area_file):
             shel = shel.append(van_total, ignore_index=True)
 
         shel['Owned_Rented'] = shel['Owned'] + shel['Rented']
-        shel['Owned shelter'] = shel['Owned'] / shel['Owned_Rented']
-        shel['Rented shelter'] = shel['Rented'] / shel['Owned_Rented']
+        shel['Owned'] = shel['Owned'] / shel['Owned_Rented']
+        shel['Rented'] = shel['Rented'] / shel['Owned_Rented']
 
-        shel = shel[['LocalArea', 'Owned shelter', 'Rented shelter']]
+        shel = shel[['LocalArea', 'Owned', 'Rented']]
 
         return shel
 
@@ -708,7 +717,7 @@ def main(path_in, path_out, area_file):
             occ[col] = occ[col]/occ['total']
 
         occ = occ[occ.Type == "Total"]
-        van_total = occ.sum()
+        van_total = occ.mean()
         van_total['LocalArea'] = 'City of Vancouver'
         van_total['Type'] = 'Total'
         occ = occ.append(van_total, ignore_index=True)
