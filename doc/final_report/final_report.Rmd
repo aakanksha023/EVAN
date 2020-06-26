@@ -82,6 +82,17 @@ The final data product consists of a fully-reproducible machine learning model p
 ## Model overview
 For modelling,  we built a data pipeline that could automatically pre-process, train and perform hyperparameter tuning. We used the LightGBM model, a tree-based model to make predictions. Due to the class imbalance problem, it is important to look at the  recall rate for the not renewed class as well. The recall rate for not renewed class is for all the businesses that have not renewed their licences, how many of them the algorithm correctly predicts. The accuracy for the current model is and  the recall rate of not renewed cases is 0.55. Most of the hyperparameters for the LightGBM  model deal with overfitting problems. Since the current model does not  have such problems, the only hyperparameter that is different from default is class_weight. The class_weight  parameter is set to balanced to  deal with the class imbalance problem. 
 
+|             | precision | recall |
+|:-----------:|-----------|--------|
+| not renewed | 0.25      | 0.61   |
+| renewed     | 0.89      | 0.64   |
+
+```{r confusion, fig.cap="model performance", out.width="400px", out.height="300px", echo=FALSE}
+knitr::include_graphics("../../figures/lgbm_roc.png")
+```
+
+
+
 ## Dashboard overview
 An integrated data product is desired to reflect the reality that predictive modelling of landscape evolution is a sophisticated task that cannot be well explained alone by a model. Cities are dynamic living organisms and associated datasets often contain both temporal and spatial dimensions. Entrepreneurial activities and demographics of neighbourhoods that are being fed into our pipeline are actual tangible components of Vancouver that are constantly evolving at different paces. In order to aid the collaboration and communication among different stakeholders in city planning or business decision making, it is intuitive to visualize these factors on top of Vancouver's physical structure.
 
