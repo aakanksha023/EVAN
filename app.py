@@ -701,10 +701,13 @@ app.layout = html.Div([
                                                       config=config)
                                         ]),
                                     html.Div(
-                                        className="other-half column",
+                                        className="other-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H5('text description...')
-                                        ])
+                                            html.H4('Employment Sectors',
+                                                    style={"textAlign": "center"}),
+                                            dcc.Graph(id='occ_graph',
+                                                      config=config)]
+                                    )
                                 ],
                             ),
                         ]),
@@ -1249,6 +1252,85 @@ def update_edu(clickData, year):
         height=350)
     return edu_fig
 
+# update occupation graph by local area and year
+@app.callback(
+    Output('occ_graph', 'figure'),
+    [Input('van_map', 'clickData'),
+     Input('year_slider_census', 'value')])
+def update_occ(clickData, year):
+    # select nearest census year
+    if year <= 2003:
+        census_year = 2001
+    elif year <= 2008:
+        census_year = 2006
+    elif year <= 2013:
+        census_year = 2011
+    else:
+        census_year = 2016
+
+    # select local area
+    if clickData is not None:
+        area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+
+    occ_df = df[['LocalArea', 'Year',
+                 'Management',
+                 'Business and finance',
+                 'Natural and applied sciences',
+                 'Health',
+                 'Social Science and education',
+                 'Art',
+                 'Sales and service',
+                 'Trades and transport',
+                 'Natural resources and agriculture',
+                 'Manufacturing and utilities',
+                 'Occupations n/a']]
+    occ_df = occ_df.rename(columns={'Occupations n/a': 'Other'})
+
+    occ_df = occ_df[(occ_df.Year == census_year) & (occ_df.LocalArea == area)]
+    occ_df = occ_df.melt(id_vars=['LocalArea', 'Year'],
+                         var_name='Industry',
+                         value_name='Percent of Employed Population')
+    occ_df = occ_df.sort_values(
+        'Percent of Employed Population', ascending=False)
+
+    occ_fig = go.Figure(
+        data=go.Bar(
+            y=occ_df["Industry"],
+            x=occ_df['Percent of Employed Population']*100,
+            orientation='h',
+            name=area,
+            marker_color='#19B1BA',
+            hovertemplate="%{y}: %{x:.1f}%<extra></extra>"),
+        layout=go.Layout(
+            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
+            template='simple_white',
+            plot_bgcolor=colors['purple2']))
+
+    occ_fig.update_layout(
+        barmode='group',
+        xaxis={'title': "Percent of Employed Population"},
+        showlegend=True,
+        legend=dict(x=1, y=1, xanchor="right", bgcolor=colors['purple2']),
+        height=350,
+        yaxis=go.XAxis(
+                showticklabels=False),
+        annotations=[
+                dict(
+                    x=xi*100,
+                    y=yi,
+                    text=yi,
+                    xanchor="left",
+                    yanchor="middle",
+                    showarrow=False,
+                    font=dict(color=colors['ubc']),
+                )
+                for xi, yi in zip(occ_df['Percent of Employed Population'],
+                                  occ_df['Industry'])
+            ],)
+    return occ_fig
+
 
 # update age graph by local area
 @app.callback(
@@ -1460,8 +1542,8 @@ def update_lang(clickData, year):
                 go.Table(
                     header=dict(
                         values=['LANGUAGES',
-                                name_area.upper(),
-                                'City of Vancouver'],
+                                (name_area.upper() + "<br>(% of population)"),
+                                'CITY OF VANCOUVER<br>(% of population)'],
                         fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
@@ -1470,6 +1552,7 @@ def update_lang(clickData, year):
                                        round(lang[area]*100, 2),
                                        round(lang['City of Vancouver']*100, 2)],
                                fill=dict(color=['white']),
+                               suffix=['', '%'],
                                align=['center'],
                                font_size=20,
                                height=35)
@@ -1482,7 +1565,8 @@ def update_lang(clickData, year):
             data=[
                 go.Table(
                     header=dict(
-                        values=['LANGUAGES', area.upper()],
+                        values=['LANGUAGES', 
+                                (area.upper() + "<br>(% of population)")],
                         fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
@@ -1490,6 +1574,7 @@ def update_lang(clickData, year):
                     cells=dict(values=[lang['index'],
                                        round(lang[area]*100, 2)],
                                fill=dict(color=['white']),
+                               suffix=['', '%'],
                                align=['center'],
                                font_size=20,
                                height=35)
@@ -1550,8 +1635,8 @@ def update_eth(clickData, year):
                 go.Table(
                     header=dict(
                         values=['ETHNICITIES',
-                                name_area.upper(),
-                                'City of Vancouver'],
+                                (name_area.upper() + "<br>(% of population)"),
+                                'CITY OF VANCOUVER<br>(% of population)'],
                         fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
@@ -1560,6 +1645,7 @@ def update_eth(clickData, year):
                                        round(eth[area]*100, 2),
                                        round(eth['City of Vancouver']*100, 2)],
                                fill=dict(color=['white']),
+                               suffix=['','%'],
                                align=['center'],
                                font_size=20,
                                height=35)
@@ -1572,13 +1658,15 @@ def update_eth(clickData, year):
             data=[
                 go.Table(
                     header=dict(
-                        values=['ETHNICITIES', area.upper()],
+                        values=['ETHNICITIES', 
+                                (name_area.upper() + "<br>(% of population)")],
                         fill_color=colors['deetken'],
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
                     cells=dict(values=[eth['index'], round(eth[area]*100, 2)],
                                fill=dict(color=['white']),
+                               suffix=['', '%'],
                                align=['center'],
                                font_size=20,
                                height=35)

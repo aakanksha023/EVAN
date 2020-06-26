@@ -717,7 +717,7 @@ def main(path_in, path_out, area_file):
             occ[col] = occ[col]/occ['total']
 
         occ = occ[occ.Type == "Total"]
-        van_total = occ.sum()
+        van_total = occ.mean()
         van_total['LocalArea'] = 'City of Vancouver'
         van_total['Type'] = 'Total'
         occ = occ.append(van_total, ignore_index=True)
