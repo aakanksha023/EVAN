@@ -1,6 +1,10 @@
 # authors: Jasmine Qin, Keanna Knebel
 # date: 2020-06-15
 
+###############################################################################
+# IMPORT PACKAGES                                                             #
+###############################################################################
+
 # Basics
 import pandas as pd
 import geopandas as gpd
@@ -27,18 +31,18 @@ from shapely.ops import nearest_points
 from shapely.geometry import Point
 from sklearn import metrics
 
-##########
-# Set-up #
-##########
+###############################################################################
+# APP SET-UP                                                                  #
+###############################################################################
 
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
 )
 server = app.server
 
-#############
-# Read data #
-#############
+###############################################################################
+# READ-IN DATASETS                                                            #
+###############################################################################
 
 df = pd.read_csv("data/processed/census_viz.csv")
 parking_df = gpd.read_file("data/processed/vis_parking.csv")
@@ -54,9 +58,10 @@ for i in boundary['features']:
     i['name'] = i['properties']['name']
     i['id'] = i['properties']['mapid']
 
-#############
-# Modelling #
-#############
+###############################################################################
+# MODELLING                                                                   #
+###############################################################################
+
 raw_vis_model = pd.read_csv("data/processed/vis_model.csv")
 y_valid = raw_vis_model[raw_vis_model.type == 'valid']['label']
 y_valid_pred = raw_vis_model[raw_vis_model.type == 'valid']['predict']
@@ -138,10 +143,9 @@ def confusion_matrix():
         )
     )
 
-######################
-# Info and wrangling #
-######################
-
+###############################################################################
+# DATA WRANGLING + REQUIRED INFORMATION                                       #
+###############################################################################
 
 licence = licence[licence.Status == 'Issued']
 
@@ -209,7 +213,7 @@ def build_info_overlay(id, content):
     div = html.Div([  # modal div
         html.Div([  # content div
             html.Div([
-                html.H4([
+                html.H3([
                     "Info",
                     html.Img(
                         id=f'close-{id}-modal',
@@ -235,11 +239,13 @@ def build_info_overlay(id, content):
 
     return div
 
-##########
-# Layout #
-##########
+###############################################################################
+# LAYOUT                                                                      #
+###############################################################################
 
-# Licence visualization layout
+########################################
+# TAB 1 - Licence visualization layout #
+########################################
 
 
 def build_tab1():
@@ -396,7 +402,444 @@ def build_tab1():
         ]
     )
 
-# Modelling result layout
+########################################
+# TAB 2 - Census visualization layout  #
+########################################
+
+
+def build_tab2():
+    return html.Div(
+        children=[
+            html.Div(
+                className="app__content",
+                children=[
+                    html.Div(
+                        className="one-fifth column offset-by-four-fifths",
+                        children=[
+                            # clear selection button
+                            html.Button(id='clearButton',
+                                        n_clicks=0,
+                                        children='Clear Neighbourhood Selection'),
+                        ],
+                    )
+                ], style={'marginTop': 10, 'marginBottom': 5}
+            ),
+
+            # main row with map and summary info
+            html.Div(
+                className='row',
+                children=[
+                    html.Div(
+                        className="app__content",
+                        children=[
+                                # summary info
+                                html.Div(
+                                    id="summary_info",
+                                    className="one-third column user__control__panel",
+                                ),
+                                # main map of neighbourhoods
+                                html.Div(
+                                    className="two-thirds column map__slider__container",
+                                    children=[
+                                        # map
+                                        dcc.Graph(
+                                            id='van_map',
+                                            style={
+                                                "visibility": "visible"},
+                                            config=config),
+
+                                        # slider
+                                        html.Div(
+                                            className='div-for-slider',
+                                            children=[
+                                                dcc.Slider(
+                                                    id='year_slider_census',
+                                                    min=licence['FOLDERYEAR'].min(),
+                                                    max=licence['FOLDERYEAR'].max(),
+                                                    value=2016,
+                                                    marks={str(year): {
+                                                        'label': str(year),
+                                                        'style': {'color': 'white'}}
+                                                        for year in licence['FOLDERYEAR'].unique()},
+                                                    step=None
+                                                )
+                                            ]
+                                        )
+                                    ]
+                                )
+                            ], style={'marginTop': 0}
+                        )
+                    ], style={'marginTop': 0}
+
+                ),
+
+                # Adding tabs for summary neighbourhood data
+                dcc.Tabs(id="subTabs", children=[
+
+                    # summary of local demographics
+                    dcc.Tab(label='PEOPLE', children=[
+                        html.Div(
+                            children=[
+                                # age graph info
+                                build_info_overlay('age', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # household size graph info
+                                build_info_overlay('size', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # language table info
+                                build_info_overlay('lang', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # ethnicity table info
+                                build_info_overlay('eth', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # education graph info
+                                build_info_overlay('edu', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # occupation industry info
+                                build_info_overlay('occ', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                            ]
+                        ),
+
+                        html.Div(
+                            className="app__content",
+                            children=[
+
+                                # population by age
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    id="age-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                'Age Distribution',
+                                                html.Img(
+                                                    id='show-age-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='age_graph',
+                                                    config=config)
+                                    ]
+                                ),
+
+                                # population by household size
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            id="size-div",
+                                            children=[
+                                                'Household Size',
+                                                html.Img(
+                                                    id='show-size-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='size_graph',
+                                                    config=config)
+                                    ]
+                                )
+                            ], style={'marginTop': 50}),
+
+                        # population by language + ethnicity
+                        html.Div(
+                            className="app__content",
+                            children=[
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    id="lang-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                'Language Composition',
+                                                html.Img(
+                                                    id='show-lang-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='lang_table',
+                                                    config=config)
+                                    ]
+                                ),
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    id="eth-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                'Ethnic Composition',
+                                                html.Img(
+                                                    id='show-eth-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='eth_table',
+                                                    config=config)]
+                                )
+                            ], style={'marginTop': 10}
+                        ),
+
+                        # population by education level
+                        html.Div(
+                            className="app__content",
+                            children=[
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    id="edu-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                'Education Level',
+                                                html.Img(
+                                                    id='show-edu-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='edu_graph',
+                                                    config=config)
+                                    ]),
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    id="occ-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                'Employment Sectors',
+                                                html.Img(
+                                                    id='show-occ-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='occ_graph',
+                                                    config=config)]
+                                )
+                            ],
+                        ),
+                    ]),
+
+                    # summary of local infrastructure
+                    dcc.Tab(label='INFRASTRUCTURE', children=[
+                        html.Div(
+                            children=[
+                                # housing tenure pie chart info
+                                build_info_overlay('tenure', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # Dwelling type graph info
+                                build_info_overlay('dwelling', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # Transportation graph info
+                                build_info_overlay('transport', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # parking meters map info
+                                build_info_overlay('parking', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                            ]
+                        ),
+
+                        html.Div(
+                            className="app__content",
+                            children=[
+                                # housing tenure (own vs. rent)
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    id="tenure-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                'Housing Tenure',
+                                                html.Img(
+                                                    id='show-tenure-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='tenure_graph',
+                                                    config=config)
+                                    ], ),
+                                # distribution of dwelling types
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    id="dwelling-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                'Dwelling Type',
+                                                html.Img(
+                                                    id='show-dwelling-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='dwelling_graph',
+                                                    config=config)
+                                    ])
+                            ], style={'marginTop': 50}),
+
+                        html.Div(
+                            className="app__content",
+                            children=[
+                                # transportation mode
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    id="transport-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                'Dominant form of Transport used by Residents',
+                                                html.Img(
+                                                    id='show-transport-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='transport_graph',
+                                                    config=config)
+                                    ], ),
+                                # distribution/count of street parking
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    id="parking-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                'Street Parking',
+                                                html.Img(
+                                                    id='show-parking-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                    style={'float': 'right'}
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='parking_graph',
+                                                    config=config)
+                                    ]
+                                )
+                            ], style={'marginTop': 50}),
+
+                ]),
+
+            ], style={'marginTop': 50}),
+        ])
+
+########################################
+# TAB 3 - Modelling Result layout      #
+########################################
 
 
 def build_tab3():
@@ -525,9 +968,6 @@ def build_tab3():
 
                             html.P(id="predict_text2"),
                         ]
-
-
-
                     )
                 ]
             ),
@@ -579,7 +1019,9 @@ def build_tab3():
     )
 
 
-# Main layout
+########################################
+# MAIN APP LAYOUT                      #
+########################################
 app.layout = html.Div([
 
     # Main app header
@@ -608,325 +1050,7 @@ app.layout = html.Div([
                 id='tab2',
                 className='custom-tab',
                 children=[
-                    html.Div(
-                            className="app__content",
-                            children=[
-                                html.Div(
-                                    className="one-fifth column offset-by-four-fifths",
-                                    children=[
-                                        # clear selection button
-                                        html.Button(id='clearButton',
-                                                    n_clicks=0,
-                                                    children='Clear Neighbourhood Selection'),
-                                    ],
-                                )
-                            ], style={'marginTop': 10, 'marginBottom': 5}
-                    ),
-
-                    # main row with map and summary info
-                    html.Div(
-                        className='row',
-                        children=[
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    # summary info
-                                    html.Div(
-                                        id="summary_info",
-                                        className="one-third column user__control__panel",
-                                    ),
-                                    # main map of neighbourhoods
-                                    html.Div(
-                                        className="two-thirds column map__slider__container",
-                                        children=[
-                                            # map
-                                            dcc.Graph(
-                                                id='van_map',
-                                                style={
-                                                    "visibility": "visible"},
-                                                config=config),
-
-                                            # slider
-                                            html.Div(
-                                                className='div-for-slider',
-                                                children=[
-                                                    dcc.Slider(
-                                                        id='year_slider_census',
-                                                        min=licence['FOLDERYEAR'].min(
-                                                        ),
-                                                        max=licence['FOLDERYEAR'].max(
-                                                        ),
-                                                        value=2016,
-                                                        marks={str(year): {
-                                                            'label': str(year),
-                                                            'style': {'color': 'white'}}
-                                                            for year in licence['FOLDERYEAR'].unique()},
-                                                        step=None
-                                                    )
-                                                ]
-                                            )
-                                        ]
-                                    )
-                                ], style={'marginTop': 0}
-                            )
-                        ], style={'marginTop': 0}
-
-                    ),
-
-                    # Adding tabs for summary neighbourhood data
-                    dcc.Tabs(id="subTabs", children=[
-
-                        # summary of local demographics
-                        dcc.Tab(label='PEOPLE', children=[
-                            html.Div(children=[
-                                build_info_overlay('age', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
-                            ]),
-
-                            html.Div(
-                                className="app__content",
-                                children=[
-
-                                    # population by age
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        id="age-div",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Age Distribution',
-                                                    html.Img(
-                                                        id='show-age-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='age_graph',
-                                                      config=config)
-                                        ]
-                                    ),
-
-                                    # population by household size
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Household Size',
-                                                    html.Img(
-                                                        id='show-size-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='size_graph',
-                                                      config=config)
-                                        ]
-                                    )
-                                ], style={'marginTop': 50}),
-
-                            # population by language + ethnicity
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Language Composition',
-                                                    html.Img(
-                                                        id='show-lang-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='lang_table',
-                                                      config=config)
-                                        ]
-                                    ),
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Ethnic Composition',
-                                                    html.Img(
-                                                        id='show-eth-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='eth_table',
-                                                      config=config)]
-                                    )
-                                ], style={'marginTop': 10}
-                            ),
-
-                            # population by education level
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Education Level',
-                                                    html.Img(
-                                                        id='show-edu-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='edu_graph',
-                                                      config=config)
-                                        ]),
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Employment Sectors',
-                                                    html.Img(
-                                                        id='show-occ-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='occ_graph',
-                                                      config=config)]
-                                    )
-                                ],
-                            ),
-                        ]),
-
-                        # summary of local infrastructure
-                        dcc.Tab(label='INFRASTRUCTURE', children=[
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    # housing tenure (own vs. rent)
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Housing Tenure',
-                                                    html.Img(
-                                                        id='show-tenure-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='tenure_graph',
-                                                      config=config)
-                                        ], ),
-                                    # distribution of dwelling types
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Dwelling Type',
-                                                    html.Img(
-                                                        id='show-dwelling-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='dwelling_graph',
-                                                      config=config)
-                                        ])
-                                ], style={'marginTop': 50}),
-
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    # transportation mode
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Dominant form of Transport used by Residents',
-                                                    html.Img(
-                                                        id='show-transport-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='transport_graph',
-                                                      config=config)
-                                        ], ),
-                                    # distribution/count of street parking
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4(
-                                                className="graph__title",
-                                                children=[
-                                                    'Street Parking',
-                                                    html.Img(
-                                                        id='show-parking-modal',
-                                                        src="assets/question.svg",
-                                                        n_clicks=0,
-                                                        className='info-icon',
-                                                        style={'float': 'right'}
-                                                    ),
-                                                ], 
-                                            ),
-                                            dcc.Graph(id='parking_graph',
-                                                      config=config)
-                                        ])
-                                ], style={'marginTop': 50}),
-
-                        ]),
-
-                    ], style={'marginTop': 50}),
+                    build_tab2()
                 ]),
 
         # Define the layout of the third Tab
@@ -963,13 +1087,15 @@ app.layout = html.Div([
     ], style={'marginTop': 50}),
 ])
 
-###########
-# Updates #
-###########
+###############################################################################
+# UPDATES + CALLBACKS                                                         #
+###############################################################################
+
+########################################
+# TAB 1 - UPDATES                      #
+########################################
 
 # update titles
-
-
 @app.callback(
     Output("histogram-title", "children"),
     [Input("industry-dropdown", "value")],
@@ -1285,8 +1411,9 @@ def update_figure(SelectedIndustry,
         )
     )
 
-###############################################################################
-# second tab updates
+########################################
+# TAB 2 - UPDATES                      #
+########################################
 
 # Define callback to update vancouver map
 @app.callback(
@@ -2217,7 +2344,9 @@ def reset_selection(n_clicks):
     return None
 
 # Create show/hide callbacks for each info modal
-for id in ['age']:
+for id in ['age', 'size', 'eth', 'lang', 'edu', 
+           'occ', 'tenure', 'dwelling', 'transport',
+           'parking']:
     @app.callback([Output(f"{id}-modal", 'style'), 
                    Output(f"{id}-div", 'style')],
                   [Input(f'show-{id}-modal', 'n_clicks'),
@@ -2229,12 +2358,11 @@ for id in ['age']:
         else:
             return {"display": "none"}, {'zIndex': 0}
 
-###############################################################################
-# third tab updates
+########################################
+# TAB 3 - UPDATES                      #
+########################################
 
 # update map
-
-
 @app.callback(
     [Output('model-map', 'figure'),
      Output('predict_text1', 'children'),
