@@ -8,6 +8,7 @@ import numpy as np
 import random
 import json
 import re
+from textwrap import dedent
 
 # Plotly
 import plotly.graph_objects as go
@@ -196,6 +197,43 @@ colors = {
 
 # plotly graph config
 config = {'displayModeBar': False, 'scrollZoom': False}
+
+#################################
+# Descriptive Chart Information #
+#################################
+
+def build_info_overlay(id, content):
+    """
+    Build div representing the info overlay for a plot panel
+    """
+    div = html.Div([  # modal div
+        html.Div([  # content div
+            html.Div([
+                html.H4([
+                    "Info",
+                    html.Img(
+                        id=f'close-{id}-modal',
+                        src="assets/exit.svg",
+                        n_clicks=0,
+                        className='info-icon',
+                        style={'margin': 0},
+                    ),
+                ], style={'color': 'white'}),
+
+                dcc.Markdown(
+                    content
+                ),
+            ])
+        ],
+            className=f'modal-content',
+        ),
+        html.Div(className='modal')
+    ],
+        id=f"{id}-modal",
+        style={"display": "none"},
+    )
+
+    return div
 
 ##########
 # Layout #
@@ -640,28 +678,66 @@ app.layout = html.Div([
 
                         # summary of local demographics
                         dcc.Tab(label='PEOPLE', children=[
+                            html.Div(children=[
+                                build_info_overlay('age', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                            ]),
 
                             html.Div(
                                 className="app__content",
                                 children=[
+
                                     # population by age
                                     html.Div(
                                         className="one-half-tab2 column bottom__box__tab2",
+                                        id="age-div",
                                         children=[
-                                            html.H4('Age Distribution',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Age Distribution',
+                                                    html.Img(
+                                                        id='show-age-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='age_graph',
                                                       config=config)
-                                        ], ),
+                                        ]
+                                    ),
+
                                     # population by household size
                                     html.Div(
                                         className="other-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H4('Household Size',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Household Size',
+                                                    html.Img(
+                                                        id='show-size-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='size_graph',
                                                       config=config)
-                                        ])
+                                        ]
+                                    )
                                 ], style={'marginTop': 50}),
 
                             # population by language + ethnicity
@@ -671,8 +747,19 @@ app.layout = html.Div([
                                     html.Div(
                                         className="one-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H4('Language Composition',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Language Composition',
+                                                    html.Img(
+                                                        id='show-lang-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='lang_table',
                                                       config=config)
                                         ]
@@ -680,8 +767,19 @@ app.layout = html.Div([
                                     html.Div(
                                         className="other-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H4('Ethnic Composition',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Ethnic Composition',
+                                                    html.Img(
+                                                        id='show-eth-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='eth_table',
                                                       config=config)]
                                     )
@@ -695,16 +793,38 @@ app.layout = html.Div([
                                     html.Div(
                                         className="one-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H4('Education Level',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Education Level',
+                                                    html.Img(
+                                                        id='show-edu-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='edu_graph',
                                                       config=config)
                                         ]),
                                     html.Div(
                                         className="other-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H4('Employment Sectors',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Employment Sectors',
+                                                    html.Img(
+                                                        id='show-occ-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='occ_graph',
                                                       config=config)]
                                     )
@@ -721,8 +841,19 @@ app.layout = html.Div([
                                     html.Div(
                                         className="one-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H4('Housing Tenure',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Housing Tenure',
+                                                    html.Img(
+                                                        id='show-tenure-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='tenure_graph',
                                                       config=config)
                                         ], ),
@@ -730,8 +861,19 @@ app.layout = html.Div([
                                     html.Div(
                                         className="other-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H4('Dwelling Type',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Dwelling Type',
+                                                    html.Img(
+                                                        id='show-dwelling-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='dwelling_graph',
                                                       config=config)
                                         ])
@@ -744,8 +886,19 @@ app.layout = html.Div([
                                     html.Div(
                                         className="one-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H4('Dominant form of Transport used by Residents',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Dominant form of Transport used by Residents',
+                                                    html.Img(
+                                                        id='show-transport-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='transport_graph',
                                                       config=config)
                                         ], ),
@@ -753,8 +906,19 @@ app.layout = html.Div([
                                     html.Div(
                                         className="other-half-tab2 column bottom__box__tab2",
                                         children=[
-                                            html.H4('Street Parking',
-                                                    style={"textAlign": "center"}),
+                                            html.H4(
+                                                className="graph__title",
+                                                children=[
+                                                    'Street Parking',
+                                                    html.Img(
+                                                        id='show-parking-modal',
+                                                        src="assets/question.svg",
+                                                        n_clicks=0,
+                                                        className='info-icon',
+                                                        style={'float': 'right'}
+                                                    ),
+                                                ], 
+                                            ),
                                             dcc.Graph(id='parking_graph',
                                                       config=config)
                                         ])
@@ -1990,12 +2154,6 @@ def update_side_bar(clickData, year):
             biz_df.groupby(['FOLDERYEAR'])[
                 'business_id'].sum()).reset_index()
 
-    # biz_df = pd.DataFrame(
-    #          biz_df.groupby(['BusinessIndustry'])[
-    #          'business_id'].sum()).reset_index()
-    # biz = biz_df[biz_df.business_id == biz_df.business_id.max()].reset_index()
-    # biz = biz_df.BusinessIndustry[0]
-
     # calculate number of businesses
     biz_num = biz_num.business_id[0]
 
@@ -2057,6 +2215,19 @@ def update_side_bar(clickData, year):
              [Input('clearButton', 'n_clicks')])
 def reset_selection(n_clicks):
     return None
+
+# Create show/hide callbacks for each info modal
+for id in ['age']:
+    @app.callback([Output(f"{id}-modal", 'style'), 
+                   Output(f"{id}-div", 'style')],
+                  [Input(f'show-{id}-modal', 'n_clicks'),
+                   Input(f'close-{id}-modal', 'n_clicks')])
+    def toggle_modal(n_show, n_close):
+        ctx = dash.callback_context
+        if ctx.triggered and ctx.triggered[0]['prop_id'].startswith('show-'):
+            return {"display": "block"}, {'zIndex': 1003}
+        else:
+            return {"display": "none"}, {'zIndex': 0}
 
 ###############################################################################
 # third tab updates
