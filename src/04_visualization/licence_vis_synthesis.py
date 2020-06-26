@@ -122,7 +122,7 @@ def main():
     #############
     train = pd.read_csv("data/processed/05_feat_eng_train.csv")
     valid = pd.read_csv("data/processed/05_feat_eng_validate.csv")
-    model = load('src/03_modelling/final_model.joblib')
+    model = load('results/final_model.joblib')
 
     admin_cols = ["business_id", "BusinessName",
                   "BusinessTradeName", "Status",
@@ -162,7 +162,7 @@ def main():
     vis_model.to_csv("data/processed/vis_model.csv", index=False)
     licence_df.to_csv("data/processed/vis_licence.csv", index=False)
     agg_viz.to_csv("data/processed/vis_agg_licence.csv", index=False)
-    # parking.to_csv("data/processed/vis_parking.csv", index=False)
+    parking.to_csv("data/processed/vis_parking.csv", index=False)
     # disability_parking.to_csv(
     #    "data/processed/vis_disability_parking.csv", index=False)
 
