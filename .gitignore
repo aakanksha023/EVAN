@@ -1,13 +1,3 @@
 .ipynb_checkpoints/
 .DS_Store
 .Rhistory
-
-# ignore data files
-*.csv
-*.json
-*.geojson
-*.zip
-*.dbf
-*.prj
-*.shp
-*.shx

@@ -67,7 +67,7 @@ y_valid = raw_vis_model[raw_vis_model.type == 'valid']['label']
 y_valid_pred = raw_vis_model[raw_vis_model.type == 'valid']['predict']
 
 # load model
-model = load('src/03_modelling/final_model.joblib')
+model = load('results/final_model.joblib')
 
 census_cols = list(raw_vis_model.iloc[:, 14:109].columns)
 vis_model = raw_vis_model.drop(columns=census_cols)

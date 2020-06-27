@@ -1,7 +1,8 @@
 # author: Jasmine Qin
 # date: 2020-06-24
 
-all : data/processed/05_feat_eng_test.csv \
+all : results/model_performance.xlsx \
+results/important_feature.csv \
 data/processed/census_viz.csv \
 data/processed/vis_model.csv \
 data/processed/vis_licence.csv \
@@ -112,6 +113,15 @@ data/processed/05_feat_eng_validate.csv : src/03_modelling/07_feature_engineerin
 data/processed/05_feat_eng_test.csv : src/03_modelling/07_feature_engineering.py data/processed/04_combined_test.csv
 	python3 src/03_modelling/07_feature_engineering.py --file_path="data/processed/04_combined_test.csv" \
 --save_to="data/processed/05_feat_eng_test.csv"
+    
+# 011_modelling.py
+results/model_performance.xlsx results/important_feature.csv \
+results/final_model.joblib : data/processed/05_feat_eng_train.csv \
+data/processed/05_feat_eng_validate.csv data/processed/05_feat_eng_test.csv
+	python3 src/03_modelling/011_modelling.py --file_path1="data/processed/05_feat_eng_train.csv" \
+--file_path2="data/processed/05_feat_eng_validate.csv" --file_path3="data/processed/05_feat_eng_test.csv" \
+--save_to1="results/model_performance.xlsx" --save_to2="results/important_feature.csv" \
+--save_model="results/final_model.joblib"
 
 # census_vis_synthesis.py
 data/processed/census_viz.csv : src/04_visualization/census_vis_synthesis.py data/raw/local_area_boundary.geojson
@@ -121,10 +131,12 @@ data/processed/census_viz.csv : src/04_visualization/census_vis_synthesis.py dat
 
 # licence_vis_synthesis.py
 data/processed/vis_model.csv data/processed/vis_licence.csv \
-data/processed/vis_agg_licence.csv : src/04_visualization/licence_vis_synthesis.py \
+data/processed/vis_agg_licence.csv \
+data/processed/vis_parking.csv : src/04_visualization/licence_vis_synthesis.py \
 data/processed/combined_licences.csv data/processed/03_cleaned_combined_licences.csv \
 data/raw/parking-meters.csv data/raw/disability-parking.csv \
-data/processed/05_feat_eng_train.csv data/processed/05_feat_eng_validate.csv
+data/processed/05_feat_eng_train.csv data/processed/05_feat_eng_validate.csv \
+results/final_model.joblib
 	python3 src/04_visualization/licence_vis_synthesis.py
 
 clean : 
@@ -142,3 +154,6 @@ clean :
 	rm -f data/raw/*.prj
 	rm -f data/raw/*.dbf
 	rm -f data/raw/*.pdf
+	rm -f results/*.csv
+	rm -f results/*.xlsx
+	rm -f results/*.joblib
