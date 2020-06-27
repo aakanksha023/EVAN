@@ -9,7 +9,7 @@ author: |
   | \vspace{0.5cm} Mentor: Simon Goring
 date: "Date: 2020/06/23"
 output: pdf_document
-geometry: "left=2.5cm,right=2.5cm,top=2cm,bottom=2cm"
+geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
 linkcolor: "blue"
 header-includes:
   - \usepackage{titling}
@@ -25,7 +25,9 @@ bibliography: project_refs.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-licence <- read_csv("../../data/processed/03_train_cleaned.csv")
+library(gridExtra)
+licence <- read_csv("../../data/processed/03_cleaned_train.csv")
+census <- read_csv("../../data/processed/census_viz.csv")
 ```
 
 # Executive Summary
@@ -43,32 +45,107 @@ This project focuses on developing insight into Vancouver’s business landscape
 
 # Data Science Methods
 
-## Descriptions and justications of methods used
-Given that the business licence dataset is chronological data records of licence applications in each year, one crucial initial step was to wrangle the dataset so that it fits into machine learning context. We identified unique businesses using business names along with locations and split them into train, validation, and test sets. For businesses that have multiple entries in one year, duplicates are sorted by extract date and only the latest record is kept for better data accuracy. In order to answer the proposed research question of whether a business is going to renew its licence next year, we lagged each unique business one year ahead so that next year's status can be used as the target variable in our model.
+## Descriptions and Justications
+With an understanding of the business context, one crucial initial step was to transform the unstructured chronological licence data into a machine-intepretable form, making it more convenient to perform a variety of downstream anlaytics. A research unit in this project is one unique business, identified by name and location. We further split these individual businesses into train, validation, and test sets ([02_split_licence.R](https://github.com/deetken/evan/blob/master/src/02_clean_wrangle/02_split_licence.R#L54)). To better answer the question of whether a business will renew its licence next year, annual observations of each business is lagged one year ahead so that next year's application status can be used as the response variable ([03_clean_licence.py](https://github.com/deetken/evan/blob/master/src/02_clean_wrangle/03_clean_licence.py#L83)).
 
-Synthesizing information across various datasets is another important step shared by both research questions. To extract valuable information from the census datasets, we manually went over all variables in each of the census years. The sub-categories in some census variables might be called in different names from year to year. For example, in industry distribution of labour forces, the sub-category 'industry - not applicable' is named 'Industry - NAICS2012 - Not applicable' in 2016. We used various techniques such as regex to fix entry errors and wrote functions for data cleaning to make sure the pipeline is fully reproducible.
+Synthesizing information across various datasets is another important step shared by both research questions. As shown in Figure 1, each Vancouver neighbourhood resembles a microecosystem with its own census characteristics that are changing constantly. To extract valuable information from social variables, such as age group and transportation mode distributions, we have examined a total of 96 sub-categories of such variables in each census year. During this process of data integration, we have faced numerous challenges in cleaning data entry errors. Thus, we have implemented various techniques such as regex and written functions in automated scripts ([05_clean_census.py](https://github.com/deetken/evan/blob/master/src/02_clean_wrangle/05_clean_census.py)) to improve data consistency and pipeline reproducibility.
 
-After the tidy data was ready and before we could fit it into any model, we noticed that there is class imbalance issue. There are more renewed licences than not renewed ones. Therefore, instead of focusing just on getting high accuracy, we were more concerned about recall score. This is because the recall score of the minority class measures the number of predicted non-renewed licences compared to actual non-renewed licences. By avoiding situations of high accuracy but low recall, we tried to be conservative about making a false sense of success for individual businesses.
+```{r census, fig.cap="Example Census Variables", fig.width=15, fig.height=6, echo=FALSE, fig.align="center"}
 
-In order to enhance model performance, we continued to extract more information from the licence dataset and added features that are tailored to individual businesses. The parking meters and disability parking datasets were originally appended to the licence dataset as counts in each neighbourhood. However, in reality, an entire neighbourhood is too broad of a range for people looking for a parking lot. Instead, we counted the number of nearby parking spaces for each unique business by calculating real distances between them and applying an adjustable threshold of 150 meters. Another geo-spatial feature we managed to extract from the licence dataset is the count of nearby similar businesses. This variable is meaningful because businesses are not random points on the map, but are clustered or separated for a reason. By adding geo-spatial configuration, we are able to feed spatial correlations to the model. However, the current method only counts the same geometries, for example businesses in the same building, as a nearby location and takes a very long time to run so results have been saved to csv files. 
+graph_config <- theme_minimal() +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.position="bottom",
+        legend.box = "horizontal",
+        axis.title=element_text(size=14),
+        legend.text=element_text(size=14),
+        legend.title=element_text(size=14))
 
+age <- census %>% 
+  filter(LocalArea=="Downtown" | LocalArea=="Kerrisdale") %>% 
+  filter(Year==2016) %>% 
+  select("LocalArea", "Under 20", "20 to 34", "35 to 44",
+         "45 to 54", "55 to 64", "65 to 79", "80 and Older") %>%
+  gather("age", "percentage", -LocalArea) %>%
+  mutate(age=factor(age, levels=c("Under 20", "20 to 34", "35 to 44",
+         "45 to 54", "55 to 64", "65 to 79", "80 and Older"))) %>% 
+  ggplot(aes(x=age, y=percentage, color=LocalArea, group=LocalArea)) +
+  geom_point() +
+  geom_path() +
+  graph_config +
+  labs(x="Age Sub-Categories Distribution in Downtown and Kerrisdale in 2016", y="Percentage of Total Population") +
+  scale_color_manual(values=c("#862699", "#008C29"))
+
+transportation <- census %>% 
+  filter(LocalArea=="Downtown") %>% 
+  select('Year',
+         'car as driver',
+         'car as passenger',
+         'public transportation',
+         'walked',
+         'bicycle',
+         'other transportation') %>% 
+  rename('Car, as Driver'='car as driver',
+         'Car, as Passenger'='car as passenger',
+         'Public Transportation'='public transportation',
+         'Walk'='walked',
+         'Bicycle'='bicycle',
+         'Other'='other transportation') %>%
+  mutate(Year=factor(Year)) %>% 
+  gather("transportation", "percentage", -Year) %>%
+  mutate(transportation=factor(transportation, levels=c('Car, as Driver', 'Walk',
+                                  'Public Transportation',
+                                  'Bicycle',
+                                  'Car, as Passenger',
+                                  'Other'))) %>% 
+  ggplot(aes(x=transportation, y=percentage, fill=Year)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  labs(x="Mode of Transportation Sub-Categories Distribution in Downtown by Year", y="") +
+  theme_minimal() +
+  graph_config + 
+  scale_fill_brewer(palette="PRGn")
+
+grid.arrange(age, transportation, nrow = 1)
+```
+
+There are more renewed licences than not renewed ones in the dataset, which means that we have class imbalance problem. Therefore, instead of focusing just on getting high accuracy, we were more concerned about recall score. This is because the recall score of the minority class measures the number of predicted non-renewed licences compared to actual non-renewed licences. By avoiding situations of high accuracy but low recall, we tried to be conservative about making a false sense of success for individual businesses.
 
 ```{r history, fig.cap="Number of Years Businesses have Survived", out.width="500px", out.height="200px", echo=FALSE, fig.align="center"}
 licence %>%
   group_by(business_id) %>%
   summarise(count = n_distinct(FOLDERYEAR)) %>%
   ggplot(aes(x=count)) +
-  geom_histogram(bins=30, fill = "#52527a") +
-  geom_line(stat="bin", binwidth=1) +
+  geom_histogram(bins=30, fill="#BB8AC6") +
+  geom_line(stat="bin", binwidth=1, color="#008C29") +
   scale_y_continuous(breaks=seq(0, 25000, 5000)) + 
   labs(x="Survived Years", y="Count of Businesses") +
-  theme_minimal()
+  graph_config
 ```
 
-It seems like businesses are more likely to close down when they are new compared to businesses that survived a long time. Therefore, we decided to add in a new history variable, which is an indicator of whether a business has survived for more than 5 years or not. One last feature engineering we did using the licence dataset was to uncover the chain business information for an issued licence. To do so, we counted the number of times the same name has occurred in the dataset. There are limitations in the current method used for this feature simply because it is time consuming to go through all chain businesses and make sure their names are spelled the same. However, this feature does capture the cases when a business had opened up at a different location many years ago.
+In order to enhance model performance, we have extracted extra information from the licence dataset and added features that are more tailored to individual businesses. The parking meters and disability parking datasets were originally appended to the licence dataset as counts in each neighbourhood. However, in reality, an entire neighbourhood is too broad of a range for people looking for a parking lot. Instead, we counted the number of nearby parking spaces for each unique business by calculating real distances between them and applying an adjustable threshold of 150 meters. Another geo-spatial feature extracted from the licence dataset is the count of nearby similar businesses. This variable is meaningful because businesses are not random points on the map, but are clustered or separated for a reason. By adding geo-spatial configuration, we are able to feed spatial correlations to the model. However, the current method only counts businesses with the same geometries, for example businesses in the same building, as nearby locations and takes a very long time to run so results have been saved to files. 
 
-## Possible future improvements
-There are several things that can be improved for the data science techniques. The first one is the way to deal with missing values. The current method uses the median of existing values to fill in. Since there are a lot of businesses with missing data, using the same value reduces the predictive power of that predictor. An improvement could be using year as a predictor to fit a regression model to predict the missing value. This method makes sense because the data is chronological. However, this requires fitting and tuning another model so we didn’t implement it due to the time limit. 
+As we can observed from Figure 2, businesses are more likely to close down when they are new compared to businesses that have already survived a long time. Therefore, we have added an indicator of whether a business has survived for more than five years or not. One last feature engineering is to uncover the chain business information for an issued licence, by counting the number of times the same name has occurred. There are limitations in the current method used for this feature simply because it is time consuming to go through all chain businesses and make sure their names are spelled the same. However, this feature does capture the cases when a business had opened up at a different location many years ago.
+
+
+```{r features, echo=FALSE, echo=FALSE, fig.align="center"}
+features <- data.frame(Feature=c("history", "chain", "number of employees", 
+                                 "health services", "full time", "number of nearby businesses"),
+                       Source=c("Feature engineering", "Feature engineering", "Business licence",
+                                "Business licence", "Census", "Feature engineering"),
+                       Class=c("Binary", "Numeric", "Numeric", "Categorical", "Numeric", "Numeric"),
+                       Notes=c("More than 5 years or not",
+                               "Number of times a business name has occured",
+                               "Missing values filled by median",
+                               "One-hot encoded from business type",
+                               "Percentage of total neighbourhood population",
+                               "Geo-spatial configuration"))
+
+knitr::kable(features, caption="Example Features")
+```
+
+
+## Possible Improvements
+While we have attempted a variety of data science techniques, there are areas we think still need further investigations. Some variables such as number of employees have many missing values, which are currently being filled by medians. While this is a sensible way to progress, using the same value reduces the predictive power of that feature. One improvement could be using year as a predictor to fit a regression model to predict the missing value. This method makes sense because the data is chronological. However, this requires fitting and tuning another model so we didn’t implement it due to the time limit. 
 
 The second improvement is how to convert characters like business type  into input acceptable by machine learning models. The method implemented is one-hot encoding which outputs the same numerical representation to the same business name. However, we are losing some information using this method. For example, we know that restaurants are more similar to cafes than gasoline stations. That information is lost after one hot encoding. Thus, one improvement  is to use natural language processing techniques that will  keep such relationships while converting  those business names into numerical representation. We didn’t implement this because this requires training another machine learning model just for one variable which might not be an important predictor. 
 
@@ -79,24 +156,24 @@ We used a tree-based model  LightGBM to deal with interactions but that might no
 # Data Product and Results
 The final data product consists of a fully-reproducible machine learning model pipeline and a visualization dashboard with the model embedded. The entire pipeline along with usage instructions and commands required to host the Dash dashboard are documented in the project's private GitHub repository. Currently the dashboard is only available to be viewed locally, but it can be easily deployed to Heroku or other cloud servers if public sharing is needed in the future.
 
-## Model overview
-For modelling,  we built a data pipeline that could automatically pre-process, train and perform hyperparameter tuning. We used the LightGBM model, a tree-based model to make predictions. Due to the class imbalance problem, it is important to look at the  recall rate for the not renewed class as well. The recall rate for not renewed class is for all the businesses that have not renewed their licences, how many of them the algorithm correctly predicts. The accuracy for the current model is and  the recall rate of not renewed cases is 0.55. Most of the hyperparameters for the LightGBM  model deal with overfitting problems. Since the current model does not  have such problems, the only hyperparameter that is different from default is class_weight. The class_weight  parameter is set to balanced to  deal with the class imbalance problem. 
+## Model Overview
+The machine learning model pipeline automatically pre-processes, trains, performs hyperparameter tuning, and uses a Light-GBM model to make predictions. Due to the class imbalance problem, it is important to look at the recall rate for the not renewed class as well. The recall rate for not renewed class is for all the businesses that have not renewed their licences, how many of them the algorithm correctly predicts. The accuracy for the current model is and the recall rate of not renewed cases is 0.55. Most of the hyperparameters for the LightGBM  model deal with overfitting problems. Since the current model does not have such problems, the only hyperparameter that is different from default is class_weight. The class_weight parameter is set to balanced to deal with the class imbalance problem. 
 
 |             | precision | recall |
 |:-----------:|-----------|--------|
 | not renewed | 0.25      | 0.61   |
 | renewed     | 0.89      | 0.64   |
 
-```{r confusion, fig.cap="model performance", out.width="400px", out.height="300px", echo=FALSE}
+```{r confusion, fig.cap="model performance", out.width="250px", out.height="250px", fig.align="center", echo=FALSE}
 knitr::include_graphics("../../figures/lgbm_roc.png")
 ```
 
 
 
-## Dashboard overview
+## Dashboard Overview
 An integrated data product is desired to reflect the reality that predictive modelling of landscape evolution is a sophisticated task that cannot be well explained alone by a model. Cities are dynamic living organisms and associated datasets often contain both temporal and spatial dimensions. Entrepreneurial activities and demographics of neighbourhoods that are being fed into our pipeline are actual tangible components of Vancouver that are constantly evolving at different paces. In order to aid the collaboration and communication among different stakeholders in city planning or business decision making, it is intuitive to visualize these factors on top of Vancouver's physical structure.
 
-```{r timelineimage, fig.cap="Dashboard Overview", out.width="470px", out.height="300px", echo=FALSE}
+```{r dash, fig.cap="Dashboard Overview", out.width="470px", out.height="300px", echo=FALSE}
 knitr::include_graphics("../../figures/dashboard_demo.png")
 ```
 
@@ -104,16 +181,16 @@ The first and second tabs of the dashboard focus on providing a holistic view of
 
 Suppose June is a city planner working for the City of Vancouver. She noticed that quite a few auto repair stores failed to renew their license this year in Marpole and Mount Pleasant. In order to devise an intervention for future zoning designation planning, she wants to be able to explore the business licence dataset alongside some social factors. 
 
-When June logs on to the dashboard, on the first tab she can select the auto repair business type in the top left user control panel. The main scatter map plots all issued licences in a given year and distinguishes renewal statuses by different colour. June indeed sees that red dots, or gone out of business ones, concentrate in the two neighbourhoods. She then selects Marpole which triggers zoom in on the map, and filters data for the bar and line charts. When June navigates to the bar chart, she finds out that auto repair is a major business component of Marpole. However, the line chart shows that the increase in the number of issued unique businesses has been slowing down and the map shows that physical distribution of the stores has been shifting towards another major intersection.
+When June logs on to the dashboard, on the first tab she can select the auto repair business type in the top left user control panel. The main scatter map plots all issued licences in a given year and distinguishes renewal statuses by different colours. June indeed sees that red dots, or gone out of business ones, concentrate in the two neighbourhoods. She then selects Marpole which triggers zoom in on the map, and filters data for the bar and line charts. When June navigates to the bar chart, she finds out that auto repair is a major business component of Marpole. However, the line chart shows that the increase in the number of issued unique businesses has been slowing down and the map shows that physical distribution of the stores has been shifting towards another major intersection.
 
-June hypothesizes that this might be caused by some underlying changes in demographics and switches to the second tab which provides more detailed neighbourhood profiles. By clicking on the choropleth, she is able to select Mount Pleasant and view a summary statistics of census data. Among the three tabs in the bottom section: people, businesses, and infrastructure, June decides to investigate individual factors under people characteristics. Mount Pleasant has more people at age 45 or below than average Metro Vancouver and more small household sizes. By selecting a different census year, she might find out that the composition has changed significantly in recent years. 
+June hypothesizes that this might be caused by some underlying changes in demographics and switches to the second tab which provides more detailed neighbourhood profiles. By clicking on the choropleth, she is able to select Mount Pleasant and view a summary statistics of census data. Among the two tabs in the bottom section: people and infrastructure, June decides to investigate individual factors under people characteristics. Mount Pleasant has more people at age 45 or below than average City of Vancouver and more small household sizes. By selecting a different census year, she might find out that the composition has changed significantly in recent years. 
 
-## Pros and cons of the product
+## Pros and Cons of the Product
 As discussed earlier, modelling of any dynamic component of a city requires aggregating data from socio-economic, environmental, and cultural perspectives. These datasets are collected to serve for various purposes and are thus often multi-dimensional on different scales. During the course of this project, we have encountered multiple types of data, such as chronological data entries, national surveys, and geojson shape files. Therefore, we have designed our pipeline to efficiently unify data from various sources and build configurations around specific time points or geo-locations, while allowing flexibility in adding new attributes of a city. 
 
 The fact that the dashboard is closely related to the model pipeline provides users an interface to explore available features, instead of reading off a plain feature importance ranking. Our visualizations are built to present the datasets and showcase the model in a clean and interactive way, allowing users to hypothesize scenarios and draw conclusions that suit their needs. However, since all visualizations are built around variables used in the model and given that our model lacks deterministic predictors, the amount of information users can learn from the data product is limited. For example, our city planner June might also be interested in the effect from the broader economy as well as other indicators such as crime rates and traffic information.
 
-## Possible future improvements
+## Possible Improvements
 One feature that we want to implement is a SQL database. In the future, there will be more datasets added for predictions so the size of the datasets will grow. For example, instead of the census information for each local area, one could use census results at postal code level which will provide more precise demographic information.  There are some datasets like the budget information for the business improvement area which we didn’t include because it is in pdf format, transit data and data unique to individual businesses like their rent. We couldn’t add all data due to time limit but our pipeline makes it convenient to add in data that is in similar format with the existing datasets. Thus, it will be more efficient to query and update data using a database. Moreover, datasets used in this project could also be used for other projects.
 
 Another potential improvement for data products is to include a video demo that could show new users how they can interact with the dashboard. We didn’t implement this because the dashboard will continue to evolve and features might change places so that it would be better to include this demo when the dashboard reaches the version to be shared with the public.
@@ -124,6 +201,12 @@ The dashboard along with the machine learning models provide a tool for people t
 The major limitation faced by our model is the poor accuracy and recall scores, which makes it unsuitable for reliably predicting whether a business will renew its licence. Currently, our model lacks deterministic factors specific to individual businesses; however, we have designed our pipeline to efficiently unify data from a variety of sources, allowing flexibility in adding new attributes. As such, our model pipeline and associated geospatial visualization serve as a great basis for understanding the evolution of Vancouver’s business landscape which Deetken can utilize and further enhancing through the incorporation of additional datasets. 
 
 # References
-This project involves the work of  
-@docopt; @numpy; @pandas;
+
+@opendata; 
+@tidyverse; @datatable; @docoptR; @rgdal; @timevis; @leaflet;
+@vanderplas2018altair; @python3; @docoptpython; @numpy; @pandas;
+@pedregosa2011scikit; @michael_waskom_2017_883859; @shapely2007;
+@aho1991algorithms; @jordahl2014geopandas; @bray2014javascript;
+@dash; @joblib; @eli5; @json5; @lightgbm; @progressbar2;
+@requests; @shap; @zipp;
 
