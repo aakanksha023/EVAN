@@ -114,14 +114,23 @@ h6 {
     margin: 0px;
 }
 
+.info-icon {
+    float: right;
+    cursor: pointer;
+    height: 2.4rem;
+    width: 2.4rem;
+    margin: -2.4rem 0rem 0rem 0rem;
+  }
+
 /* Graphs
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .graph__title {
     color: white !important;
-    padding: 0 0 0 0;
-    margin-bottom: 0px !important;
+    margin-top: 0;
+    margin-bottom: 10px !important;
     font-size: 1em;
-}
+    text-align: left;
+  }
 
 .map__slider__container {
     height: 92%;
@@ -163,7 +172,6 @@ h6 {
 .bottom__box__tab2{
     background-color: #52527a;
     border-radius: 0.55rem;
-    justify-content: center;
     padding: 10px 10px 10px 10px;
     color: #ffffff;
 }
@@ -207,4 +215,35 @@ h6 {
     display: flex;
     justify-content: center;
     flex-direction: column;
+}
+
+/* Modal info layer
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.modal {
+    position: fixed;
+    z-index: 1002; /* Sit on top, including modebar which has z=1001 */
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0, 0, 0, 0.6); 
+}
+
+.modal-content {
+    z-index: 1004; /* Sit on top, including modebar which has z=1001 */
+    position: fixed;
+    left: 0;
+    width: 60%;
+    background-color: #52527a; 
+    color: white;
+    border-radius: 5px;
+    margin-left: 20%;
+    margin-bottom: 2%;
+    margin-top: 2%;
+    top: 0;
+}
+
+.modal-content > div {
+    text-align: left;
+    margin: 15px;
 }

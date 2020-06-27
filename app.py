@@ -1,6 +1,10 @@
 # authors: Jasmine Qin, Keanna Knebel
 # date: 2020-06-15
 
+###############################################################################
+# IMPORT PACKAGES                                                             #
+###############################################################################
+
 # Basics
 import pandas as pd
 import geopandas as gpd
@@ -8,6 +12,7 @@ import numpy as np
 import random
 import json
 import re
+from textwrap import dedent
 
 # Plotly
 import plotly.graph_objects as go
@@ -26,18 +31,18 @@ from shapely.ops import nearest_points
 from shapely.geometry import Point
 from sklearn import metrics
 
-##########
-# Set-up #
-##########
+###############################################################################
+# APP SET-UP                                                                  #
+###############################################################################
 
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
 )
 server = app.server
 
-#############
-# Read data #
-#############
+###############################################################################
+# READ-IN DATASETS                                                            #
+###############################################################################
 
 df = pd.read_csv("data/processed/census_viz.csv")
 parking_df = gpd.read_file("data/processed/vis_parking.csv")
@@ -53,9 +58,10 @@ for i in boundary['features']:
     i['name'] = i['properties']['name']
     i['id'] = i['properties']['mapid']
 
-#############
-# Modelling #
-#############
+###############################################################################
+# MODELLING                                                                   #
+###############################################################################
+
 raw_vis_model = pd.read_csv("data/processed/vis_model.csv")
 y_valid = raw_vis_model[raw_vis_model.type == 'valid']['label']
 y_valid_pred = raw_vis_model[raw_vis_model.type == 'valid']['predict']
@@ -137,10 +143,9 @@ def confusion_matrix():
         )
     )
 
-######################
-# Info and wrangling #
-######################
-
+###############################################################################
+# DATA WRANGLING + REQUIRED INFORMATION                                       #
+###############################################################################
 
 licence = licence[licence.Status == 'Issued']
 
@@ -197,11 +202,50 @@ colors = {
 # plotly graph config
 config = {'displayModeBar': False, 'scrollZoom': False}
 
-##########
-# Layout #
-##########
+#################################
+# Descriptive Chart Information #
+#################################
 
-# Licence visualization layout
+def build_info_overlay(id, content):
+    """
+    Build div representing the info overlay for a plot panel
+    """
+    div = html.Div([  # modal div
+        html.Div([  # content div
+            html.Div([
+                html.H3([
+                    "Info",
+                    html.Img(
+                        id=f'close-{id}-modal',
+                        src="assets/exit.svg",
+                        n_clicks=0,
+                        className='info-icon',
+                        style={'margin': 0},
+                    ),
+                ], style={'color': 'white'}),
+
+                dcc.Markdown(
+                    content
+                ),
+            ])
+        ],
+            className=f'modal-content',
+        ),
+        html.Div(className='modal')
+    ],
+        id=f"{id}-modal",
+        style={"display": "none"},
+    )
+
+    return div
+
+###############################################################################
+# LAYOUT                                                                      #
+###############################################################################
+
+########################################
+# TAB 1 - Licence visualization layout #
+########################################
 
 
 def build_tab1():
@@ -358,7 +402,442 @@ def build_tab1():
         ]
     )
 
-# Modelling result layout
+########################################
+# TAB 2 - Census visualization layout  #
+########################################
+
+
+def build_tab2():
+    return html.Div(
+        children=[
+            html.Div(
+                className="app__content",
+                children=[
+                    html.Div(
+                        className="one-fifth column offset-by-four-fifths",
+                        children=[
+                            # clear selection button
+                            html.Button(id='clearButton',
+                                        n_clicks=0,
+                                        children='Clear Neighbourhood Selection'),
+                        ],
+                    )
+                ], style={'marginTop': 10, 'marginBottom': 5}
+            ),
+
+            # main row with map and summary info
+            html.Div(
+                className='row',
+                children=[
+                    html.Div(
+                        className="app__content",
+                        children=[
+                                # summary info
+                                html.Div(
+                                    id="summary_info",
+                                    className="one-third column user__control__panel",
+                                ),
+                                # main map of neighbourhoods
+                                html.Div(
+                                    className="two-thirds column map__slider__container",
+                                    children=[
+                                        # map
+                                        dcc.Graph(
+                                            id='van_map',
+                                            style={
+                                                "visibility": "visible"},
+                                            config=config),
+
+                                        # slider
+                                        html.Div(
+                                            className='div-for-slider',
+                                            children=[
+                                                dcc.Slider(
+                                                    id='year_slider_census',
+                                                    min=licence['FOLDERYEAR'].min(),
+                                                    max=licence['FOLDERYEAR'].max(),
+                                                    value=2016,
+                                                    marks={str(year): {
+                                                        'label': str(year),
+                                                        'style': {'color': 'white'}}
+                                                        for year in licence['FOLDERYEAR'].unique()},
+                                                    step=None
+                                                )
+                                            ]
+                                        )
+                                    ]
+                                )
+                            ], style={'marginTop': 0}
+                        )
+                    ], style={'marginTop': 0}
+
+                ),
+
+                # Adding tabs for summary neighbourhood data
+                dcc.Tabs(id="subTabs", children=[
+
+                    # summary of local demographics
+                    dcc.Tab(label='PEOPLE', children=[
+                        html.Div(
+                            children=[
+                                # age graph info
+                                build_info_overlay('age', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # household size graph info
+                                build_info_overlay('size', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # language table info
+                                build_info_overlay('lang', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # ethnicity table info
+                                build_info_overlay('eth', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # education graph info
+                                build_info_overlay('edu', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # occupation industry info
+                                build_info_overlay('occ', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                            ]
+                        ),
+
+                        html.Div(
+                            className="app__content",
+                            children=[
+
+                                # population by age
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            id="age-div",
+                                            children=[
+                                                html.H4(
+                                                    id="age-title"),
+                                                html.Img(
+                                                    id='show-age-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon',
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='age_graph',
+                                            config=config)
+                                    ]
+                                ),
+
+                                # population by household size
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            id="size-div",
+                                            children=[
+                                                html.H4(
+                                                    id="size-title"),
+                                                html.Img(
+                                                    id='show-size-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon'
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='size_graph',
+                                                    config=config)
+                                    ]
+                                )
+                            ], style={'marginTop': 50}),
+
+                        # population by language + ethnicity
+                        html.Div(
+                            className="app__content",
+                            children=[
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    id="lang-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                html.H4(
+                                                    id="lang-title"),
+                                                html.Img(
+                                                    id='show-lang-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon'
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='lang_graph',
+                                                    config=config)
+                                    ]
+                                ),
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    id="eth-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                html.H4(
+                                                    id="eth-title"),
+                                                html.Img(
+                                                    id='show-eth-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon'
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='eth_graph',
+                                                    config=config)]
+                                )
+                            ], style={'marginTop': 10}
+                        ),
+
+                        # population by education level
+                        html.Div(
+                            className="app__content",
+                            children=[
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    id="edu-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                html.H4(
+                                                    id="edu-title"),
+                                                html.Img(
+                                                    id='show-edu-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon'
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='edu_graph',
+                                                    config=config)
+                                    ]),
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    id="occ-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                html.H4(
+                                                    id="occ-title"),
+                                                html.Img(
+                                                    id='show-occ-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon'
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='occ_graph',
+                                                    config=config)]
+                                )
+                            ],
+                        ),
+                    ]),
+
+                    # summary of local infrastructure
+                    dcc.Tab(label='INFRASTRUCTURE', children=[
+                        html.Div(
+                            children=[
+                                # housing tenure pie chart info
+                                build_info_overlay('tenure', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # Dwelling type graph info
+                                build_info_overlay('dwelling', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # Transportation graph info
+                                build_info_overlay('transport', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                                # parking meters map info
+                                build_info_overlay('parking', dedent("""
+                                The _**Selected Towers**_ panel displays the number of cell towers
+                                that are currently selected. A tower is considered to be selected
+                                if it is currently visible in the _**Locations**_ map, and satisfies
+                                the selections applied in the _**Radio**_, _**Signal Range**_, and
+                                _**Construction Date**_ panels.
+                                The _**Reset All**_ button may be used to clear all selections and
+                                recenter the _**Locations**_ map view. 
+                                """)),
+                            ]
+                        ),
+
+                        html.Div(
+                            className="app__content",
+                            children=[
+                                # housing tenure (own vs. rent)
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    id="tenure-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                html.H4(
+                                                    id="tenure-title"),
+                                                html.Img(
+                                                    id='show-tenure-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon'
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='tenure_graph',
+                                                    config=config)
+                                    ], ),
+                                # distribution of dwelling types
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    id="dwelling-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                html.H4(
+                                                    id="dwelling-title"),
+                                                html.Img(
+                                                    id='show-dwelling-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon'
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='dwelling_graph',
+                                                    config=config)
+                                    ])
+                            ], style={'marginTop': 50}),
+
+                        html.Div(
+                            className="app__content",
+                            children=[
+                                # transportation mode
+                                html.Div(
+                                    className="one-half-tab2 column bottom__box__tab2",
+                                    id="transport-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                html.H4(
+                                                    id="transport-title"),
+                                                html.Img(
+                                                    id='show-transport-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon'
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='transport_graph',
+                                                    config=config)
+                                    ], ),
+                                # distribution/count of street parking
+                                html.Div(
+                                    className="other-half-tab2 column bottom__box__tab2",
+                                    id="parking-div",
+                                    children=[
+                                        html.H4(
+                                            className="graph__title",
+                                            children=[
+                                                html.H4(
+                                                    id="parking-title"),
+                                                html.Img(
+                                                    id='show-parking-modal',
+                                                    src="assets/question.svg",
+                                                    n_clicks=0,
+                                                    className='info-icon'
+                                                ),
+                                            ], 
+                                        ),
+                                        dcc.Graph(id='parking_graph',
+                                                    config=config)
+                                    ]
+                                )
+                            ], style={'marginTop': 50}),
+                ]),
+            ], style={'marginTop': 50}),
+        ])
+
+########################################
+# TAB 3 - Modelling Result layout      #
+########################################
 
 
 def build_tab3():
@@ -487,9 +966,6 @@ def build_tab3():
 
                             html.P(id="predict_text2"),
                         ]
-
-
-
                     )
                 ]
             ),
@@ -541,7 +1017,9 @@ def build_tab3():
     )
 
 
-# Main layout
+########################################
+# MAIN APP LAYOUT                      #
+########################################
 app.layout = html.Div([
 
     # Main app header
@@ -570,199 +1048,7 @@ app.layout = html.Div([
                 id='tab2',
                 className='custom-tab',
                 children=[
-                    html.Div(
-                            className="app__content",
-                            children=[
-                                html.Div(
-                                    className="one-fifth column offset-by-four-fifths",
-                                    children=[
-                                        # clear selection button
-                                        html.Button(id='clearButton',
-                                                    n_clicks=0,
-                                                    children='Clear Neighbourhood Selection'),
-                                    ],
-                                )
-                            ], style={'marginTop': 10, 'marginBottom': 5}
-                    ),
-
-                    # main row with map and summary info
-                    html.Div(
-                        className='row',
-                        children=[
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    # summary info
-                                    html.Div(
-                                        id="summary_info",
-                                        className="one-third column user__control__panel",
-                                    ),
-                                    # main map of neighbourhoods
-                                    html.Div(
-                                        className="two-thirds column map__slider__container",
-                                        children=[
-                                            # map
-                                            dcc.Graph(
-                                                id='van_map',
-                                                style={
-                                                    "visibility": "visible"},
-                                                config=config),
-
-                                            # slider
-                                            html.Div(
-                                                className='div-for-slider',
-                                                children=[
-                                                    dcc.Slider(
-                                                        id='year_slider_census',
-                                                        min=licence['FOLDERYEAR'].min(
-                                                        ),
-                                                        max=licence['FOLDERYEAR'].max(
-                                                        ),
-                                                        value=2016,
-                                                        marks={str(year): {
-                                                            'label': str(year),
-                                                            'style': {'color': 'white'}}
-                                                            for year in licence['FOLDERYEAR'].unique()},
-                                                        step=None
-                                                    )
-                                                ]
-                                            )
-                                        ]
-                                    )
-                                ], style={'marginTop': 0}
-                            )
-                        ], style={'marginTop': 0}
-
-                    ),
-
-                    # Adding tabs for summary neighbourhood data
-                    dcc.Tabs(id="subTabs", children=[
-
-                        # summary of local demographics
-                        dcc.Tab(label='PEOPLE', children=[
-
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    # population by age
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Age Distribution',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='age_graph',
-                                                      config=config)
-                                        ], ),
-                                    # population by household size
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Household Size',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='size_graph',
-                                                      config=config)
-                                        ])
-                                ], style={'marginTop': 50}),
-
-                            # population by language + ethnicity
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Language Composition',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='lang_table',
-                                                      config=config)
-                                        ]
-                                    ),
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Ethnic Composition',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='eth_table',
-                                                      config=config)]
-                                    )
-                                ], style={'marginTop': 10}
-                            ),
-
-                            # population by education level
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Education Level',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='edu_graph',
-                                                      config=config)
-                                        ]),
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Employment Sectors',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='occ_graph',
-                                                      config=config)]
-                                    )
-                                ],
-                            ),
-                        ]),
-
-                        # summary of local infrastructure
-                        dcc.Tab(label='INFRASTRUCTURE', children=[
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    # housing tenure (own vs. rent)
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Housing Tenure',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='tenure_graph',
-                                                      config=config)
-                                        ], ),
-                                    # distribution of dwelling types
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Dwelling Type',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='dwelling_graph',
-                                                      config=config)
-                                        ])
-                                ], style={'marginTop': 50}),
-
-                            html.Div(
-                                className="app__content",
-                                children=[
-                                    # transportation mode
-                                    html.Div(
-                                        className="one-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Dominant form of Transport used by Residents',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='transport_graph',
-                                                      config=config)
-                                        ], ),
-                                    # distribution/count of street parking
-                                    html.Div(
-                                        className="other-half-tab2 column bottom__box__tab2",
-                                        children=[
-                                            html.H4('Street Parking',
-                                                    style={"textAlign": "center"}),
-                                            dcc.Graph(id='parking_graph',
-                                                      config=config)
-                                        ])
-                                ], style={'marginTop': 50}),
-
-                        ]),
-
-                    ], style={'marginTop': 50}),
+                    build_tab2()
                 ]),
 
         # Define the layout of the third Tab
@@ -799,13 +1085,15 @@ app.layout = html.Div([
     ], style={'marginTop': 50}),
 ])
 
-###########
-# Updates #
-###########
+###############################################################################
+# UPDATES + CALLBACKS                                                         #
+###############################################################################
+
+########################################
+# TAB 1 - UPDATES                      #
+########################################
 
 # update titles
-
-
 @app.callback(
     Output("histogram-title", "children"),
     [Input("industry-dropdown", "value")],
@@ -1121,8 +1409,9 @@ def update_figure(SelectedIndustry,
         )
     )
 
-###############################################################################
-# second tab updates
+########################################
+# TAB 2 - UPDATES                      #
+########################################
 
 # Define callback to update vancouver map
 @app.callback(
@@ -1182,7 +1471,8 @@ def update_van_map(clickData):
 
 # update education graph by local area
 @app.callback(
-    Output('edu_graph', 'figure'),
+    [Output("edu-title", 'children'),
+     Output("edu_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_edu(clickData, year):
@@ -1202,6 +1492,9 @@ def update_edu(clickData, year):
     else:
         area = 'City of Vancouver'
 
+    # Set graph title
+    title = ("Highest Level of Education Achieved, in " + str(census_year))
+
     edu_df = df[['LocalArea', 'Year',
                  'University',
                  'College',
@@ -1215,7 +1508,7 @@ def update_edu(clickData, year):
                          var_name='Education',
                          value_name='Percent of Total Population')
 
-    edu_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             x=edu_df["Education"],
             y=edu_df['Percent of Total Population']*100,
@@ -1234,7 +1527,7 @@ def update_edu(clickData, year):
                              var_name='Education',
                              value_name='Percent of Total Population')
 
-        edu_fig.add_trace(
+        fig.add_trace(
             go.Bar(
                 x=van_df["Education"],
                 y=van_df['Percent of Total Population']*100,
@@ -1243,18 +1536,20 @@ def update_edu(clickData, year):
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>",
             ))
 
-    edu_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         yaxis={'title': "Percent of Total Population"},
         xaxis_title="Level of Education",
         showlegend=True,
         legend=dict(x=1, y=1, xanchor="right", bgcolor=colors['purple2']),
         height=350)
-    return edu_fig
+
+    return title, fig
 
 # update occupation graph by local area and year
 @app.callback(
-    Output('occ_graph', 'figure'),
+    [Output("occ-title", 'children'),
+     Output("occ_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_occ(clickData, year):
@@ -1273,6 +1568,9 @@ def update_occ(clickData, year):
         area = (clickData['points'][0]['location'])
     else:
         area = 'City of Vancouver'
+
+    # Set graph title
+    title = (str(area) + "'s Distribution of Occupation Industries, in " + str(census_year))
 
     occ_df = df[['LocalArea', 'Year',
                  'Management',
@@ -1295,7 +1593,7 @@ def update_occ(clickData, year):
     occ_df = occ_df.sort_values(
         'Percent of Employed Population', ascending=False)
 
-    occ_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             y=occ_df["Industry"],
             x=occ_df['Percent of Employed Population']*100,
@@ -1308,7 +1606,7 @@ def update_occ(clickData, year):
             template='simple_white',
             plot_bgcolor=colors['purple2']))
 
-    occ_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         xaxis={'title': "Percent of Employed Population"},
         showlegend=True,
@@ -1329,12 +1627,14 @@ def update_occ(clickData, year):
                 for xi, yi in zip(occ_df['Percent of Employed Population'],
                                   occ_df['Industry'])
             ],)
-    return occ_fig
+
+    return title, fig
 
 
 # update age graph by local area
 @app.callback(
-    Output('age_graph', 'figure'),
+    [Output("age-title", 'children'),
+     Output("age_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_age(clickData, year):
@@ -1348,10 +1648,13 @@ def update_age(clickData, year):
     else:
         census_year = 2016
 
-    area = 'City of Vancouver'
-
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+
+    # Set graph title
+    title = ("Age Distribution of Population, in " + str(census_year))
 
     age_df = df[['LocalArea', 'Year',
                  'Under 20',
@@ -1367,7 +1670,7 @@ def update_age(clickData, year):
                          var_name='Age',
                          value_name='Population')
 
-    age_fig = go.Figure(
+    fig = go.Figure(
         data=go.Scatter(
             x=age_df['Age'],
             y=age_df['Population']*100,
@@ -1391,7 +1694,7 @@ def update_age(clickData, year):
         van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
                              var_name='Age',
                              value_name='Population')
-        age_fig.add_trace(
+        fig.add_trace(
             go.Scatter(
                 x=van_df['Age'],
                 y=van_df['Population']*100,
@@ -1404,7 +1707,7 @@ def update_age(clickData, year):
                 line_shape='spline',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"))
 
-    age_fig.update_layout(
+    fig.update_layout(
         xaxis_title="Age",
         yaxis_title="Percent of Total Population",
         showlegend=True,
@@ -1413,16 +1716,16 @@ def update_age(clickData, year):
                     bgcolor=colors['purple2']),
         height=350)
 
-    return age_fig
+    return title, fig
 
 
 # update household size graph by local area
 @app.callback(
-    Output('size_graph', 'figure'),
+    [Output("size-title", 'children'),
+     Output("size_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_size(clickData, year):
-    area = 'City of Vancouver'
     # select nearest census year
     if year <= 2003:
         census_year = 2001
@@ -1435,6 +1738,12 @@ def update_size(clickData, year):
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+
+    # Set graph title
+    title = ("Household Size, in " + str(census_year))
+
     size_df = df[['LocalArea',
                   'Year',
                   '1 person',
@@ -1449,7 +1758,7 @@ def update_size(clickData, year):
                            var_name='Household Size',
                            value_name='Percent of Total Population')
 
-    size_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             x=size_df["Household Size"],
             y=size_df['Percent of Total Population']*100,
@@ -1469,7 +1778,7 @@ def update_size(clickData, year):
                              var_name='Household Size',
                              value_name='Percent of Total Population')
 
-        size_fig.add_trace(
+        fig.add_trace(
             go.Bar(
                 x=van_df["Household Size"],
                 y=van_df['Percent of Total Population']*100,
@@ -1478,7 +1787,7 @@ def update_size(clickData, year):
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
             ))
 
-    size_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         xaxis_title="Household Size",
         yaxis_title="Percent of Total Population",
@@ -1487,12 +1796,13 @@ def update_size(clickData, year):
                     bgcolor=colors['purple2']),
         height=350)
 
-    return size_fig
+    return title, fig
 
 
 # update languages table by local area and year
 @app.callback(
-    Output('lang_table', 'figure'),
+    [Output("lang-title", 'children'),
+     Output("lang_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_lang(clickData, year):
@@ -1519,6 +1829,9 @@ def update_lang(clickData, year):
         area = (clickData['points'][0]['location'])
     else:
         area = 'City of Vancouver'
+    
+    # Set graph title
+    title = ("Language Composition, in " + str(census_year))
 
     # filter data frame by area and year
     lang = lang[(lang.Year == census_year) & (
@@ -1533,11 +1846,11 @@ def update_lang(clickData, year):
     lang = lang[0:5].copy()
 
     # format long neighbourhood names
-    name_area = re.sub(r"-", "- ", area)
+    name_area = re.sub(r"-", "-<br>", area)
 
     if clickData is not None:
         # format results in table
-        table = go.Figure(
+        fig = go.Figure(
             data=[
                 go.Table(
                     header=dict(
@@ -1561,7 +1874,7 @@ def update_lang(clickData, year):
         )
     else:
         # format results in table
-        table = go.Figure(
+        fig = go.Figure(
             data=[
                 go.Table(
                     header=dict(
@@ -1581,14 +1894,15 @@ def update_lang(clickData, year):
                 )
             ]
         )
-    table.update_layout(height=300,
+    fig.update_layout(height=300,
                         margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
-    return table
+    return title, fig
 
 
 # update ethnicity table by local area and year
 @app.callback(
-    Output('eth_table', 'figure'),
+    [Output("eth-title", 'children'),
+     Output("eth_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_eth(clickData, year):
@@ -1612,6 +1926,9 @@ def update_eth(clickData, year):
         area = (clickData['points'][0]['location'])
     else:
         area = 'City of Vancouver'
+    
+    # Set graph title
+    title = ("Ethnic Composition, in " + str(census_year))
 
     # filter data frame by area and year
     eth = eth[(eth.Year == census_year) & (
@@ -1626,11 +1943,11 @@ def update_eth(clickData, year):
     eth = eth[0:5].copy()
 
     # format long neighbourhood names
-    name_area = re.sub(r"-", "- ", area)
+    name_area = re.sub(r"-", "-<br>", area)
 
     if clickData is not None:
         # format results in table
-        table = go.Figure(
+        fig = go.Figure(
             data=[
                 go.Table(
                     header=dict(
@@ -1654,7 +1971,7 @@ def update_eth(clickData, year):
         )
     else:
         # format results in table
-        table = go.Figure(
+        fig = go.Figure(
             data=[
                 go.Table(
                     header=dict(
@@ -1673,13 +1990,14 @@ def update_eth(clickData, year):
                 )
             ]
         )
-    table.update_layout(height=300,
+    fig.update_layout(height=300,
                         margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
-    return table
+    return title, fig
 
 # update housing tenure graph by local area and year
 @app.callback(
-    Output('tenure_graph', 'figure'),
+    [Output("tenure-title", 'children'),
+     Output("tenure_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_tenure(clickData, year):
@@ -1692,11 +2010,14 @@ def update_tenure(clickData, year):
         census_year = 2011
     else:
         census_year = 2016
-    
-    area = 'City of Vancouver'
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+    
+    # Set graph title
+    title = (str(area) + "'s Housing Tenure Distribution, in " + str(census_year))
 
     tenure_df = df[['LocalArea', 'Year',
                  'Owned',
@@ -1710,7 +2031,7 @@ def update_tenure(clickData, year):
     colours = ['forestgreen',
                '#19B1BA']
 
-    tenure_plot= go.Figure(
+    fig = go.Figure(
         data=go.Pie(
             labels= tenure_df["Tenure"],
             values=tenure_df['Percent of Housing'],
@@ -1730,15 +2051,16 @@ def update_tenure(clickData, year):
             plot_bgcolor=colors['purple2'],
         )
     )
-    tenure_plot.update_layout(
+    fig.update_layout(
         showlegend=False,
         height=350)
 
-    return tenure_plot
+    return title, fig
 
 # update dwelling type graph by local area and year
 @app.callback(
-    Output('dwelling_graph', 'figure'),
+    [Output("dwelling-title", 'children'),
+     Output("dwelling_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_dwelling(clickData, year):
@@ -1756,6 +2078,11 @@ def update_dwelling(clickData, year):
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+
+    # Set graph title
+    title = ("Distribution of Dwelling Types, in " + str(census_year))
 
     dwel_df = df[['LocalArea',
                   'Year',
@@ -1770,7 +2097,7 @@ def update_dwelling(clickData, year):
                            var_name='Dwelling Type',
                            value_name='Percent of Total Dwellings')
 
-    dwel_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             x=dwel_df['Dwelling Type'],
             y=dwel_df['Percent of Total Dwellings']*100,
@@ -1790,7 +2117,7 @@ def update_dwelling(clickData, year):
                              var_name='Dwelling Type',
                              value_name='Percent of Total Dwellings')
 
-        dwel_fig.add_trace(
+        fig.add_trace(
             go.Bar(
                 x=van_df['Dwelling Type'],
                 y=van_df['Percent of Total Dwellings']*100,
@@ -1799,7 +2126,7 @@ def update_dwelling(clickData, year):
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
             ))
 
-    dwel_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         xaxis_title="Dwelling Type",
         yaxis_title="Percent of Total Dwellings",
@@ -1807,13 +2134,14 @@ def update_dwelling(clickData, year):
         legend=dict(x=1, y=1, xanchor="right",
                     bgcolor=colors['purple2']),
         height=350)
-    dwel_fig.update_yaxes(range=[0, 95])
+    fig.update_yaxes(range=[0, 95])
 
-    return dwel_fig
+    return title, fig
 
 # update transportation graph by local area and year
 @app.callback(
-    Output('transport_graph', 'figure'),
+    [Output("transport-title", 'children'),
+     Output("transport_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_transport(clickData, year):
@@ -1827,10 +2155,13 @@ def update_transport(clickData, year):
     else:
         census_year = 2016
 
-    area = 'City of Vancouver'
-
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+    
+    # Set graph title
+    title = ("Dominant Form of Transportation used by Residents, in " + str(census_year))
 
     trans_df = df[['LocalArea',
                   'Year',
@@ -1854,7 +2185,7 @@ def update_transport(clickData, year):
                            var_name='Transport Type',
                            value_name='Percent of Total Population')
 
-    trans_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             x=trans_df['Transport Type'],
             y=trans_df['Percent of Total Population']*100,
@@ -1874,7 +2205,7 @@ def update_transport(clickData, year):
                              var_name='Transport Type',
                              value_name='Percent of Total Population')
 
-        trans_fig.add_trace(
+        fig.add_trace(
             go.Bar(
                 x=van_df['Transport Type'],
                 y=van_df['Percent of Total Population']*100,
@@ -1883,7 +2214,7 @@ def update_transport(clickData, year):
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
             ))
 
-    trans_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         xaxis_title="Transportation Type",
         yaxis_title="Percent of Total Population",
@@ -1892,11 +2223,12 @@ def update_transport(clickData, year):
                     bgcolor=colors['purple2']),
         height=350)
 
-    return trans_fig
+    return title, fig
 
 # update parking graph by local area
 @app.callback(
-    Output('parking_graph', 'figure'),
+    [Output("parking-title", 'children'),
+     Output("parking_graph", 'figure')],
     [Input('van_map', 'clickData')])
 def update_parking(clickData):
     latInitial = 49.252
@@ -1914,6 +2246,9 @@ def update_parking(clickData):
             area]['lat']
         lonInitial = list_of_neighbourhoods[
             area]['lon']
+        title = (str(area) + "'s Metered Street Parking, in 2019")
+    else:
+        title = ("City of Vancouver's Metered Street Parking, in 2019")
 
     # get count of parking spots
     num = len(park['coord-x'])
@@ -1959,7 +2294,7 @@ def update_parking(clickData):
             bearing=0)
     )
 
-    return fig
+    return title, fig
 
 @app.callback(
     Output('summary_info', 'children'),
@@ -1989,12 +2324,6 @@ def update_side_bar(clickData, year):
         biz_num = pd.DataFrame(
             biz_df.groupby(['FOLDERYEAR'])[
                 'business_id'].sum()).reset_index()
-
-    # biz_df = pd.DataFrame(
-    #          biz_df.groupby(['BusinessIndustry'])[
-    #          'business_id'].sum()).reset_index()
-    # biz = biz_df[biz_df.business_id == biz_df.business_id.max()].reset_index()
-    # biz = biz_df.BusinessIndustry[0]
 
     # calculate number of businesses
     biz_num = biz_num.business_id[0]
@@ -2058,12 +2387,26 @@ def update_side_bar(clickData, year):
 def reset_selection(n_clicks):
     return None
 
-###############################################################################
-# third tab updates
+# Create show/hide callbacks for each info modal
+for id in ['age', 'size', 'eth', 'lang', 'edu', 
+           'occ', 'tenure', 'dwelling', 'transport',
+           'parking']:
+    @app.callback([Output(f"{id}-modal", 'style'), 
+                   Output(f"{id}-div", 'style')],
+                  [Input(f'show-{id}-modal', 'n_clicks'),
+                   Input(f'close-{id}-modal', 'n_clicks')])
+    def toggle_modal(n_show, n_close):
+        ctx = dash.callback_context
+        if ctx.triggered and ctx.triggered[0]['prop_id'].startswith('show-'):
+            return {"display": "block"}, {'zIndex': 1003}
+        else:
+            return {"display": "none"}, {'zIndex': 0}
+
+########################################
+# TAB 3 - UPDATES                      #
+########################################
 
 # update map
-
-
 @app.callback(
     [Output('model-map', 'figure'),
      Output('predict_text1', 'children'),
