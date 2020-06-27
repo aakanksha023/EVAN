@@ -119,7 +119,7 @@ h6 {
     cursor: pointer;
     height: 2.4rem;
     width: 2.4rem;
-    margin: 0rem;
+    margin: -2.4rem 0rem 0rem 0rem;
   }
 
 /* Graphs
@@ -172,7 +172,6 @@ h6 {
 .bottom__box__tab2{
     background-color: #52527a;
     border-radius: 0.55rem;
-    justify-content: center;
     padding: 10px 10px 10px 10px;
     color: #ffffff;
 }

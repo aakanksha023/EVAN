@@ -550,23 +550,23 @@ def build_tab2():
                                 # population by age
                                 html.Div(
                                     className="one-half-tab2 column bottom__box__tab2",
-                                    id="age-div",
                                     children=[
                                         html.H4(
                                             className="graph__title",
+                                            id="age-div",
                                             children=[
-                                                'Age Distribution',
+                                                html.H4(
+                                                    id="age-title"),
                                                 html.Img(
                                                     id='show-age-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
                                                     className='info-icon',
-                                                    style={'float': 'right'}
                                                 ),
                                             ], 
                                         ),
                                         dcc.Graph(id='age_graph',
-                                                    config=config)
+                                            config=config)
                                     ]
                                 ),
 
@@ -578,13 +578,13 @@ def build_tab2():
                                             className="graph__title",
                                             id="size-div",
                                             children=[
-                                                'Household Size',
+                                                html.H4(
+                                                    id="size-title"),
                                                 html.Img(
                                                     id='show-size-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
-                                                    className='info-icon',
-                                                    style={'float': 'right'}
+                                                    className='info-icon'
                                                 ),
                                             ], 
                                         ),
@@ -605,17 +605,17 @@ def build_tab2():
                                         html.H4(
                                             className="graph__title",
                                             children=[
-                                                'Language Composition',
+                                                html.H4(
+                                                    id="lang-title"),
                                                 html.Img(
                                                     id='show-lang-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
-                                                    className='info-icon',
-                                                    style={'float': 'right'}
+                                                    className='info-icon'
                                                 ),
                                             ], 
                                         ),
-                                        dcc.Graph(id='lang_table',
+                                        dcc.Graph(id='lang_graph',
                                                     config=config)
                                     ]
                                 ),
@@ -626,17 +626,17 @@ def build_tab2():
                                         html.H4(
                                             className="graph__title",
                                             children=[
-                                                'Ethnic Composition',
+                                                html.H4(
+                                                    id="eth-title"),
                                                 html.Img(
                                                     id='show-eth-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
-                                                    className='info-icon',
-                                                    style={'float': 'right'}
+                                                    className='info-icon'
                                                 ),
                                             ], 
                                         ),
-                                        dcc.Graph(id='eth_table',
+                                        dcc.Graph(id='eth_graph',
                                                     config=config)]
                                 )
                             ], style={'marginTop': 10}
@@ -653,13 +653,13 @@ def build_tab2():
                                         html.H4(
                                             className="graph__title",
                                             children=[
-                                                'Education Level',
+                                                html.H4(
+                                                    id="edu-title"),
                                                 html.Img(
                                                     id='show-edu-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
-                                                    className='info-icon',
-                                                    style={'float': 'right'}
+                                                    className='info-icon'
                                                 ),
                                             ], 
                                         ),
@@ -673,13 +673,13 @@ def build_tab2():
                                         html.H4(
                                             className="graph__title",
                                             children=[
-                                                'Employment Sectors',
+                                                html.H4(
+                                                    id="occ-title"),
                                                 html.Img(
                                                     id='show-occ-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
-                                                    className='info-icon',
-                                                    style={'float': 'right'}
+                                                    className='info-icon'
                                                 ),
                                             ], 
                                         ),
@@ -748,13 +748,13 @@ def build_tab2():
                                         html.H4(
                                             className="graph__title",
                                             children=[
-                                                'Housing Tenure',
+                                                html.H4(
+                                                    id="tenure-title"),
                                                 html.Img(
                                                     id='show-tenure-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
-                                                    className='info-icon',
-                                                    style={'float': 'right'}
+                                                    className='info-icon'
                                                 ),
                                             ], 
                                         ),
@@ -769,13 +769,13 @@ def build_tab2():
                                         html.H4(
                                             className="graph__title",
                                             children=[
-                                                'Dwelling Type',
+                                                html.H4(
+                                                    id="dwelling-title"),
                                                 html.Img(
                                                     id='show-dwelling-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
-                                                    className='info-icon',
-                                                    style={'float': 'right'}
+                                                    className='info-icon'
                                                 ),
                                             ], 
                                         ),
@@ -795,13 +795,13 @@ def build_tab2():
                                         html.H4(
                                             className="graph__title",
                                             children=[
-                                                'Dominant form of Transport used by Residents',
+                                                html.H4(
+                                                    id="transport-title"),
                                                 html.Img(
                                                     id='show-transport-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
-                                                    className='info-icon',
-                                                    style={'float': 'right'}
+                                                    className='info-icon'
                                                 ),
                                             ], 
                                         ),
@@ -816,13 +816,13 @@ def build_tab2():
                                         html.H4(
                                             className="graph__title",
                                             children=[
-                                                'Street Parking',
+                                                html.H4(
+                                                    id="parking-title"),
                                                 html.Img(
                                                     id='show-parking-modal',
                                                     src="assets/question.svg",
                                                     n_clicks=0,
-                                                    className='info-icon',
-                                                    style={'float': 'right'}
+                                                    className='info-icon'
                                                 ),
                                             ], 
                                         ),
@@ -831,9 +831,7 @@ def build_tab2():
                                     ]
                                 )
                             ], style={'marginTop': 50}),
-
                 ]),
-
             ], style={'marginTop': 50}),
         ])
 
@@ -1473,7 +1471,8 @@ def update_van_map(clickData):
 
 # update education graph by local area
 @app.callback(
-    Output('edu_graph', 'figure'),
+    [Output("edu-title", 'children'),
+     Output("edu_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_edu(clickData, year):
@@ -1493,6 +1492,9 @@ def update_edu(clickData, year):
     else:
         area = 'City of Vancouver'
 
+    # Set graph title
+    title = ("Highest Level of Education Achieved, in " + str(census_year))
+
     edu_df = df[['LocalArea', 'Year',
                  'University',
                  'College',
@@ -1506,7 +1508,7 @@ def update_edu(clickData, year):
                          var_name='Education',
                          value_name='Percent of Total Population')
 
-    edu_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             x=edu_df["Education"],
             y=edu_df['Percent of Total Population']*100,
@@ -1525,7 +1527,7 @@ def update_edu(clickData, year):
                              var_name='Education',
                              value_name='Percent of Total Population')
 
-        edu_fig.add_trace(
+        fig.add_trace(
             go.Bar(
                 x=van_df["Education"],
                 y=van_df['Percent of Total Population']*100,
@@ -1534,18 +1536,20 @@ def update_edu(clickData, year):
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>",
             ))
 
-    edu_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         yaxis={'title': "Percent of Total Population"},
         xaxis_title="Level of Education",
         showlegend=True,
         legend=dict(x=1, y=1, xanchor="right", bgcolor=colors['purple2']),
         height=350)
-    return edu_fig
+
+    return title, fig
 
 # update occupation graph by local area and year
 @app.callback(
-    Output('occ_graph', 'figure'),
+    [Output("occ-title", 'children'),
+     Output("occ_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_occ(clickData, year):
@@ -1564,6 +1568,9 @@ def update_occ(clickData, year):
         area = (clickData['points'][0]['location'])
     else:
         area = 'City of Vancouver'
+
+    # Set graph title
+    title = (str(area) + "'s Distribution of Occupation Industries, in " + str(census_year))
 
     occ_df = df[['LocalArea', 'Year',
                  'Management',
@@ -1586,7 +1593,7 @@ def update_occ(clickData, year):
     occ_df = occ_df.sort_values(
         'Percent of Employed Population', ascending=False)
 
-    occ_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             y=occ_df["Industry"],
             x=occ_df['Percent of Employed Population']*100,
@@ -1599,7 +1606,7 @@ def update_occ(clickData, year):
             template='simple_white',
             plot_bgcolor=colors['purple2']))
 
-    occ_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         xaxis={'title': "Percent of Employed Population"},
         showlegend=True,
@@ -1620,12 +1627,14 @@ def update_occ(clickData, year):
                 for xi, yi in zip(occ_df['Percent of Employed Population'],
                                   occ_df['Industry'])
             ],)
-    return occ_fig
+
+    return title, fig
 
 
 # update age graph by local area
 @app.callback(
-    Output('age_graph', 'figure'),
+    [Output("age-title", 'children'),
+     Output("age_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_age(clickData, year):
@@ -1639,10 +1648,13 @@ def update_age(clickData, year):
     else:
         census_year = 2016
 
-    area = 'City of Vancouver'
-
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+
+    # Set graph title
+    title = ("Age Distribution of Population, in " + str(census_year))
 
     age_df = df[['LocalArea', 'Year',
                  'Under 20',
@@ -1658,7 +1670,7 @@ def update_age(clickData, year):
                          var_name='Age',
                          value_name='Population')
 
-    age_fig = go.Figure(
+    fig = go.Figure(
         data=go.Scatter(
             x=age_df['Age'],
             y=age_df['Population']*100,
@@ -1682,7 +1694,7 @@ def update_age(clickData, year):
         van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
                              var_name='Age',
                              value_name='Population')
-        age_fig.add_trace(
+        fig.add_trace(
             go.Scatter(
                 x=van_df['Age'],
                 y=van_df['Population']*100,
@@ -1695,7 +1707,7 @@ def update_age(clickData, year):
                 line_shape='spline',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"))
 
-    age_fig.update_layout(
+    fig.update_layout(
         xaxis_title="Age",
         yaxis_title="Percent of Total Population",
         showlegend=True,
@@ -1704,16 +1716,16 @@ def update_age(clickData, year):
                     bgcolor=colors['purple2']),
         height=350)
 
-    return age_fig
+    return title, fig
 
 
 # update household size graph by local area
 @app.callback(
-    Output('size_graph', 'figure'),
+    [Output("size-title", 'children'),
+     Output("size_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_size(clickData, year):
-    area = 'City of Vancouver'
     # select nearest census year
     if year <= 2003:
         census_year = 2001
@@ -1726,6 +1738,12 @@ def update_size(clickData, year):
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+
+    # Set graph title
+    title = ("Household Size, in " + str(census_year))
+
     size_df = df[['LocalArea',
                   'Year',
                   '1 person',
@@ -1740,7 +1758,7 @@ def update_size(clickData, year):
                            var_name='Household Size',
                            value_name='Percent of Total Population')
 
-    size_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             x=size_df["Household Size"],
             y=size_df['Percent of Total Population']*100,
@@ -1760,7 +1778,7 @@ def update_size(clickData, year):
                              var_name='Household Size',
                              value_name='Percent of Total Population')
 
-        size_fig.add_trace(
+        fig.add_trace(
             go.Bar(
                 x=van_df["Household Size"],
                 y=van_df['Percent of Total Population']*100,
@@ -1769,7 +1787,7 @@ def update_size(clickData, year):
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
             ))
 
-    size_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         xaxis_title="Household Size",
         yaxis_title="Percent of Total Population",
@@ -1778,12 +1796,13 @@ def update_size(clickData, year):
                     bgcolor=colors['purple2']),
         height=350)
 
-    return size_fig
+    return title, fig
 
 
 # update languages table by local area and year
 @app.callback(
-    Output('lang_table', 'figure'),
+    [Output("lang-title", 'children'),
+     Output("lang_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_lang(clickData, year):
@@ -1810,6 +1829,9 @@ def update_lang(clickData, year):
         area = (clickData['points'][0]['location'])
     else:
         area = 'City of Vancouver'
+    
+    # Set graph title
+    title = ("Language Composition, in " + str(census_year))
 
     # filter data frame by area and year
     lang = lang[(lang.Year == census_year) & (
@@ -1824,11 +1846,11 @@ def update_lang(clickData, year):
     lang = lang[0:5].copy()
 
     # format long neighbourhood names
-    name_area = re.sub(r"-", "- ", area)
+    name_area = re.sub(r"-", "-<br>", area)
 
     if clickData is not None:
         # format results in table
-        table = go.Figure(
+        fig = go.Figure(
             data=[
                 go.Table(
                     header=dict(
@@ -1852,7 +1874,7 @@ def update_lang(clickData, year):
         )
     else:
         # format results in table
-        table = go.Figure(
+        fig = go.Figure(
             data=[
                 go.Table(
                     header=dict(
@@ -1872,14 +1894,15 @@ def update_lang(clickData, year):
                 )
             ]
         )
-    table.update_layout(height=300,
+    fig.update_layout(height=300,
                         margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
-    return table
+    return title, fig
 
 
 # update ethnicity table by local area and year
 @app.callback(
-    Output('eth_table', 'figure'),
+    [Output("eth-title", 'children'),
+     Output("eth_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_eth(clickData, year):
@@ -1903,6 +1926,9 @@ def update_eth(clickData, year):
         area = (clickData['points'][0]['location'])
     else:
         area = 'City of Vancouver'
+    
+    # Set graph title
+    title = ("Ethnic Composition, in " + str(census_year))
 
     # filter data frame by area and year
     eth = eth[(eth.Year == census_year) & (
@@ -1917,11 +1943,11 @@ def update_eth(clickData, year):
     eth = eth[0:5].copy()
 
     # format long neighbourhood names
-    name_area = re.sub(r"-", "- ", area)
+    name_area = re.sub(r"-", "-<br>", area)
 
     if clickData is not None:
         # format results in table
-        table = go.Figure(
+        fig = go.Figure(
             data=[
                 go.Table(
                     header=dict(
@@ -1945,7 +1971,7 @@ def update_eth(clickData, year):
         )
     else:
         # format results in table
-        table = go.Figure(
+        fig = go.Figure(
             data=[
                 go.Table(
                     header=dict(
@@ -1964,13 +1990,14 @@ def update_eth(clickData, year):
                 )
             ]
         )
-    table.update_layout(height=300,
+    fig.update_layout(height=300,
                         margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
-    return table
+    return title, fig
 
 # update housing tenure graph by local area and year
 @app.callback(
-    Output('tenure_graph', 'figure'),
+    [Output("tenure-title", 'children'),
+     Output("tenure_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_tenure(clickData, year):
@@ -1983,11 +2010,14 @@ def update_tenure(clickData, year):
         census_year = 2011
     else:
         census_year = 2016
-    
-    area = 'City of Vancouver'
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+    
+    # Set graph title
+    title = (str(area) + "'s Housing Tenure Distribution, in " + str(census_year))
 
     tenure_df = df[['LocalArea', 'Year',
                  'Owned',
@@ -2001,7 +2031,7 @@ def update_tenure(clickData, year):
     colours = ['forestgreen',
                '#19B1BA']
 
-    tenure_plot= go.Figure(
+    fig = go.Figure(
         data=go.Pie(
             labels= tenure_df["Tenure"],
             values=tenure_df['Percent of Housing'],
@@ -2021,15 +2051,16 @@ def update_tenure(clickData, year):
             plot_bgcolor=colors['purple2'],
         )
     )
-    tenure_plot.update_layout(
+    fig.update_layout(
         showlegend=False,
         height=350)
 
-    return tenure_plot
+    return title, fig
 
 # update dwelling type graph by local area and year
 @app.callback(
-    Output('dwelling_graph', 'figure'),
+    [Output("dwelling-title", 'children'),
+     Output("dwelling_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_dwelling(clickData, year):
@@ -2047,6 +2078,11 @@ def update_dwelling(clickData, year):
 
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+
+    # Set graph title
+    title = ("Distribution of Dwelling Types, in " + str(census_year))
 
     dwel_df = df[['LocalArea',
                   'Year',
@@ -2061,7 +2097,7 @@ def update_dwelling(clickData, year):
                            var_name='Dwelling Type',
                            value_name='Percent of Total Dwellings')
 
-    dwel_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             x=dwel_df['Dwelling Type'],
             y=dwel_df['Percent of Total Dwellings']*100,
@@ -2081,7 +2117,7 @@ def update_dwelling(clickData, year):
                              var_name='Dwelling Type',
                              value_name='Percent of Total Dwellings')
 
-        dwel_fig.add_trace(
+        fig.add_trace(
             go.Bar(
                 x=van_df['Dwelling Type'],
                 y=van_df['Percent of Total Dwellings']*100,
@@ -2090,7 +2126,7 @@ def update_dwelling(clickData, year):
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
             ))
 
-    dwel_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         xaxis_title="Dwelling Type",
         yaxis_title="Percent of Total Dwellings",
@@ -2098,13 +2134,14 @@ def update_dwelling(clickData, year):
         legend=dict(x=1, y=1, xanchor="right",
                     bgcolor=colors['purple2']),
         height=350)
-    dwel_fig.update_yaxes(range=[0, 95])
+    fig.update_yaxes(range=[0, 95])
 
-    return dwel_fig
+    return title, fig
 
 # update transportation graph by local area and year
 @app.callback(
-    Output('transport_graph', 'figure'),
+    [Output("transport-title", 'children'),
+     Output("transport_graph", 'figure')],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_transport(clickData, year):
@@ -2118,10 +2155,13 @@ def update_transport(clickData, year):
     else:
         census_year = 2016
 
-    area = 'City of Vancouver'
-
     if clickData is not None:
         area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+    
+    # Set graph title
+    title = ("Dominant Form of Transportation used by Residents, in " + str(census_year))
 
     trans_df = df[['LocalArea',
                   'Year',
@@ -2145,7 +2185,7 @@ def update_transport(clickData, year):
                            var_name='Transport Type',
                            value_name='Percent of Total Population')
 
-    trans_fig = go.Figure(
+    fig = go.Figure(
         data=go.Bar(
             x=trans_df['Transport Type'],
             y=trans_df['Percent of Total Population']*100,
@@ -2165,7 +2205,7 @@ def update_transport(clickData, year):
                              var_name='Transport Type',
                              value_name='Percent of Total Population')
 
-        trans_fig.add_trace(
+        fig.add_trace(
             go.Bar(
                 x=van_df['Transport Type'],
                 y=van_df['Percent of Total Population']*100,
@@ -2174,7 +2214,7 @@ def update_transport(clickData, year):
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
             ))
 
-    trans_fig.update_layout(
+    fig.update_layout(
         barmode='group',
         xaxis_title="Transportation Type",
         yaxis_title="Percent of Total Population",
@@ -2183,11 +2223,12 @@ def update_transport(clickData, year):
                     bgcolor=colors['purple2']),
         height=350)
 
-    return trans_fig
+    return title, fig
 
 # update parking graph by local area
 @app.callback(
-    Output('parking_graph', 'figure'),
+    [Output("parking-title", 'children'),
+     Output("parking_graph", 'figure')],
     [Input('van_map', 'clickData')])
 def update_parking(clickData):
     latInitial = 49.252
@@ -2205,6 +2246,9 @@ def update_parking(clickData):
             area]['lat']
         lonInitial = list_of_neighbourhoods[
             area]['lon']
+        title = (str(area) + "'s Metered Street Parking, in 2019")
+    else:
+        title = ("City of Vancouver's Metered Street Parking, in 2019")
 
     # get count of parking spots
     num = len(park['coord-x'])
@@ -2250,7 +2294,7 @@ def update_parking(clickData):
             bearing=0)
     )
 
-    return fig
+    return title, fig
 
 @app.callback(
     Output('summary_info', 'children'),
