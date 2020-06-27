@@ -7,7 +7,7 @@ subtitle: |
 author: |
   | \vspace{0.5cm} Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang
   | \vspace{0.5cm} Mentor: Simon Goring
-date: "Date: 2020/06/23"
+date: "Date: 2020/06/29"
 output: pdf_document
 geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
 linkcolor: "blue"
@@ -40,7 +40,7 @@ Developing an effective strategic plan requires a critical assessment of a diver
 
 All businesses operating in the city of Vancouver must have a valid business licence which is required to be renewed every calendar year. As such, the collective set of business licences represents a yearly snapshot of the entire Vancouver business landscape. The renewal of business licences provides information regarding the spatial distribution, the temporal trends, and the volatility of businesses across Vancouver’s neighbourhoods. While licence renewal takes place on the individual business scale, it is influenced by broader regional factors, such as the proximity to public transport, the demographics of the neighbourhood, and the national economic health. 
 
-This project focuses on developing insight into Vancouver’s business landscape which can be leveraged by policy-makers, planners, business owners, and others to improve efficiency. To achieve this we have established two main research objectives. (1) We will generate a machine learning model to predict whether a business will renew its licence, given a set of underlying factors. Given a reasonable set of factors drawn from public data, we can also begin to interpret the model output to provide (2) a broader geospatial summary of the evolution of Vancouver's business landscape.
+This project focuses on developing insight into Vancouver’s business landscape which can be leveraged by policy-makers, planners, business owners, and others to improve efficiency. To achieve this we have established two main research objectives. (1) We will generate a machine learning model to predict whether a business will renew its licence (BR), given a set of underlying factors. Given a reasonable set of factors drawn from public data, we can also begin to interpret the model output to provide (2) a broader geospatial summary of the evolution of Vancouver's business landscape.
 
 
 # Data Science Methods
@@ -108,9 +108,11 @@ transportation <- census %>%
 grid.arrange(age, transportation, nrow = 1)
 ```
 
-There are more renewed licences than not renewed ones in the dataset, which means that we have class imbalance problem. Therefore, instead of focusing just on getting high accuracy, we were more concerned about recall score. This is because the recall score of the minority class measures the number of predicted non-renewed licences compared to actual non-renewed licences. By avoiding situations of high accuracy but low recall, we tried to be conservative about making a false sense of success for individual businesses.
+There are more renewed licences than not renewed ones in the dataset, which means that we have class imbalance problem. Therefore, instead of focusing just on getting high accuracy, we were more concerned about recall score. This is because the recall score of the minority class measures the number of predicted non-renewed licences (BNR) compared to actual BNR. By avoiding situations of high accuracy but low recall, we tried to be conservative about making a false sense of success for business owners.
 
-```{r history, fig.cap="Number of Years Businesses have Survived", out.width="500px", out.height="200px", echo=FALSE, fig.align="center"}
+The fact that this project by nature involves both temporal and spatial dimensions requires better representation of the available data being passed to the algorithm ([07_feature_engineering.py](https://github.com/deetken/evan/blob/master/src/03_modelling/07_feature_engineering.py)). To enrich geo-spatial configuration around businesses, we have constructed two pieces of additional information from coordinates: counts of nearby parking spaces and similar businesses. Instead of appending total parking counts in an entire neighbourhood, each business now has a unique count of nearby parking spaces within an adjustable threshold of 150 meters. Number of nearby similar businesses is meaningful to incorporate spatial correlations such as clustering. However, the current method only counts businesses with the same coordinates, for example businesses in the same building, as nearby locations and takes a very long time to run so results have been saved to files.
+
+```{r history, fig.cap="Number of Years Businesses have Survived", out.width="250px", out.height="200px", echo=FALSE, fig.align="center"}
 licence %>%
   group_by(business_id) %>%
   summarise(count = n_distinct(FOLDERYEAR)) %>%
@@ -118,14 +120,12 @@ licence %>%
   geom_histogram(bins=30, fill="#BB8AC6") +
   geom_line(stat="bin", binwidth=1, color="#008C29") +
   scale_y_continuous(breaks=seq(0, 25000, 5000)) + 
+  geom_vline(xintercept=5, color="red") +
   labs(x="Survived Years", y="Count of Businesses") +
   graph_config
 ```
 
-In order to enhance model performance, we have extracted extra information from the licence dataset and added features that are more tailored to individual businesses. The parking meters and disability parking datasets were originally appended to the licence dataset as counts in each neighbourhood. However, in reality, an entire neighbourhood is too broad of a range for people looking for a parking lot. Instead, we counted the number of nearby parking spaces for each unique business by calculating real distances between them and applying an adjustable threshold of 150 meters. Another geo-spatial feature extracted from the licence dataset is the count of nearby similar businesses. This variable is meaningful because businesses are not random points on the map, but are clustered or separated for a reason. By adding geo-spatial configuration, we are able to feed spatial correlations to the model. However, the current method only counts businesses with the same geometries, for example businesses in the same building, as nearby locations and takes a very long time to run so results have been saved to files. 
-
-As we can observed from Figure 2, businesses are more likely to close down when they are new compared to businesses that have already survived a long time. Therefore, we have added an indicator of whether a business has survived for more than five years or not. One last feature engineering is to uncover the chain business information for an issued licence, by counting the number of times the same name has occurred. There are limitations in the current method used for this feature simply because it is time consuming to go through all chain businesses and make sure their names are spelled the same. However, this feature does capture the cases when a business had opened up at a different location many years ago.
-
+As shown in Figure 2, count of businesses decreases rapidly for businesses that are relatively new, but the curve starts to become more flatten as number of years survived increases. An indicator of whether a business has survived for more than five years or not can be a strong predictor of renewal probability. One last feature engineering is to uncover the chain business information for an issued licence, by counting the number of times the same name has occurred. There are limitations in the current method used for this feature simply because it is time consuming to go through all chain businesses and make sure their names are spelled the same. However, this feature does capture the cases when a business had opened up at a different location many years ago.
 
 ```{r features, echo=FALSE, echo=FALSE, fig.align="center"}
 features <- data.frame(Feature=c("history", "chain", "number of employees", 
