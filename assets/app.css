@@ -116,3 +116,7 @@ hr {
   border-width: 0;
   border-top: 1px solid white
 }
+
+a {
+  color: white;
+}

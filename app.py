@@ -590,14 +590,13 @@ def build_tab2():
                         html.Div(
                             className="app__content",
                             children=[
-
                                 # population by age
                                 html.Div(
                                     className="one-half-tab2 column bottom__box__tab2",
+                                    id="age-div",
                                     children=[
                                         html.H4(
                                             className="graph__title",
-                                            id="age-div",
                                             children=[
                                                 html.H4(
                                                     id="age-title"),
@@ -617,10 +616,10 @@ def build_tab2():
                                 # population by household size
                                 html.Div(
                                     className="other-half-tab2 column bottom__box__tab2",
+                                    id="size-div",
                                     children=[
                                         html.H4(
                                             className="graph__title",
-                                            id="size-div",
                                             children=[
                                                 html.H4(
                                                     id="size-title"),
