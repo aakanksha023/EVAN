@@ -257,26 +257,21 @@ def build_tab1():
             html.Div(children=[
                 # histogram info
                 build_info_overlay("histogram", dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
+                                The **Industry/Type Distribution** panel displays the total count of 
+                                businesses based in Vancouver in each industry from 1997 to 2020.
+                                When you select a specific industry, it shows the distribution
+                                of business types grouped under the same industry
+                                based on North American Industry Classification System (NAICS).
                                 """)),
                 # line info
                 build_info_overlay("line", dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
+                                The **Industry/Type Trend** panel displays the total annual
+                                number of businesses based in Vancouver from 1997 to 2020
+                                in all industries. When you select an industry or business type,
+                                it shows a trend for that category specifically.
                                 """)),
             ]),
-            
+
             html.Div(
                 className="app__content",
                 children=[
@@ -889,131 +884,201 @@ def build_tab2():
 ########################################
 
 
+def build_tab3_user_control():
+    return [html.Div(
+            className="div-for-dropdown3",
+            children=[
+                dcc.Dropdown(
+                    id="localarea-dropdown3",
+                    options=[
+                        {'label': i, 'value': i}
+                        for i in localareas
+                    ],
+                    placeholder="Neighbourhood: Downtown"
+                )
+            ],
+        ),
+
+        # Business Type
+        html.Div(
+            className="div-for-dropdown3",
+            children=[
+                dcc.Dropdown(
+                    id="businesstype-dropdown3",
+                    options=[
+                        {'label': i, 'value': i}
+                        for i in businesstypes
+                    ],
+                    placeholder="Business type: Retail Dealer"
+                )
+            ],
+        ),
+
+        # History
+        html.Div(
+            className="div-for-dropdown3",
+            children=[
+                dcc.Dropdown(
+                    id="history-dropdown3",
+                    options=[
+                        {'label': 'greater than 5 years',
+                         'value': 1},
+                        {'label': 'less than 5 years',
+                         'value': 0}
+                    ],
+                    placeholder='History: greater than 5 years'
+                )
+            ],
+        ),
+
+        html.Hr(),
+
+        # Business Name
+        html.Div(
+            className="div-for-input",
+            children=[
+                dcc.Input(
+                    id="businessname-input3",
+                    type="text",
+                    placeholder="Business Name"
+                ),
+            ],
+        ),
+
+        # Latitude
+        html.Div(
+            className="div-for-input",
+            children=[
+                dcc.Input(
+                    id="lat-input3",
+                    type="number",
+                    placeholder="Latitude: 49.2822434350563"
+                )
+            ],
+        ),
+
+        # Longitude
+        html.Div(
+            className="div-for-input",
+            children=[
+                dcc.Input(
+                    id="lon-input3",
+                    type="number",
+                    placeholder="Longitude: -123.119500778402"
+                )
+            ],
+        ),
+
+        # Fee paid
+        html.Div(
+            className="div-for-input",
+            children=[
+                dcc.Input(
+                    id="fee-input3",
+                    type="number",
+                    placeholder="Fee paid (CAD): 50"
+                )
+            ],
+        ),
+
+        # Number of employees
+        html.Div(
+            className="div-for-input",
+            children=[
+                dcc.Input(
+                    id="employee-input3",
+                    type="number",
+                    placeholder="Number of employees: 5"
+                )
+            ],
+        ),
+
+        html.Hr(),
+
+        html.P(id="predict_text1"),
+
+        html.P(id="predict_text2"),
+    ]
+
 def build_tab3():
     return html.Div(
         className="app__content",
         children=[
+            html.Div(children=[
+                # model map info
+                build_info_overlay("model", dedent("""
+                                This map is designed to visualize the model
+                                performance metric \- recall score. \n
+                                When the predicted result is "will renew", all actually renewed
+                                businesses of the same type in the selected year is plotted on the map.
+                                Red points represent false negatives, whereas blue points represent
+                                true positives. \n
+                                When the predicted result is "will not renew", all actually 
+                                not renewed businesses of the same type in the selected year 
+                                is plotted on the map.
+                                Red points represent false positives, whereas blue points represent
+                                true negatives. \n
+                                The colour represents how confident the model is.
+                                The darker the colour, the higher the predicted probability.
+                                Only magnitudes matter here and negative signs are
+                                assigned for colouring.
+                                """)),
+            ]),
+            
             html.Div(
                 className="one-fourth column user__control__panel",
                 children=[
                     html.Div(
                         className="graph__container third",
                         children=[
-
-                            # Neighbourhood
-                            html.Div(
-                                className="div-for-dropdown3",
+                            
+                            dcc.Tabs(
+                                id="tab3-tabs",
                                 children=[
-                                    dcc.Dropdown(
-                                        id="localarea-dropdown3",
-                                        options=[
-                                            {'label': i, 'value': i}
-                                            for i in localareas
-                                        ],
-                                        placeholder="Neighbourhood: Downtown"
-                                    )
-                                ],
-                            ),
-
-                            # Business Type
-                            html.Div(
-                                className="div-for-dropdown3",
-                                children=[
-                                    dcc.Dropdown(
-                                        id="businesstype-dropdown3",
-                                        options=[
-                                            {'label': i, 'value': i}
-                                            for i in businesstypes
-                                        ],
-                                        placeholder="Business type: Retail Dealer"
-                                    )
-                                ],
-                            ),
-
-                            # History
-                            html.Div(
-                                className="div-for-dropdown3",
-                                children=[
-                                    dcc.Dropdown(
-                                        id="history-dropdown3",
-                                        options=[
-                                            {'label': 'greater than 5 years',
-                                             'value': 1},
-                                            {'label': 'less than 5 years',
-                                             'value': 0}
-                                        ],
-                                        placeholder='History: greater than 5 years'
-                                    )
-                                ],
-                            ),
-
-                            html.Hr(),
-
-                            # Business Name
-                            html.Div(
-                                className="div-for-input",
-                                children=[
-                                    dcc.Input(
-                                        id="businessname-input3",
-                                        type="text",
-                                        placeholder="Business Name"
+                                    
+                                    # Info tab
+                                    dcc.Tab(
+                                        label="Info",
+                                        id="info-tab",
+                                        children=[
+                                            html.H6(
+                                                className="tab3-info-titles",
+                                                children="What's on this tab?"),
+                                            html.P(
+                                                className="tab3-info-texts",
+                                                children="""
+                                                This tab allows
+                                                you to input specific information about
+                                                a business. The machine learning model will
+                                                generate a renewal probability
+                                                and model performances will be plotted
+                                                on the map.
+                                                """),
+                                            html.Hr(),
+                                            html.H6(
+                                                className="tab3-info-titles",
+                                                children="How to use this tab?"),
+                                            html.P(
+                                                className="tab3-info-texts",
+                                                children="""
+                                                You can navigate to the "Inputs" tab
+                                                and fill in neighbourhood, business type, history,
+                                                fee paid, and number of employees. If coordinates
+                                                are provided, nearby similar businesses will appear
+                                                on the map.
+                                                """),
+                                        ]
                                     ),
-                                ],
-                            ),
-
-                            # Latitude
-                            html.Div(
-                                className="div-for-input",
-                                children=[
-                                    dcc.Input(
-                                        id="lat-input3",
-                                        type="number",
-                                        placeholder="Latitude: 49.2822434350563"
+                                    
+                                    # Model Input tab
+                                    dcc.Tab(
+                                        label="Inputs",
+                                        id="model-inputs-tab",
+                                        children=
+                                            build_tab3_user_control()
                                     )
-                                ],
+                                ]
                             ),
-
-                            # Longitude
-                            html.Div(
-                                className="div-for-input",
-                                children=[
-                                    dcc.Input(
-                                        id="lon-input3",
-                                        type="number",
-                                        placeholder="Longitude: -123.119500778402"
-                                    )
-                                ],
-                            ),
-
-                            # Fee paid
-                            html.Div(
-                                className="div-for-input",
-                                children=[
-                                    dcc.Input(
-                                        id="fee-input3",
-                                        type="number",
-                                        placeholder="Fee paid (CAD): 50"
-                                    )
-                                ],
-                            ),
-
-                            # Number of employees
-                            html.Div(
-                                className="div-for-input",
-                                children=[
-                                    dcc.Input(
-                                        id="employee-input3",
-                                        type="number",
-                                        placeholder="Number of employees: 5"
-                                    )
-                                ],
-                            ),
-
-                            html.Hr(),
-
-                            html.P(id="predict_text1"),
-
-                            html.P(id="predict_text2"),
                         ]
                     )
                 ]
@@ -1021,6 +1086,7 @@ def build_tab3():
 
             html.Div(
                 className="two-fourths column map__slider__container3",
+                id="model-div",
                 children=[
                     # model map
                     dcc.Graph(id='model-map'),
@@ -1039,9 +1105,16 @@ def build_tab3():
                                     'style': {'color': 'white'}}
                                     for year in years},
                                 step=None
-                            )
+                            ),
+                            
+                            html.Img(
+                                id='show-model-modal',
+                                src="assets/question.svg",
+                                n_clicks=0,
+                                className='info-icon'
+                            ),
                         ],
-                    )
+                    ),
                 ],
             ),
 
@@ -1056,7 +1129,12 @@ def build_tab3():
                                 id='confusion-matrix',
                                 figure=confusion_matrix(),
                                 config=config
-                            )
+                            ),
+                            
+                            html.P(className="tab3-info-texts",
+                                   children="""
+                                   Current model: Light-GBM
+                                   """)
 
                         ]
                     )
@@ -1459,6 +1537,7 @@ def update_figure(SelectedIndustry,
             ),
         )
     )
+
 
 for id in ['histogram', 'line']:
     @app.callback([Output(f"{id}-modal", 'style'),
@@ -2592,9 +2671,9 @@ def update_figure3(SelectedLocalArea,
     predict_text2 = "Probability: " + str(predict_proba)
 
     if predict == 1:
-        df_tab3 = df_tab3[df_tab3.predict == 1]
+        df_tab3 = df_tab3[df_tab3.label == 1]
     else:
-        df_tab3 = df_tab3[df_tab3.predict == 0]
+        df_tab3 = df_tab3[df_tab3.label == 0]
 
     if InputLat and InputLon:
         plot_df = similar_business_df
@@ -2638,6 +2717,19 @@ def update_figure3(SelectedLocalArea,
         ),
 
     ), predict_text1, predict_text2
+
+# Create show/hide callbacks for each info modal
+for id in ['model']:
+    @app.callback([Output(f"{id}-modal", 'style'),
+                   Output(f"{id}-div", 'style')],
+                  [Input(f'show-{id}-modal', 'n_clicks'),
+                   Input(f'close-{id}-modal', 'n_clicks')])
+    def toggle_modal(n_show, n_close):
+        ctx = dash.callback_context
+        if ctx.triggered and ctx.triggered[0]['prop_id'].startswith('show-'):
+            return {"display": "block"}, {'zIndex': 1003}
+        else:
+            return {"display": "none"}, {'zIndex': 0}
 
 
 app.run_server(debug=True)
