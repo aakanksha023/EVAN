@@ -30,10 +30,12 @@ h6 {
     justify-content: center;
 }
 
+
 /* Tabs
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 #tab0.custom-tab, #tab1.custom-tab,
-#tab2.custom-tab, #tab3.custom-tab {
+#tab2.custom-tab, #tab3.custom-tab, 
+#info-tab, #model-inputs-tab {
     background-color: #f9f9f9;
     letter-spacing: 1px;
     color: #0C2343;
@@ -49,13 +51,19 @@ h6 {
     height: 18px;
 }
 
-#tab3.custom-tab {
+#info-tab, #model-inputs-tab {
+    height: 10px;
+    padding: 6% 5% 6% 5%;
+}
+
+#tab3.custom-tab, #model-inputs-tab {
     border-right: #0C2343 solid 1px !important;
 }
 
 #mainTabs.tab--selected,
 #tab0.tab--selected, #tab1.tab--selected,
-#tab2.tab--selected, #tab3.tab--selected {
+#tab2.tab--selected, #tab3.tab--selected,
+#info-tab.tab--selected, #model-inputs-tab.tab--selected {
     font-weight: bold; 
     color: #0C2343 !important;
     background-color: #B9C7E1;
@@ -97,10 +105,14 @@ h6 {
 }
 
 .div-for-slider3 {
-    width: 90%;
+    width: 99%;
     text-align: left;
     color: white;
     padding: 0px 0px 0px 0px;
+}
+
+#year-slider3 {
+    width: 85%;
 }
 
 #clearButton {
@@ -122,6 +134,17 @@ h6 {
     margin: -2.4rem 0rem 0rem 0rem;
   }
 
+.tab3-info-titles {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 5%;
+    padding: 0% 3% 0% 3%;
+}
+
+.tab3-info-texts {
+    padding: 0% 3% 0% 3%;
+}
+
 /* Graphs
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .graph__title {
@@ -141,6 +164,7 @@ h6 {
 }
 
 .map__slider__container3 {
+    height: 550px;
     margin-top: 1%;
     background-color: #52527a;
     border-radius: 0.55rem;
@@ -169,7 +193,7 @@ h6 {
     color: #ffffff;
 }
 
-.bottom__box__tab2{
+.bottom__box2{
     background-color: #52527a;
     border-radius: 0.55rem;
     padding: 10px 10px 10px 10px;
@@ -205,7 +229,7 @@ h6 {
 }
 
 .third {
-    height: 490px;
+    height: 550px;
     padding: 0px 0px 0px 0px;
     color: white;
 }
@@ -246,4 +270,8 @@ h6 {
 .modal-content > div {
     text-align: left;
     margin: 15px;
+}
+
+#show-model-modal {
+    margin-left: 50%;
 }
