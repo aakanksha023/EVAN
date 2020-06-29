@@ -1,4 +1,10 @@
 ---
+output:
+  pdf_document: default
+  html_document: default
+bibliography: project_refs.bib
+---
+---
 title: |
   | \vspace{5cm} \Large \textbf{Understanding the Evolution of Vancouver's Business Landscape}
 subtitle: |
@@ -11,12 +17,12 @@ date: "Date: 2020/06/29"
 output: pdf_document
 geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
 linkcolor: "blue"
+nocite: "@*"
 header-includes:
   - \usepackage{titling}
   - \pretitle{\begin{center}
     \includegraphics[width=7in,height=9in]{../../figures/logo.png}\LARGE\\}
   - \posttitle{\end{center}}
-bibliography: project_refs.bib
 ---
 
 \newpage
@@ -33,8 +39,9 @@ census <- read_csv("../../data/processed/census_viz.csv")
 # Executive Summary
 With a rising demand for future social services planning in Vancouver, the goal of this project is to provide data-driven strategies for individual businesses, as well as, a broader understanding of resource allocations across neighbourhoods. To achieve this, we used a wide range of machine learning methodologies to (1) develop a model to predict whether a business will renew its licence and (2) provide a geospatial summary of the business licence history and the constructed model. The predictive Light-GBM model constructed had a final accuracy of 0.58 and a recall of 0.57 (non-renewed licences). Our data pipeline has been designed with efficiency and flexibility for synthesizing diverse datasets. Thus, despite its limitations in regards to predictive capabilities, the final data product serves as a solid foundation for understanding Vancouver’s evolving business landscape.
 
+
 # Introduction
-Strategic urban planning provides a framework for achieving socio-economic objectives driven by actionable and sustainable development. Centralized city plans serve to reach these objectives through the coordination of efforts from the government, the private sector, and the community. Importantly, by planning and anticipating a community’s future needs, city leaders are better able to allocate municipal spending, mitigate potential risks, and capitalize on opportunities. 
+Strategic urban planning provides a framework for achieving socio-economic objectives driven by actionable and sustainable development[@strategicplanning]. Centralized city plans serve to reach these objectives through the coordination of efforts from the government, the private sector, and the community[@strategicplanning]. Importantly, by planning and anticipating a community’s future needs, city leaders are better able to allocate municipal spending, mitigate potential risks, and capitalize on opportunities. 
 
 Developing an effective strategic plan requires a critical assessment of a diverse set of factors, including budgetary constraints, local demand for social services, accessibility, employment, and housing. Accessible public data portals (e.g., Vancouver Open Data), in conjunction with data science techniques, represent one approach to address these demands. In particular, developing an understanding of how Vancouver’s business landscape has evolved over time can provide insight into how to efficiently allocate the city’s resources and services. 
 
@@ -110,7 +117,11 @@ grid.arrange(age, transportation, nrow = 1)
 
 There are more renewed licences than not renewed ones in the dataset, which means that we have class imbalance problem. Therefore, instead of focusing just on getting high accuracy, we were more concerned about recall score. This is because the recall score of the minority class measures the number of predicted non-renewed licences (BNR) compared to actual BNR. By avoiding situations of high accuracy but low recall, we tried to be conservative about making a false sense of success for business owners.
 
-The fact that this project by nature involves both temporal and spatial dimensions requires better representation of the available data being passed to the algorithm ([07_feature_engineering.py](https://github.com/deetken/evan/blob/master/src/03_modelling/07_feature_engineering.py)). To enrich geo-spatial configuration around businesses, we have constructed two pieces of additional information from coordinates: counts of nearby parking spaces and similar businesses. Instead of appending total parking counts in an entire neighbourhood, each business now has a unique count of nearby parking spaces within an adjustable threshold of 150 meters. Number of nearby similar businesses is meaningful to incorporate spatial correlations such as clustering. However, the current method only counts businesses with the same coordinates, for example businesses in the same building, as nearby locations and takes a very long time to run so results have been saved to files.
+```{r nearby_business, fig.cap="Nearby Similar Businesses", out.width="250px", out.height="200px", echo=FALSE, fig.align="center"}
+knitr::include_graphics("../../figures/nearby_business.png")
+```
+
+The fact that this project by nature involves both temporal and spatial dimensions requires better representation of the available data being passed to the algorithm ([07_feature_engineering.py](https://github.com/deetken/evan/blob/master/src/03_modelling/07_feature_engineering.py)). To enrich geo-spatial configuration around businesses, we have constructed two pieces of additional information from coordinates: counts of nearby parking spaces and similar businesses (Figure 2). Instead of appending total parking counts in an entire neighbourhood, each business now has a unique count of nearby parking spaces within an adjustable threshold of 150 meters. Number of nearby similar businesses is meaningful to incorporate spatial correlations such as clustering. However, the current algorithm takes a very long time to run so results have been saved to files.
 
 ```{r history, fig.cap="Number of Years Businesses have Survived", out.width="250px", out.height="200px", echo=FALSE, fig.align="center"}
 licence %>%
@@ -144,14 +155,13 @@ knitr::kable(features, caption="Example Features")
 ```
 
 
-## Possible Improvements
-While we have attempted a variety of data science techniques, there are areas we think still need further investigations. Some variables such as number of employees have many missing values, which are currently being filled by medians. While this is a sensible way to progress, using the same value reduces the predictive power of that feature. One improvement could be using year as a predictor to fit a regression model to predict the missing value. This method makes sense because the data is chronological. However, this requires fitting and tuning another model so we didn’t implement it due to the time limit. 
 
-The second improvement is how to convert characters like business type  into input acceptable by machine learning models. The method implemented is one-hot encoding which outputs the same numerical representation to the same business name. However, we are losing some information using this method. For example, we know that restaurants are more similar to cafes than gasoline stations. That information is lost after one hot encoding. Thus, one improvement  is to use natural language processing techniques that will  keep such relationships while converting  those business names into numerical representation. We didn’t implement this because this requires training another machine learning model just for one variable which might not be an important predictor. 
+## Possible future improvements
+There are several things that can be improved for the data science techniques. The first one is the way to deal with missing values. Missing values were fit using the median value of that predictor. A more rigorous approach that imputes missing values is to use co-variates such as year of renewal to predict the missing values. However, this method may also introduce added uncertainty since it requires addtional model. 
 
-The third improvement is to explore more predictive models. There are many factors that will affect business survival like global economic factors, local policies, the district demographic and they are likely to interact with each other in subtle ways that we might not have anticipated. 
-We used a tree-based model  LightGBM to deal with interactions but that might not be enough. Neural networks are  another powerful  predictive tool to  model complex relationships. The number of training examples  is not that large so the result of a complex neural network might not be very good.  Moreover, For the purpose of our project it is important to see the important features  which are harder  to achieve for neural network models.
+The second improvement is how to convert characters like business type into input acceptable by machine learning models. The method implemented is one-hot encoding which outputs the same numerical representation to the same business name. However, this method loses the similarity between business type. For example, restaurants are more similar to cafes than gasoline stations. That information is lost after one hot encoding. Thus, one improvement  is to use natural language processing techniques that will keep such relationships after converted into numerical representation. Training a natural language techniques will takes time to train and tune thus it is not implemented due to time limit.
 
+The third improvement is to explore more predictive models. There are many factors that will affect business survival like global economic factors, local policies, the district demographic. Those factors are likely to interact with each other in subtle ways that are not captured by current tree-based model. Neural network is a powerful predictive tool to model complex relationships. For this project, it is important to interpret the model to find out important predictors which is harder to achieve for a neural network.
 
 # Data Product and Results
 The final data product consists of a fully-reproducible machine learning model pipeline and a visualization dashboard with the model embedded. The entire pipeline along with usage instructions and commands required to host the Dash dashboard are documented in the project's private GitHub repository. Currently the dashboard is only available to be viewed locally, but it can be easily deployed to Heroku or other cloud servers if public sharing is needed in the future.
@@ -200,13 +210,7 @@ The dashboard along with the machine learning models provide a tool for people t
 
 The major limitation faced by our model is the poor accuracy and recall scores, which makes it unsuitable for reliably predicting whether a business will renew its licence. Currently, our model lacks deterministic factors specific to individual businesses; however, we have designed our pipeline to efficiently unify data from a variety of sources, allowing flexibility in adding new attributes. As such, our model pipeline and associated geospatial visualization serve as a great basis for understanding the evolution of Vancouver’s business landscape which Deetken can utilize and further enhancing through the incorporation of additional datasets. 
 
-# References
+\newpage
 
-@opendata; 
-@tidyverse; @datatable; @docoptR; @rgdal; @timevis; @leaflet;
-@vanderplas2018altair; @python3; @docoptpython; @numpy; @pandas;
-@pedregosa2011scikit; @michael_waskom_2017_883859; @shapely2007;
-@aho1991algorithms; @jordahl2014geopandas; @bray2014javascript;
-@dash; @joblib; @eli5; @json5; @lightgbm; @progressbar2;
-@requests; @shap; @zipp;
+# References
 

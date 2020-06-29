@@ -38,11 +38,36 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
   bar = txtProgressBar(max = 10, style = 3)
   setTxtProgressBar(bar, 0)
   
+  # set column specifications
+  col_types <- cols(FOLDERYEAR = col_double(),
+                    LicenceRSN = col_double(),
+                    LicenceNumber = col_character(),
+                     LicenceRevisionNumber = col_character(),
+                     BusinessName = col_character(),
+                     BusinessTradeName = col_character(),
+                     Status = col_character(),
+                     IssuedDate = col_date(format = ""),
+                     ExpiredDate = col_date(format = ""),
+                     BusinessType = col_character(),
+                     BusinessSubType = col_character(),
+                     Unit = col_character(),
+                     UnitType = col_character(),
+                     House = col_character(),
+                     Street = col_character(),
+                     City = col_character(),
+                     Province = col_character(),
+                     Country = col_character(),
+                     PostalCode = col_character(),
+                     LocalArea = col_character(),
+                     NumberofEmployees = col_character(),
+                     FeePaid = col_double(),
+                     ExtractDate = col_datetime(format = ""),
+                     Geom = col_character())
   # open raw csv files
-  csv1 <- (read_delim(paste0(filepath_in, "/", filename_1), delim = ";")) %>% 
+  csv1 <- (read_delim(paste0(filepath_in, "/", filename_1), delim = ";", col_types = col_types)) %>% 
     suppressWarnings()
   setTxtProgressBar(bar, 1)
-  csv2 <- suppressWarnings(read_delim(paste0(filepath_in, "/", filename_2), delim = ";")) %>% 
+  csv2 <- suppressWarnings(read_delim(paste0(filepath_in, "/", filename_2), delim = ";", col_types = col_types)) %>% 
     suppressWarnings()
   setTxtProgressBar(bar, 2)
 

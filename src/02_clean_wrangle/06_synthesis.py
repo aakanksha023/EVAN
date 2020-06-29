@@ -34,6 +34,21 @@ opt = docopt(__doc__)
 def main(path_in, save_to):
 
     ####################
+    #Helper function for defensive programming
+    ####################
+
+    def check_columns(df, col_lis):
+        """
+        This function check is the dataframe 
+        have all the columns required
+        """
+        assert type(col_lis) == list, 'The col_lis should be a list'
+        if not set(col_lis).issubset(set(df.columns)):
+            return False
+        return True
+
+
+    ####################
     # Licence Cleaning # - for modelling
     ####################
 
@@ -44,8 +59,7 @@ def main(path_in, save_to):
     licence_df = licence_df[licence_df.Status == 'Issued']
 
     # 2. Filter out unused columns
-    cols_not_used = ['LicenceRSN',
-                     'LicenceNumber',
+    cols_not_used = ['LicenceNumber',
                      'LicenceRevisionNumber',
                      'IssuedDate',
                      'ExpiredDate',
@@ -92,6 +106,10 @@ def main(path_in, save_to):
             df: The expanded dataframe
 
         """
+        assert ~(df.empty), 'Input dataframe is empty'
+        assert check_columns(df, ['LocalArea']), 'Input dataframe should have LocalArea column'
+        assert start_year<end_year, 'Start year should be smaller than end year'
+        assert 0<start_year and 0<end_year, 'Start year and end year should be positive number'
 
         df = df[~((
             df.LocalArea == 'Vancouver CMA') | (
@@ -121,6 +139,12 @@ def main(path_in, save_to):
             family: A cleaned pandas dataframe
 
         """
+        assert check_columns(family, ['Type', 'LocalArea',
+                         'Without children at home',
+                         '1 child',
+                         '2 children',
+                         '3 or more children']), 'Input dataframe does not have all columns required'
+
         family = family[family['Type'] == 'total couples']
 
         family['Without children at home'] = family[
@@ -155,6 +179,10 @@ def main(path_in, save_to):
             language: A cleaned pandas dataframe
 
         """
+        assert check_columns(language, ['Type', 'LocalArea','English', 'French', 'Chinese, n.o.s.',
+                'Mandarin', 'Cantonese', 'Italian',
+                'German', 'Spanish']), 'Input dataframe does not have all columns required'
+
         # only keeping their mother tongue
         language = language[language['Type'] == 'mother tongue - total']
 
@@ -194,6 +222,9 @@ def main(path_in, save_to):
             marital: A cleaned pandas dataframe
 
         """
+        assert check_columns(marital, ['LocalArea',
+                           'Married or living with a or common-law partner',
+                           'Not living with a married spouse or common-law partner']), 'Input dataframe does not have all columns required'
 
         marital['Married or living with a or common-law partner'] = marital[
             'Married or living with a or common-law partner'] / \
@@ -226,6 +257,8 @@ def main(path_in, save_to):
             age: A cleaned pandas dataframe
 
         """
+        assert check_columns(age, ['Type']), 'Input dataframe does not have all columns required'
+
         age = age[age['Type'] == 'total']
 
         age['age below 20'] = (age[
@@ -260,7 +293,7 @@ def main(path_in, save_to):
         return age
 
     def clean_gender(gender, start_year, end_year):
-
+        
         gender = gender.iloc[:, 1:4].pivot(
             index='LocalArea', columns='Type', values='Total'
         ).reset_index()
@@ -276,6 +309,10 @@ def main(path_in, save_to):
         return gender
 
     def clean_visible_minority(mino, start_year, end_year):
+        
+        assert check_columns(mino, ['LocalArea',  'Not a visible minority',
+                     'Total visible minority population']), 'Input dataframe does not have all columns required'
+
 
         if start_year == 2007:
             mino = mino[mino.Type == 'Total']
@@ -298,6 +335,9 @@ def main(path_in, save_to):
         return mino
 
     def clean_structural_dwelling_type(dwel, start_year, end_year):
+
+        assert check_columns(dwel, ['LocalArea',  'Single-detached house', 'Semi-detached house',
+                     'Row house', 'Total']), 'Input dataframe does not have all columns required'
 
         dwel['dwelling_House'] = (dwel['Single-detached house'] +
                                   dwel['Semi-detached house'] +
@@ -362,6 +402,11 @@ def main(path_in, save_to):
         return shel
 
     def clean_lone_parent(lone, start_year, end_year):
+        
+        assert check_columns(lone, ['LocalArea', 'Female parent', 'Male parent',
+                     'Total lone-parent families']), 'Input dataframe does not have all columns required'
+
+
         lone['Female lone parent'] = lone[
             'Female parent'] / lone['Total lone-parent families']
         lone['Male lone parent'] = lone[
@@ -375,7 +420,9 @@ def main(path_in, save_to):
         return lone
 
     def clean_imgra_period(im_p, start_year, end_year):
-        # note that start year should only be 1997 or 2002 or 2007 or 2012
+       
+        assert start_year in [1997, 2002, 2007, 2012], 'start year should only be 1997 or 2002 or 2007 or 2012'
+
         if start_year == 1997:
             col_names = ['LocalArea',
                          'Total immigrant population',
@@ -494,6 +541,9 @@ def main(path_in, save_to):
 
     def clean_imgra_age(img_age, start_year, end_year):
 
+        assert check_columns(img_age, ['Under 5 years', '5 to 14 years', '15 to 24 years',
+                     '25 to 44 years', '45 years and over']), 'Input dataframe does not have all columns required'
+
         img_age.rename(
             columns={'Under 5 years': 'Immigrants under 5 years',
                      '5 to 14 years': 'Immigrants 5 to 14 years',
@@ -532,6 +582,11 @@ def main(path_in, save_to):
         return ind
 
     def clean_labour_force_status(labour, start_year, end_year):
+
+        assert check_columns(labour, ['Type', 'LocalArea',
+                         'Employment rate',
+                         'Unemployment rate']), 'Input dataframe does not have all columns required'
+
         labour = labour[labour['Type'] == 'Total']
 
         labour = labour[['LocalArea',
@@ -542,6 +597,7 @@ def main(path_in, save_to):
         return labour
 
     def clean_mobility(mob, start_year, end_year):
+
 
         mob['total'] = mob[
             'Non-movers 1 yr ago'] + mob[
@@ -563,6 +619,9 @@ def main(path_in, save_to):
         return mob
 
     def clean_occupation(occ, start_year, end_year):
+        
+        assert check_columns(occ, ['Type','All occupations']), 'Input dataframe does not have all columns required'
+
 
         occ['total'] = occ[
             list(occ.columns)[3]] + occ[list(occ.columns)[4]]
@@ -583,6 +642,9 @@ def main(path_in, save_to):
 
     def clean_time_worked(tw, start_year, end_year):
 
+        assert check_columns(tw, ['Type']), 'Input dataframe does not have all columns required'
+
+
         tw = tw.query('Type == "Total"')
         col_lis = list(tw.columns)[4:6]
 
@@ -599,6 +661,9 @@ def main(path_in, save_to):
 
     def clean_transport_mode(trans, start_year, end_year):
 
+        assert check_columns(trans, ['Type']), 'Input dataframe does not have all columns required'
+
+
         trans = trans.query('Type == "Total"')
 
         cols = list(trans.columns)[4:]
@@ -613,6 +678,8 @@ def main(path_in, save_to):
         return trans
 
     def clean_workplace_status(wp, start_year, end_year):
+
+        assert check_columns(wp, ['Type']), 'Input dataframe does not have all columns required'
 
         wp = wp.query('Type == "Total"')
 
@@ -665,6 +732,10 @@ def main(path_in, save_to):
         return education
 
     def clean_immigration_birth_place(im_birth, start_year, end_year):
+
+        assert check_columns(im_birth, ['LocalArea',  'Non-immigrants','Non-permanent residents',
+                   'Immigrants']), 'Input dataframe does not have all columns required'
+
 
         if start_year == 2007:
             im_birth = im_birth.query('Type == "Total"')
