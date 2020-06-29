@@ -523,67 +523,20 @@ def build_tab2():
                 # summary of local demographics
                 dcc.Tab(label='PEOPLE', children=[
                         html.Div(
+                            id="info-overlay",
                             children=[
                                 # age graph info
-                                build_info_overlay('age', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('age', ""),
                                 # household size graph info
-                                build_info_overlay('size', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('size', ""),
                                 # language table info
-                                build_info_overlay('lang', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('lang', ""),
                                 # ethnicity table info
-                                build_info_overlay('eth', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('eth', ""),
                                 # education graph info
-                                build_info_overlay('edu', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('edu', ""),
                                 # occupation industry info
-                                build_info_overlay('occ', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('occ', ""),
                             ]
                         ),
 
@@ -1555,8 +1508,6 @@ for id in ['histogram', 'line']:
 ########################################
 
 # Define callback to update vancouver map
-
-
 @app.callback(
     Output('van_map', 'figure'),
     [Input('van_map', 'clickData')])
@@ -1612,9 +1563,164 @@ def update_van_map(clickData):
 
     return graph_map
 
+# update graph info overlay by local area + year
+@app.callback(
+    Output("info-overlay", 'children'),
+    [Input('van_map', 'clickData'),
+     Input('year_slider_census', 'value')])
+def update_people_overlay(clickData, year):
+    # select nearest census year
+    if year <= 2003:
+        census_year = 2001
+    elif year <= 2008:
+        census_year = 2006
+    elif year <= 2013:
+        census_year = 2011
+    else:
+        census_year = 2016
+
+    # select local area
+    if clickData is not None:
+        area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+    
+    if census_year != 2011:
+        data_source = dedent(f"""
+            The data source for this graph is the [**{census_year} Canadian
+            Census**](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-{census_year}/information/),
+            hosted on the City of Vancouver’s [Open Data
+            Portal](https://opendata.vancouver.ca/pages/home/).
+            """)
+    else:
+        data_source = dedent(f"""
+            The data source for this graph is the [**{census_year} Canadian
+            Census**](https://opendata.vancouver.ca/explore/dataset/census-local-area-profiles-{census_year}/information/)
+            and the [**2011 National Household Survey (NHS)**
+            ](https://www12.statcan.gc.ca/nhs-enm/2011/dp-pd/prof/index.cfm?Lang=E).
+            These datasets are hosted on the City of Vancouver’s [Open Data
+            Portal](https://opendata.vancouver.ca/pages/home/) and the 
+            [Statistics Canada](https://www.statcan.gc.ca/eng/start) website,
+            respectively.
+            """)
+    
+    deselect_info = dedent(f"""
+        If you would like to view just the information for {area}, you can
+        deselect the "City of Vancouver" by clicking on its legend entry.""")
+
+    reset_info = dedent("""
+        To reset the map and deselect the neighbourhood,
+        click on the ***Clear Neighbourhood Selection*** button
+        located in the top right hand corner of the page.
+        """)
+
+    if clickData is not None:
+        children=[
+            # age graph info
+            build_info_overlay('age', ((dedent(f"""
+            This graph shows the **Age Distribution** of the population in 
+            **{area}** (blue line). To provide a baseline comparison, the age 
+            distribution for the City of Vancouver is also displayed (grey line).
+            """) + deselect_info + reset_info + data_source
+            ))),
+            # household size graph info
+            build_info_overlay('size', ((dedent(f"""
+            This graph shows the distribution of **Household Size** for the 
+            population in **{area}** (blue); where 'Household size' refers
+            to the number of persons in a private household. To provide a baseline
+            comparison, the age distribution for the City of Vancouver is also 
+            displayed (grey).
+            """) + deselect_info + reset_info + data_source
+            ))),
+            # language table info
+            build_info_overlay('lang', ((dedent(f"""
+            This table shows the top five **Mother Tongue 
+            Languages** spoken by residents in **{area}**. Here 'Mother tongue'
+            refers to the first language learned at home in childhood and still 
+            understood by the person at the time the data was collected. To provide
+            a baseline comparison, the percentages for the City of Vancouver are 
+            also displayed.
+            """) + reset_info + data_source
+            ))),
+            # ethnicity table info
+            build_info_overlay('eth', ((dedent(f"""
+            This table shows the top five **Ethnic Origins** of the population in 
+            **{area}**. To provide a baseline comparison, the percentages for the
+            City of Vancouver are also displayed.
+            """) + reset_info + data_source
+            ))),
+            # education graph info
+            build_info_overlay('edu', ((dedent(f"""
+            This graph shows the distribution of the **Highest Level 
+            of Education Received** for persons aged 15 years and 
+            over in **{area}** (blue). To provide a baseline comparison,
+            the distribution for the City of Vancouver is also displayed 
+            (grey).
+            """) + deselect_info + reset_info + data_source
+            ))),
+            # occupation industry info
+            build_info_overlay('occ', ((dedent(f"""
+            This graph shows the distribution of the **Occupation
+            Industries** for all employed persons in **{area}** (blue).
+            To provide a baseline comparison, the distribution for the 
+            City of Vancouver is also displayed (grey).
+            """) + deselect_info + reset_info + data_source
+            ))),]
+    else:
+        children=[
+            # age graph info
+            build_info_overlay('age', ((dedent(f"""
+            This graph shows the **Age Distribution** for the population of 
+            the **{area}**. Here, the City of Vancouver is defined as the total
+            area of the combined 22 local neighbourhoods.
+            """) + data_source
+            ))),
+            # household size graph info
+            build_info_overlay('size', ((dedent(f"""
+            This graph shows the distribution of **Household Size** for the 
+            population of the **{area}**; where 'Household size' refers
+            to the number of persons in a private household. Here, the City
+            of Vancouver is defined as the total area of the combined 22 local
+            neighbourhoods.
+            """) + data_source
+            ))),
+            # language table info
+            build_info_overlay('lang', ((dedent(f"""
+            This table shows the top five **Mother Tongue 
+            Languages** spoken by residents in the **{area}**. Here 
+            'Mother tongue' refers to the first language learned at 
+            home in childhood and still understood by the person at 
+            the time the data was collected.
+            """) + data_source
+            ))),
+            # ethnicity table info
+            build_info_overlay('eth', ((dedent(f"""
+            This table shows the top five **Ethnic Origins** of the 
+            population in the **{area}**. Here, the City of Vancouver 
+            is defined as the total area of the combined 22 local
+            neighbourhoods.
+            """) + data_source
+            ))),
+            # education graph info
+            build_info_overlay('edu', ((dedent(f"""
+            This graph shows the distribution of the **Highest Level 
+            of Education Received** for persons aged 15 years and 
+            over in the **{area}**. Here, the City of Vancouver is defined as 
+            the total area of the combined 22 local neighbourhoods.
+            """) + data_source
+            ))),
+            # occupation industry info
+            build_info_overlay('occ', ((dedent(f"""
+            This graph shows the distribution of the **Occupation
+            Industries** for all employed persons in the **{area}**. Here,
+            the City of Vancouver is defined as the total
+            area of the combined 22 local neighbourhoods.
+            """) + data_source
+            ))),]
+
+    return children
+    
 # update education graph by local area
-
-
 @app.callback(
     [Output("edu-title", 'children'),
      Output("edu_graph", 'figure')],
@@ -1692,8 +1798,6 @@ def update_edu(clickData, year):
     return title, fig
 
 # update occupation graph by local area and year
-
-
 @app.callback(
     [Output("occ-title", 'children'),
      Output("occ_graph", 'figure')],
@@ -2143,8 +2247,6 @@ def update_eth(clickData, year):
     return title, fig
 
 # update housing tenure graph by local area and year
-
-
 @app.callback(
     [Output("tenure-title", 'children'),
      Output("tenure_graph", 'figure')],
@@ -2209,8 +2311,6 @@ def update_tenure(clickData, year):
     return title, fig
 
 # update dwelling type graph by local area and year
-
-
 @app.callback(
     [Output("dwelling-title", 'children'),
      Output("dwelling_graph", 'figure')],
@@ -2292,8 +2392,6 @@ def update_dwelling(clickData, year):
     return title, fig
 
 # update transportation graph by local area and year
-
-
 @app.callback(
     [Output("transport-title", 'children'),
      Output("transport_graph", 'figure')],
@@ -2454,7 +2552,6 @@ def update_parking(clickData):
 
     return title, fig
 
-
 @app.callback(
     Output('summary_info', 'children'),
     [Input('van_map', 'clickData'),
@@ -2516,10 +2613,10 @@ def update_side_bar(clickData, year):
                 className="graph__container fourth",
                 children=[
                     html.H6("Vancouver Neighbourhood:",
-                            style={"marginBottom": 0}),
-                    html.H3(area.upper(),
-                            style={"marginTop": 0,
-                                   "marginBottom": 0}),
+                    style={"marginBottom": 0}),
+                    html.H3(area.upper(), 
+                    style={"marginTop": 0,
+                           "marginBottom": 0}),
                 ], style={"textAlign": "center",
                           "fontFamily": "sans-serif"}
             ),
@@ -2529,8 +2626,7 @@ def update_side_bar(clickData, year):
                     html.H3(f'{pop:,}', style={"marginBottom": 0}),
                     html.H6("Residents in " + str(census_year)),
                     html.H3(f'{age_frac:.1%}', style={"marginBottom": 0}),
-                    html.H6(age_group + " Years of Age",
-                            style={"marginTop": 0}),
+                    html.H6(age_group + " Years of Age", style={"marginTop": 0}),
                     html.H3(f'{biz_num:,}', style={"marginBottom": 0}),
                     html.H6("Businesses in " + str(year)),
                 ], style={"textAlign": "center",
@@ -2543,16 +2639,15 @@ def update_side_bar(clickData, year):
 
 # reset the selections
 @app.callback(Output('van_map', 'clickData'),
-              [Input('clearButton', 'n_clicks')])
+             [Input('clearButton', 'n_clicks')])
 def reset_selection(n_clicks):
     return None
 
-
 # Create show/hide callbacks for each info modal
-for id in ['age', 'size', 'eth', 'lang', 'edu',
+for id in ['age', 'size', 'eth', 'lang', 'edu', 
            'occ', 'tenure', 'dwelling', 'transport',
            'parking']:
-    @app.callback([Output(f"{id}-modal", 'style'),
+    @app.callback([Output(f"{id}-modal", 'style'), 
                    Output(f"{id}-div", 'style')],
                   [Input(f'show-{id}-modal', 'n_clicks'),
                    Input(f'close-{id}-modal', 'n_clicks')])
