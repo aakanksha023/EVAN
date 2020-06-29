@@ -87,5 +87,5 @@ def test_fun(file_path, urls):
 
 
 if __name__ == "__main__":
-    test_fun(opt["--file_path"], opt["--urls"])
     main(opt["--file_path"], opt["--urls"])
+    test_fun(opt["--file_path"], opt["--urls"])
