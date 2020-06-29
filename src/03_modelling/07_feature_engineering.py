@@ -24,6 +24,7 @@ from collections import Counter
 import warnings
 
 warnings.filterwarnings("ignore")
+pd.options.mode.chained_assignment = None
 
 opt = docopt(__doc__)
 
