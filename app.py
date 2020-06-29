@@ -44,7 +44,7 @@ server = app.server
 # READ-IN DATASETS                                                            #
 ###############################################################################
 
-df = pd.read_csv("data/processed/census_viz.csv")
+census = pd.read_csv("data/processed/census_viz.csv")
 parking_df = gpd.read_file("data/processed/vis_parking.csv")
 licence = pd.read_csv("data/processed/vis_licence.csv")
 boundary_df = gpd.read_file("data/raw/local_area_boundary.geojson"
@@ -148,6 +148,7 @@ def confusion_matrix():
 ###############################################################################
 
 
+# Business licence wrangling
 licence = licence[licence.Status == 'Issued']
 
 industries = licence.BusinessIndustry.unique()
@@ -160,6 +161,92 @@ for i in agg_licence.BusinessIndustry.unique():
     bt_lookup[i] = list(agg_licence.loc[
         agg_licence.BusinessIndustry == i].BusinessType.unique())
 bt_lookup['allindustry'] = businesstypes
+
+# wrangle for choropleth (for future implementations)
+number_of_businesses = licence.groupby(
+    'LocalArea')['BusinessName'].apply(
+    lambda x: np.log(len(x.unique())))
+boundary_df = boundary_df.merge(pd.DataFrame(
+    number_of_businesses).reset_index(), how="left", on='LocalArea')
+
+# Census Dataset Wrangling
+edu_df = census[['LocalArea', 'Year',
+                 'University',
+                 'College',
+                 'Apprenticeship/Trades',
+                 'High school',
+                 'No certificate/diploma']]
+
+occ_df = census[['LocalArea', 'Year',
+                 'Management',
+                 'Business and finance',
+                 'Natural and applied sciences',
+                 'Health',
+                 'Social Science and education',
+                 'Art',
+                 'Sales and service',
+                 'Trades and transport',
+                 'Natural resources and agriculture',
+                 'Manufacturing and utilities',
+                 'Occupations n/a']]
+occ_df = occ_df.rename(columns={'Occupations n/a': 'Other'})
+
+age_df = census[['LocalArea', 'Year',
+                 'Under 20',
+                 '20 to 34',
+                 '35 to 44',
+                 '45 to 54',
+                 '55 to 64',
+                 '65 to 79',
+                 '80 and Older']]
+
+size_df = census[['LocalArea',
+                  'Year',
+                  '1 person',
+                  '2 persons',
+                  '3 persons',
+                  '4 to 5 persons',
+                  '6+ persons']]
+
+lang = census[['LocalArea', 'Year', 'English', 'French',
+               'Chinese languages', 'Tagalog (Filipino)',
+               'Panjabi (Punjabi)', 'Italian', 'German',
+               'Spanish', 'Vietnamese', 'Korean language',
+               'Hindi', 'Persian (Farsi)']]
+lang = lang.rename(columns={'Chinese languages': 'Chinese',
+                            'Korean language': 'Korean'})
+
+eth = census[['LocalArea', 'Year', 'Caucasian', 'Arab', 'Black',
+              'Chinese', 'Filipino', 'Japanese', 'Korean',
+              'Latin American', 'West Asian', 'South Asian',
+              'Southeast Asian']]
+
+tenure_df = census[['LocalArea', 'Year',
+                    'Owned',
+                    'Rented']]
+
+dwel_df = census[['LocalArea',
+                  'Year',
+                  'Apartment (<5 storeys)',
+                  'Apartment (5+ storeys)',
+                  'House']]
+
+trans_df = census[['LocalArea',
+                   'Year',
+                   'car as driver',
+                   'car as passenger',
+                   'public transportation',
+                   'walked',
+                   'bicycle',
+                   'other transportation']]
+trans_df = trans_df.rename(columns={'car as driver': 'Car, as Driver',
+                                    'car as passenger': 'Car, as Passenger',
+                                    'public transportation': 'Public Transportation',
+                                    'walked': 'Walk',
+                                    'bicycle': 'Bicycle',
+                                    'other transportation': 'Other'})
+
+park = parking_df[['LocalArea', 'coord-x', 'coord-y']]
 
 list_of_neighbourhoods = {
     'Arbutus-Ridge': {'lat': 49.254093, 'lon': -123.160461},
@@ -186,13 +273,7 @@ list_of_neighbourhoods = {
     'West Point Grey': {'lat': 49.268244, 'lon': -123.202815},
 }
 
-# wrangle for choropleth (for future implementations)
-number_of_businesses = licence.groupby(
-    'LocalArea')['BusinessName'].apply(
-    lambda x: np.log(len(x.unique())))
-boundary_df = boundary_df.merge(pd.DataFrame(
-    number_of_businesses).reset_index(), how="left", on='LocalArea')
-
+# Main app colour scheme
 colors = {
     'ubc': 'rgb(82, 82, 122)',  # UBC logo color 52527a
     'deetken': 'rgb(180, 197, 228)',  # Deetken logo color 7c99d0
@@ -200,14 +281,17 @@ colors = {
     'green3': 'rgb(117, 163, 129)'
 }
 
-# plotly graph config
+# Plotly graph config
 config = {'displayModeBar': False, 'scrollZoom': False}
 
-#################################
-# Descriptive Chart Information #
-#################################
 
 
+###############################################################################
+# HELPER FUNCTIONS                                                            #
+###############################################################################
+
+
+# Descriptive modal overlay for the graphs
 def build_info_overlay(id, content):
     """
     Build div representing the info overlay for a plot panel
@@ -225,7 +309,6 @@ def build_info_overlay(id, content):
                         style={'margin': 0},
                     ),
                 ], style={'color': 'white'}),
-
                 dcc.Markdown(
                     content
                 ),
@@ -240,6 +323,35 @@ def build_info_overlay(id, content):
     )
 
     return div
+
+
+# Get nearest census year and local area
+def get_year_area(year, clickData):
+    # select nearest census year
+    if year <= 2003:
+        census_year = 2001
+    elif year <= 2008:
+        census_year = 2006
+    elif year <= 2013:
+        census_year = 2011
+    else:
+        census_year = 2016
+
+    # select local area
+    if clickData is not None:
+        area = (clickData['points'][0]['location'])
+    else:
+        area = 'City of Vancouver'
+
+    return census_year, area
+
+
+# Filter dataset by area and year, and melt
+def get_filter_melt(df, census_year, area):
+    df_filtered = df[(df.Year == census_year) & (df.LocalArea == area)]
+    df_filtered = df_filtered.melt(id_vars=['LocalArea', 'Year'])
+    return df_filtered
+
 
 ###############################################################################
 # LAYOUT                                                                      #
@@ -1542,21 +1654,8 @@ def update_van_map(clickData):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_people_overlay(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    # select local area
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    census_year, area = get_year_area(year, clickData)
 
     if census_year != 2011:
         data_source = dedent(f"""
@@ -1752,42 +1851,19 @@ def update_people_overlay(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_edu(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    # select local area
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     # Set graph title
     title = ("Highest Level of Education Achieved, in " + str(census_year))
 
-    edu_df = df[['LocalArea', 'Year',
-                 'University',
-                 'College',
-                 'Apprenticeship/Trades',
-                 'High school',
-                 'No certificate/diploma']]
-
-    van_df = edu_df.copy()
-    edu_df = edu_df[(edu_df.Year == census_year) & (edu_df.LocalArea == area)]
-    edu_df = edu_df.melt(id_vars=['LocalArea', 'Year'],
-                         var_name='Education',
-                         value_name='Percent of Total Population')
+    df = get_filter_melt(edu_df, census_year, area)
 
     fig = go.Figure(
         data=go.Bar(
-            x=edu_df["Education"],
-            y=edu_df['Percent of Total Population']*100,
+            x=df["variable"],
+            y=df["value"]*100,
             name=area,
             marker_color='#19B1BA',
             hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
@@ -1797,17 +1873,12 @@ def update_edu(clickData, year):
             plot_bgcolor=colors['purple2']))
 
     if clickData is not None:
-        van_df = van_df[(
-            van_df.Year == census_year) & (
-            van_df.LocalArea == 'City of Vancouver')]
-        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
-                             var_name='Education',
-                             value_name='Percent of Total Population')
+        van_df = get_filter_melt(edu_df, census_year, 'City of Vancouver')
 
         fig.add_trace(
             go.Bar(
-                x=van_df["Education"],
-                y=van_df['Percent of Total Population']*100,
+                x=van_df["variable"],
+                y=van_df['value']*100,
                 name='City of Vancouver',
                 marker_color='#afb0b3',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>",
@@ -1831,51 +1902,21 @@ def update_edu(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_occ(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    # select local area
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     # Set graph title
     title = (
         str(area) + "'s Distribution of Occupation Industries, in " + str(census_year))
 
-    occ_df = df[['LocalArea', 'Year',
-                 'Management',
-                 'Business and finance',
-                 'Natural and applied sciences',
-                 'Health',
-                 'Social Science and education',
-                 'Art',
-                 'Sales and service',
-                 'Trades and transport',
-                 'Natural resources and agriculture',
-                 'Manufacturing and utilities',
-                 'Occupations n/a']]
-    occ_df = occ_df.rename(columns={'Occupations n/a': 'Other'})
-
-    occ_df = occ_df[(occ_df.Year == census_year) & (occ_df.LocalArea == area)]
-    occ_df = occ_df.melt(id_vars=['LocalArea', 'Year'],
-                         var_name='Industry',
-                         value_name='Percent of Employed Population')
-    occ_df = occ_df.sort_values(
-        'Percent of Employed Population', ascending=False)
+    df = get_filter_melt(occ_df, census_year, area)
+    df = df.sort_values('value', ascending=False)
 
     fig = go.Figure(
         data=go.Bar(
-            y=occ_df["Industry"],
-            x=occ_df['Percent of Employed Population']*100,
+            y=df["variable"],
+            x=df['value']*100,
             orientation='h',
             name=area,
             marker_color='#19B1BA',
@@ -1903,8 +1944,8 @@ def update_occ(clickData, year):
                 showarrow=False,
                 font=dict(color=colors['ubc']),
             )
-            for xi, yi in zip(occ_df['Percent of Employed Population'],
-                              occ_df['Industry'])
+            for xi, yi in zip(df['value'],
+                              df['variable'])
         ],)
 
     return title, fig
@@ -1917,42 +1958,19 @@ def update_occ(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_age(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     # Set graph title
     title = ("Age Distribution of Population, in " + str(census_year))
 
-    age_df = df[['LocalArea', 'Year',
-                 'Under 20',
-                 '20 to 34',
-                 '35 to 44',
-                 '45 to 54',
-                 '55 to 64',
-                 '65 to 79',
-                 '80 and Older']]
-    van_df = age_df.copy()
-    age_df = age_df[(age_df.Year == census_year) & (age_df.LocalArea == area)]
-    age_df = age_df.melt(id_vars=['LocalArea', 'Year'],
-                         var_name='Age',
-                         value_name='Population')
+    df = get_filter_melt(age_df, census_year, area)
 
     fig = go.Figure(
         data=go.Scatter(
-            x=age_df['Age'],
-            y=age_df['Population']*100,
+            x=df['variable'],
+            y=df['value']*100,
             mode='lines+markers',
             marker=dict(
                 color='#19B1BA',
@@ -1968,16 +1986,12 @@ def update_age(clickData, year):
             plot_bgcolor=colors['purple2']))
 
     if clickData is not None:
-        van_df = van_df[(
-            van_df.Year == census_year) & (
-            van_df.LocalArea == 'City of Vancouver')]
-        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
-                             var_name='Age',
-                             value_name='Population')
+        van_df = df = get_filter_melt(age_df, census_year, "City of Vancouver")
+
         fig.add_trace(
             go.Scatter(
-                x=van_df['Age'],
-                y=van_df['Population']*100,
+                x=van_df['variable'],
+                y=van_df['value']*100,
                 mode='lines+markers',
                 marker=dict(
                     color='#afb0b3',
@@ -2006,42 +2020,19 @@ def update_age(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_size(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     # Set graph title
     title = ("Household Size, in " + str(census_year))
 
-    size_df = df[['LocalArea',
-                  'Year',
-                  '1 person',
-                  '2 persons',
-                  '3 persons',
-                  '4 to 5 persons',
-                  '6+ persons']]
-    van_df = size_df.copy()
-    size_df = size_df[(size_df.Year == census_year)
-                      & (size_df.LocalArea == area)]
-    size_df = size_df.melt(id_vars=['LocalArea', 'Year'],
-                           var_name='Household Size',
-                           value_name='Percent of Total Population')
+    df = get_filter_melt(size_df, census_year, area)
 
     fig = go.Figure(
         data=go.Bar(
-            x=size_df["Household Size"],
-            y=size_df['Percent of Total Population']*100,
+            x=df["variable"],
+            y=df['value']*100,
             name=area,
             marker_color='#19B1BA',
             hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
@@ -2051,17 +2042,12 @@ def update_size(clickData, year):
             plot_bgcolor=colors['purple2']))
 
     if clickData is not None:
-        van_df = van_df[(
-            van_df.Year == census_year) & (
-            van_df.LocalArea == 'City of Vancouver')]
-        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
-                             var_name='Household Size',
-                             value_name='Percent of Total Population')
+        van_df = get_filter_melt(size_df, census_year, "City of Vancouver")
 
         fig.add_trace(
             go.Bar(
-                x=van_df["Household Size"],
-                y=van_df['Percent of Total Population']*100,
+                x=van_df["variable"],
+                y=van_df['value']*100,
                 name='City of Vancouver',
                 marker_color='#afb0b3',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
@@ -2086,44 +2072,24 @@ def update_size(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_lang(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    lang = df[['LocalArea', 'Year', 'English', 'French',
-               'Chinese languages', 'Tagalog (Filipino)',
-               'Panjabi (Punjabi)', 'Italian', 'German',
-               'Spanish', 'Vietnamese', 'Korean language',
-               'Hindi', 'Persian (Farsi)']]
-    lang = lang.rename(columns={'Chinese languages': 'Chinese',
-                                'Korean language': 'Korean'})
-
-    # update local area
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     # Set graph title
     title = ("Language Composition, in " + str(census_year))
 
     # filter data frame by area and year
-    lang = lang[(lang.Year == census_year) & (
+    df = lang[(lang.Year == census_year) & (
         lang.LocalArea.isin([area, 'City of Vancouver']))]
-    lang.drop(columns=['Year'], inplace=True)
-    lang.set_index('LocalArea', inplace=True)
-    lang = lang.T
+    df.drop(columns=['Year'], inplace=True)
+    df.set_index('LocalArea', inplace=True)
+    df = df.T
 
     # select the top 5 most common languages
-    lang = lang.sort_values(by=[area], ascending=False)
-    lang.reset_index(inplace=True)
-    lang = lang[0:5].copy()
+    df = df.sort_values(by=[area], ascending=False)
+    df.reset_index(inplace=True)
+    df = df[0:5].copy()
 
     # format long neighbourhood names
     name_area = re.sub(r"-", "-<br>", area)
@@ -2141,10 +2107,10 @@ def update_lang(clickData, year):
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
-                    cells=dict(values=[lang['index'],
-                                       round(lang[area]*100, 2),
+                    cells=dict(values=[df['index'],
+                                       round(df[area]*100, 2),
                                        round(
-                                           lang['City of Vancouver']*100, 2)],
+                                           df['City of Vancouver']*100, 2)],
                                fill=dict(color=['white']),
                                suffix=['', '%'],
                                align=['center'],
@@ -2165,8 +2131,8 @@ def update_lang(clickData, year):
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
-                    cells=dict(values=[lang['index'],
-                                       round(lang[area]*100, 2)],
+                    cells=dict(values=[df['index'],
+                                       round(df[area]*100, 2)],
                                fill=dict(color=['white']),
                                suffix=['', '%'],
                                align=['center'],
@@ -2187,41 +2153,24 @@ def update_lang(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_eth(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    eth = df[['LocalArea', 'Year', 'Caucasian', 'Arab', 'Black',
-              'Chinese', 'Filipino', 'Japanese', 'Korean',
-              'Latin American', 'West Asian', 'South Asian',
-              'Southeast Asian']]
-
-    # update local area
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     # Set graph title
     title = ("Ethnic Composition, in " + str(census_year))
 
     # filter data frame by area and year
-    eth = eth[(eth.Year == census_year) & (
+    df = eth[(eth.Year == census_year) & (
         eth.LocalArea.isin([area, 'City of Vancouver']))]
-    eth.drop(columns=['Year'], inplace=True)
-    eth.set_index('LocalArea', inplace=True)
-    eth = eth.T
+    df.drop(columns=['Year'], inplace=True)
+    df.set_index('LocalArea', inplace=True)
+    df = df.T
 
     # select the top 5 most common ethnicities
-    eth = eth.sort_values(by=[area], ascending=False)
-    eth.reset_index(inplace=True)
-    eth = eth[0:5].copy()
+    df = df.sort_values(by=[area], ascending=False)
+    df.reset_index(inplace=True)
+    df = df[0:5].copy()
 
     # format long neighbourhood names
     name_area = re.sub(r"-", "-<br>", area)
@@ -2239,9 +2188,9 @@ def update_eth(clickData, year):
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
-                    cells=dict(values=[eth['index'],
-                                       round(eth[area]*100, 2),
-                                       round(eth['City of Vancouver']*100, 2)],
+                    cells=dict(values=[df['index'],
+                                       round(df[area]*100, 2),
+                                       round(df['City of Vancouver']*100, 2)],
                                fill=dict(color=['white']),
                                suffix=['', '%'],
                                align=['center'],
@@ -2262,7 +2211,7 @@ def update_eth(clickData, year):
                         align=['center'],
                         font=dict(color='white', size=22),
                         height=40),
-                    cells=dict(values=[eth['index'], round(eth[area]*100, 2)],
+                    cells=dict(values=[df['index'], round(df[area]*100, 2)],
                                fill=dict(color=['white']),
                                suffix=['', '%'],
                                align=['center'],
@@ -2283,41 +2232,22 @@ def update_eth(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_tenure(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     # Set graph title
     title = (str(area) + "'s Housing Tenure Distribution, in " + str(census_year))
 
-    tenure_df = df[['LocalArea', 'Year',
-                    'Owned',
-                    'Rented']]
-
-    tenure_df = tenure_df[(tenure_df.Year == census_year)
-                          & (tenure_df.LocalArea == area)]
-    tenure_df = tenure_df.melt(id_vars=['LocalArea', 'Year'],
-                               var_name='Tenure',
-                               value_name='Percent of Housing')
+    df = get_filter_melt(tenure_df, census_year, area)
 
     colours = ['forestgreen',
                '#19B1BA']
 
     fig = go.Figure(
         data=go.Pie(
-            labels=tenure_df["Tenure"],
-            values=tenure_df['Percent of Housing'],
+            labels=df["variable"],
+            values=df['value'],
             textinfo='label+percent',
             textfont=dict(
                 size=20,
@@ -2348,43 +2278,19 @@ def update_tenure(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_dwelling(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    area = 'City of Vancouver'
-
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     # Set graph title
     title = ("Distribution of Dwelling Types, in " + str(census_year))
 
-    dwel_df = df[['LocalArea',
-                  'Year',
-                  'Apartment (<5 storeys)',
-                  'Apartment (5+ storeys)',
-                  'House']]
-
-    van_df = dwel_df.copy()
-    dwel_df = dwel_df[(dwel_df.Year == census_year)
-                      & (dwel_df.LocalArea == area)]
-    dwel_df = dwel_df.melt(id_vars=['LocalArea', 'Year'],
-                           var_name='Dwelling Type',
-                           value_name='Percent of Total Dwellings')
+    df = get_filter_melt(dwel_df, census_year, area)
 
     fig = go.Figure(
         data=go.Bar(
-            x=dwel_df['Dwelling Type'],
-            y=dwel_df['Percent of Total Dwellings']*100,
+            x=df['variable'],
+            y=df['value']*100,
             name=area,
             marker_color='#19B1BA',
             hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
@@ -2394,17 +2300,12 @@ def update_dwelling(clickData, year):
             plot_bgcolor=colors['purple2']))
 
     if clickData is not None:
-        van_df = van_df[(
-            van_df.Year == census_year) & (
-            van_df.LocalArea == 'City of Vancouver')]
-        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
-                             var_name='Dwelling Type',
-                             value_name='Percent of Total Dwellings')
+        van_df = get_filter_melt(dwel_df, census_year, "City of Vancouver")
 
         fig.add_trace(
             go.Bar(
-                x=van_df['Dwelling Type'],
-                y=van_df['Percent of Total Dwellings']*100,
+                x=van_df['variable'],
+                y=van_df['value']*100,
                 name='City of Vancouver',
                 marker_color='#afb0b3',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
@@ -2430,51 +2331,20 @@ def update_dwelling(clickData, year):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_transport(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
 
-    if clickData is not None:
-        area = (clickData['points'][0]['location'])
-    else:
-        area = 'City of Vancouver'
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     # Set graph title
     title = (
         "Dominant Form of Transportation used by Residents, in " + str(census_year))
 
-    trans_df = df[['LocalArea',
-                   'Year',
-                   'car as driver',
-                   'car as passenger',
-                   'public transportation',
-                   'walked',
-                   'bicycle',
-                   'other transportation']]
-    trans_df = trans_df.rename(columns={'car as driver': 'Car, as Driver',
-                                        'car as passenger': 'Car, as Passenger',
-                                        'public transportation': 'Public Transportation',
-                                        'walked': 'Walk',
-                                        'bicycle': 'Bicycle',
-                                        'other transportation': 'Other'})
-
-    van_df = trans_df.copy()
-    trans_df = trans_df[(trans_df.Year == census_year)
-                        & (trans_df.LocalArea == area)]
-    trans_df = trans_df.melt(id_vars=['LocalArea', 'Year'],
-                             var_name='Transport Type',
-                             value_name='Percent of Total Population')
+    df = get_filter_melt(trans_df, census_year, area)
 
     fig = go.Figure(
         data=go.Bar(
-            x=trans_df['Transport Type'],
-            y=trans_df['Percent of Total Population']*100,
+            x=df['variable'],
+            y=df['value']*100,
             name=area,
             marker_color='#19B1BA',
             hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
@@ -2484,17 +2354,12 @@ def update_transport(clickData, year):
             plot_bgcolor=colors['purple2']))
 
     if clickData is not None:
-        van_df = van_df[(
-            van_df.Year == census_year) & (
-            van_df.LocalArea == 'City of Vancouver')]
-        van_df = van_df.melt(id_vars=['LocalArea', 'Year'],
-                             var_name='Transport Type',
-                             value_name='Percent of Total Population')
+        van_df = get_filter_melt(trans_df, census_year, area)
 
         fig.add_trace(
             go.Bar(
-                x=van_df['Transport Type'],
-                y=van_df['Percent of Total Population']*100,
+                x=van_df['variable'],
+                y=van_df['value']*100,
                 name='City of Vancouver',
                 marker_color='#afb0b3',
                 hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
@@ -2511,9 +2376,8 @@ def update_transport(clickData, year):
 
     return title, fig
 
+
 # update parking graph by local area
-
-
 @app.callback(
     [Output("parking-title", 'children'),
      Output("parking_graph", 'figure')],
@@ -2522,13 +2386,13 @@ def update_parking(clickData):
     latInitial = 49.252
     lonInitial = -123.140
     zoom = 10.7
-    park = parking_df[['LocalArea', 'coord-x', 'coord-y']]
+    df = park.copy()
 
     # zoom in for selected neighbourhood
     if clickData is not None:
         area = (clickData['points'][0]['location'])
         zoom = 12
-        park = park[
+        df = park[
             park.LocalArea == area]
         latInitial = list_of_neighbourhoods[
             area]['lat']
@@ -2539,12 +2403,12 @@ def update_parking(clickData):
         title = ("City of Vancouver's Metered Street Parking, in 2019")
 
     # get count of parking spots
-    num = len(park['coord-x'])
+    num = len(df['coord-x'])
 
     fig = go.Figure(
         data=go.Scattermapbox(
-            lat=park['coord-y'],
-            lon=park['coord-x'],
+            lat=df['coord-y'],
+            lon=df['coord-x'],
             mode="markers",
             hoverinfo="none",
             marker=dict(
@@ -2590,25 +2454,17 @@ def update_parking(clickData):
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_side_bar(clickData, year):
-    # select nearest census year
-    if year <= 2003:
-        census_year = 2001
-    elif year <= 2008:
-        census_year = 2006
-    elif year <= 2013:
-        census_year = 2011
-    else:
-        census_year = 2016
+
+    # Get census year and local area
+    census_year, area = get_year_area(year, clickData)
 
     if clickData is not None:
-        area = (clickData['points'][0]['location'])
         biz_df = agg_licence[(agg_licence.FOLDERYEAR == year)
                              & (agg_licence.LocalArea == area)]
         biz_num = pd.DataFrame(
             biz_df.groupby(['LocalArea', 'FOLDERYEAR'])[
                 'business_id'].sum()).reset_index()
     else:
-        area = 'City of Vancouver'
         biz_df = agg_licence[(agg_licence.FOLDERYEAR == year)]
         biz_num = pd.DataFrame(
             biz_df.groupby(['FOLDERYEAR'])[
@@ -2617,27 +2473,16 @@ def update_side_bar(clickData, year):
     # calculate number of businesses
     biz_num = biz_num.business_id[0]
 
-    # calculate total population
-    pop_df = df[['LocalArea', 'Year', 'Age_total']]
+    # Calculate total population
+    pop_df = census[['LocalArea', 'Year', 'Age_total']]
     pop_df = pop_df[(pop_df.Year == census_year) & (pop_df.LocalArea == area)]
     pop = int(pop_df.Age_total)
 
-    # calculate dominate age group
-    age_df = df[['LocalArea', 'Year',
-                 'Under 20',
-                 '20 to 34',
-                 '35 to 44',
-                 '45 to 54',
-                 '55 to 64',
-                 '65 to 79',
-                 '80 and Older']]
-    age_df = age_df[(age_df.Year == census_year) & (age_df.LocalArea == area)]
-    age_df = age_df.melt(id_vars=['LocalArea', 'Year'],
-                         var_name='Age',
-                         value_name='Population')
-    age = age_df[age_df.Population == age_df.Population.max()].reset_index()
-    age_frac = age.Population[0]
-    age_group = age.Age[0]
+    # Calculate dominant age group
+    age = get_filter_melt(age_df, census_year, area)
+    age = age[age.value == age.value.max()].reset_index()
+    age_frac = age.value[0]
+    age_group = age.variable[0]
 
     # format html output for the summary stats
     sum_info = html.Div(
@@ -2698,9 +2543,8 @@ for id in ['age', 'size', 'eth', 'lang', 'edu',
 # TAB 3 - UPDATES                      #
 ########################################
 
+
 # update map
-
-
 @app.callback(
     [Output('model-map', 'figure'),
      Output('predict_text1', 'children'),
