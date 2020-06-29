@@ -27,7 +27,8 @@ Options:
 suppressPackageStartupMessages({
   library(tidyverse)
   library(docopt)
-  library(data.table)})
+  library(data.table)
+  library(compare)})
 set.seed(2020)
 
 opt <- docopt(doc)
@@ -74,10 +75,17 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
   # combine the raw csv datasets
   combined_df <- csv1 %>% rbind(csv2)
 
+  ## Asserting correct number of rows after combining license datasets
+  row_1 = nrow(csv1)
+  row_2 = nrow(csv2)
+  row_3 = nrow(combined_df)
+  stopifnot("Incorrect binding of licenses csv"= row_3 == (row_1 + row_2))
+
   # group by business name + location
   combined_grouped_df <- combined_df %>%
     group_by(BusinessName, PostalCode, LocalArea, City, BusinessTradeName) %>%
     mutate(business_id = group_indices())
+  stopifnot("Incorrect number of rows after grouping"= nrow(combined_grouped_df) == row_3)  
   setTxtProgressBar(bar, 3)
 
   # reorder columns
@@ -100,17 +108,32 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
   test_valid_ids <- setdiff(1:length(ids), train_ids)
   test_ids <- sample(test_valid_ids, 0.7 * length(test_valid_ids), replace = FALSE)
   valid_ids <- setdiff(test_valid_ids, test_ids)
+  stopifnot("Incorrect splitting of ids"= length(ids) == (length(train_ids)+length(test_ids)+length(valid_ids)))
   setTxtProgressBar(bar, 6)
   
   dt <- as.data.table(combined_grouped_df)
   train_dt <- dt %>%
     filter(business_id %in% train_ids)
+  #stopifnot("Incorrect binding of licenses csv"= nrow(train_dt) == 0.7 * length(ids))
   setTxtProgressBar(bar, 7)
   valid_dt <- dt %>%
     filter(business_id %in% valid_ids)
   setTxtProgressBar(bar, 8)
   test_dt <- dt %>%
     filter(business_id %in% test_ids)
+  
+  ## Assert to check for duplicate ids in train test and valid
+  id_1 <- train_dt$business_id
+  id_2 <- valid_dt$business_id
+  id_3 <- test_dt$business_id
+
+  ## Check_n[1] output will be false if no common ids
+  check_1 <- compare(id_1,id_2,allowAll=TRUE)
+  check_2 <- compare(id_1,id_3,allowAll=TRUE)
+  check_3 <- compare(id_2,id_3,allowAll=TRUE)
+  stopifnot("Train and Validation set can not have duplicate ids"= check_1[1] == FALSE)
+  stopifnot("Train and Test set can not have duplicate ids"= check_2[1] == FALSE)
+  stopifnot("Validation and Test set can not have duplicate ids"= check_3[1] == FALSE)
   setTxtProgressBar(bar, 9)
 
   # write csv files to filepath
