@@ -117,7 +117,11 @@ grid.arrange(age, transportation, nrow = 1)
 
 There are more renewed licences than not renewed ones in the dataset, which means that we have class imbalance problem. Therefore, instead of focusing just on getting high accuracy, we were more concerned about recall score. This is because the recall score of the minority class measures the number of predicted non-renewed licences (BNR) compared to actual BNR. By avoiding situations of high accuracy but low recall, we tried to be conservative about making a false sense of success for business owners.
 
-The fact that this project by nature involves both temporal and spatial dimensions requires better representation of the available data being passed to the algorithm ([07_feature_engineering.py](https://github.com/deetken/evan/blob/master/src/03_modelling/07_feature_engineering.py)). To enrich geo-spatial configuration around businesses, we have constructed two pieces of additional information from coordinates: counts of nearby parking spaces and similar businesses. Instead of appending total parking counts in an entire neighbourhood, each business now has a unique count of nearby parking spaces within an adjustable threshold of 150 meters. Number of nearby similar businesses is meaningful to incorporate spatial correlations such as clustering. However, the current method only counts businesses with the same coordinates, for example businesses in the same building, as nearby locations and takes a very long time to run so results have been saved to files.
+```{r nearby_business, fig.cap="Nearby Similar Businesses", out.width="250px", out.height="200px", echo=FALSE, fig.align="center"}
+knitr::include_graphics("../../figures/nearby_business.png")
+```
+
+The fact that this project by nature involves both temporal and spatial dimensions requires better representation of the available data being passed to the algorithm ([07_feature_engineering.py](https://github.com/deetken/evan/blob/master/src/03_modelling/07_feature_engineering.py)). To enrich geo-spatial configuration around businesses, we have constructed two pieces of additional information from coordinates: counts of nearby parking spaces and similar businesses (Figure 2). Instead of appending total parking counts in an entire neighbourhood, each business now has a unique count of nearby parking spaces within an adjustable threshold of 150 meters. Number of nearby similar businesses is meaningful to incorporate spatial correlations such as clustering. However, the current algorithm takes a very long time to run so results have been saved to files.
 
 ```{r history, fig.cap="Number of Years Businesses have Survived", out.width="250px", out.height="200px", echo=FALSE, fig.align="center"}
 licence %>%
@@ -205,6 +209,8 @@ Another potential improvement for data products is to include a video demo that 
 The dashboard along with the machine learning models provide a tool for people to explore the business survival in different local areas. It shows the change of distribution of different business types in each district so it can aid the decision on municipal spending. Moreover, the machine learning algorithm can predict the probability of a certain business surviving in an area that can help the business owner by letting them know the risk before they invest their time and money. 
 
 The major limitation faced by our model is the poor accuracy and recall scores, which makes it unsuitable for reliably predicting whether a business will renew its licence. Currently, our model lacks deterministic factors specific to individual businesses; however, we have designed our pipeline to efficiently unify data from a variety of sources, allowing flexibility in adding new attributes. As such, our model pipeline and associated geospatial visualization serve as a great basis for understanding the evolution of Vancouver’s business landscape which Deetken can utilize and further enhancing through the incorporation of additional datasets. 
+
+\newpage
 
 # References
 
