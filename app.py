@@ -285,7 +285,6 @@ colors = {
 config = {'displayModeBar': False, 'scrollZoom': False}
 
 
-
 ###############################################################################
 # HELPER FUNCTIONS                                                            #
 ###############################################################################
@@ -352,6 +351,121 @@ def get_filter_melt(df, census_year, area):
     df_filtered = df_filtered.melt(id_vars=['LocalArea', 'Year'])
     return df_filtered
 
+
+# Create Tables for census data visualization
+def build_table(df, col_name, area, census_year, clickData):
+
+    # filter by area and year
+    df_filtered = df[(df.Year == census_year) & (
+        df.LocalArea.isin([area, 'City of Vancouver']))]
+    df_filtered.drop(columns=['Year'], inplace=True)
+    df_filtered.set_index('LocalArea', inplace=True)
+    df_filtered = df_filtered.T
+
+    # select the top 5 values
+    df_filtered = df_filtered.sort_values(by=[area], ascending=False)
+    df_filtered.reset_index(inplace=True)
+    df_filtered = df_filtered[0:5].copy()
+
+    # format long neighbourhood names
+    name_area = re.sub(r"-", "-<br>", area)
+
+    if clickData is not None:
+        # format results in table
+        fig = go.Figure(
+            data=[
+                go.Table(
+                    header=dict(
+                        values=[col_name,
+                                (name_area.upper() + "<br>(% of population)"),
+                                'CITY OF VANCOUVER<br>(% of population)'],
+                        fill_color=colors['deetken'],
+                        align=['center'],
+                        font=dict(color='white', size=22),
+                        height=40),
+                    cells=dict(
+                        values=[df_filtered['index'],
+                                round(df_filtered[area]*100, 2),
+                                round(df_filtered[
+                                    'City of Vancouver']*100, 2)],
+                        fill=dict(color=['white']),
+                        suffix=['', '%'],
+                        align=['center'],
+                        font_size=20,
+                        height=35)
+                )
+            ]
+        )
+    else:
+        # format results in table
+        fig = go.Figure(
+            data=[
+                go.Table(
+                    header=dict(
+                        values=[col_name,
+                                (area.upper() + "<br>(% of population)")],
+                        fill_color=colors['deetken'],
+                        align=['center'],
+                        font=dict(color='white', size=22),
+                        height=40),
+                    cells=dict(
+                        values=[df_filtered['index'],
+                                round(df_filtered[area]*100, 2)],
+                        fill=dict(color=['white']),
+                        suffix=['', '%'],
+                        align=['center'],
+                        font_size=20,
+                        height=35)
+                )
+            ]
+        )
+    fig.update_layout(
+        height=300,
+        margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
+
+    return fig
+
+# Create bar graph for census data visualization
+def build_bar(df, census_year, area, clickData, xaxis, yaxis, range=None):
+    
+    area_df = get_filter_melt(df, census_year, area)
+
+    fig = go.Figure(
+        data=go.Bar(
+            x=area_df['variable'],
+            y=area_df['value']*100,
+            name=area,
+            marker_color='#19B1BA',
+            hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
+        layout=go.Layout(
+            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
+            template='simple_white',
+            plot_bgcolor=colors['purple2']))
+
+    if clickData is not None:
+        van_df = get_filter_melt(df, census_year, "City of Vancouver")
+
+        fig.add_trace(
+            go.Bar(
+                x=van_df['variable'],
+                y=van_df['value']*100,
+                name='City of Vancouver',
+                marker_color='#afb0b3',
+                hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
+            ))
+
+    fig.update_layout(
+        barmode='group',
+        xaxis_title=xaxis,
+        yaxis_title=yaxis,
+        showlegend=True,
+        legend=dict(x=1, y=1, xanchor="right",
+                    bgcolor=colors['purple2']),
+        height=350)
+    if range:
+        fig.update_yaxes(range=range)
+
+    return fig
 
 ###############################################################################
 # LAYOUT                                                                      #
@@ -1685,54 +1799,53 @@ def update_people_overlay(clickData, year):
         click on the ***Clear Neighbourhood Selection*** button
         located in the top right hand corner of the page.
         """)
+    
+    base_line = dedent("""
+    To provide a baseline comparison, the distribution for the City of 
+    Vancouver is also displayed (grey).
+    """)
+
+    van_def = dedent("""
+    Here, the City of Vancouver is defined as the total
+    area of the combined 22 local neighbourhoods.
+    """)
 
     if clickData is not None:
         people_info = [
             # age graph info
             build_info_overlay('age', ((dedent(f"""
             This graph shows the **Age Distribution** of the population in
-            **{area}** (blue line). To provide a baseline comparison, the age
-            distribution for the City of Vancouver is also displayed
-            (grey line).
-            """) + deselect_info + reset_info + data_source))),
+            **{area}** (blue line)."""
+            ) + base_line + deselect_info + reset_info + data_source))),
             # household size graph info
             build_info_overlay('size', ((dedent(f"""
             This graph shows the distribution of **Household Size** for the
             population in **{area}** (blue); where 'Household size' refers
-            to the number of persons in a private household. To provide a
-            baseline comparison, the age distribution for the City of Vancouver
-            is also displayed (grey).
-            """) + deselect_info + reset_info + data_source))),
+            to the number of persons in a private household."""
+            ) + base_line + deselect_info + reset_info + data_source))),
             # language table info
             build_info_overlay('lang', ((dedent(f"""
             This table shows the top five **Mother Tongue
             Languages** spoken by residents in **{area}**. Here 'Mother tongue'
             refers to the first language learned at home in childhood and still
-            understood by the person at the time the data was collected. To
-            provide a baseline comparison, the percentages for the City of
-            Vancouver are also displayed.
-            """) + reset_info + data_source))),
+            understood by the person at the time the data was collected."""
+            ) + base_line + reset_info + data_source))),
             # ethnicity table info
             build_info_overlay('eth', ((dedent(f"""
             This table shows the top five **Ethnic Origins** of the population
-            in **{area}**. To provide a baseline comparison, the percentages
-            for the City of Vancouver are also displayed.
-            """) + reset_info + data_source))),
+            in **{area}**."""
+            ) + base_line + reset_info + data_source))),
             # education graph info
             build_info_overlay('edu', ((dedent(f"""
             This graph shows the distribution of the **Highest Level
             of Education Received** for persons aged 15 years and
-            over in **{area}** (blue). To provide a baseline comparison,
-            the distribution for the City of Vancouver is also displayed
-            (grey).
-            """) + deselect_info + reset_info + data_source))),
+            over in **{area}** (blue)."""
+            ) + base_line + deselect_info + reset_info + data_source))),
             # occupation industry info
             build_info_overlay('occ', ((dedent(f"""
             This graph shows the distribution of the **Occupation
-            Industries** for all employed persons in **{area}** (blue).
-            To provide a baseline comparison, the distribution for the
-            City of Vancouver is also displayed (grey).
-            """) + deselect_info + reset_info + data_source))),
+            Industries** for all employed persons in **{area}** (blue)."""
+            ) + base_line + deselect_info + reset_info + data_source))),
         ]
 
         infra_info = [
@@ -1744,16 +1857,13 @@ def update_people_overlay(clickData, year):
             # Dwelling type graph info
             build_info_overlay('dwelling', ((dedent(f"""
             This graph shows the distribution of **Dwelling Types** in
-            **{area}** (blue). To provide a baseline comparison, the
-            distribution for the City of Vancouver is also displayed (grey).
-            """) + deselect_info + reset_info + data_source))),
+            **{area}** (blue)."""
+            ) + base_line + deselect_info + reset_info + data_source))),
             # Transportation graph info
             build_info_overlay('transport', ((dedent(f"""
             This graph shows the distribution of the **Dominant Mode of
-            Transportation** for all residents in **{area}** (blue).
-            To provide a baseline comparison, the distribution for the
-            City of Vancouver is also displayed (grey).
-            """) + deselect_info + reset_info + data_source))),
+            Transportation** for all residents in **{area}** (blue)."""
+            ) + base_line + deselect_info + reset_info + data_source))),
             # parking meters map info
             build_info_overlay('parking', ((dedent(f"""
             This graph shows the locations and count of the **Metered
@@ -1771,17 +1881,13 @@ def update_people_overlay(clickData, year):
             # age graph info
             build_info_overlay('age', ((dedent(f"""
             This graph shows the **Age Distribution** for the population of
-            the **{area}**. Here, the City of Vancouver is defined as the total
-            area of the combined 22 local neighbourhoods.
-            """) + data_source))),
+            the **{area}**.""") + van_def + data_source))),
             # household size graph info
             build_info_overlay('size', ((dedent(f"""
             This graph shows the distribution of **Household Size** for the
             population of the **{area}**; where 'Household size' refers
-            to the number of persons in a private household. Here, the City
-            of Vancouver is defined as the total area of the combined 22 local
-            neighbourhoods.
-            """) + data_source))),
+            to the number of persons in a private household."""
+            ) + van_def + data_source))),
             # language table info
             build_info_overlay('lang', ((dedent(f"""
             This table shows the top five **Mother Tongue
@@ -1793,42 +1899,36 @@ def update_people_overlay(clickData, year):
             # ethnicity table info
             build_info_overlay('eth', ((dedent(f"""
             This table shows the top five **Ethnic Origins** of the
-            population in the **{area}**. Here, the City of Vancouver
-            is defined as the total area of the combined 22 local
-            neighbourhoods.
-            """) + data_source))),
+            population in the **{area}**."""
+            ) + van_def + data_source))),
             # education graph info
             build_info_overlay('edu', ((dedent(f"""
             This graph shows the distribution of the **Highest Level
             of Education Received** for persons aged 15 years and
-            over in the **{area}**. Here, the City of Vancouver is defined as
-            the total area of the combined 22 local neighbourhoods.
-            """) + data_source))),
+            over in the **{area}**."""
+            ) + van_def + data_source))),
             # occupation industry info
             build_info_overlay('occ', ((dedent(f"""
             This graph shows the distribution of the **Occupation
-            Industries** for all employed persons in the **{area}**. Here,
-            the City of Vancouver is defined as the total
-            area of the combined 22 local neighbourhoods.
-            """) + data_source))),
+            Industries** for all employed persons in the **{area}**."""
+            ) + van_def + data_source))),
         ]
 
         infra_info = [
             # housing tenure pie chart info
             build_info_overlay('tenure', ((dedent(f"""
             This graph shows the proportion of the population in the **{area}**
-            who **own** their dwelling vs. those who **rent** their dwelling.
-            """) + data_source))),
+            who **own** their dwelling vs. those who **rent** their dwelling."""
+            ) + van_def + data_source))),
             # Dwelling type graph info
             build_info_overlay('dwelling', ((dedent(f"""
             This graph shows the distribution of **Dwelling Types** in
-            the **{area}**.
-            """) + data_source))),
+            the **{area}**.""") + van_def + data_source))),
             # Transportation graph info
             build_info_overlay('transport', ((dedent(f"""
             This graph shows the distribution of the **Dominant Mode of
-            Transportation** for all residents in the **{area}**.
-            """) + data_source))),
+            Transportation** for all residents in the **{area}**."""
+            ) + van_def + data_source))),
             # parking meters map info
             build_info_overlay('parking', ((dedent(f"""
             This graph shows the locations and count of the **Metered
@@ -1858,39 +1958,13 @@ def update_edu(clickData, year):
     # Set graph title
     title = ("Highest Level of Education Achieved, in " + str(census_year))
 
-    df = get_filter_melt(edu_df, census_year, area)
-
-    fig = go.Figure(
-        data=go.Bar(
-            x=df["variable"],
-            y=df["value"]*100,
-            name=area,
-            marker_color='#19B1BA',
-            hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
-        layout=go.Layout(
-            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
-            template='simple_white',
-            plot_bgcolor=colors['purple2']))
-
-    if clickData is not None:
-        van_df = get_filter_melt(edu_df, census_year, 'City of Vancouver')
-
-        fig.add_trace(
-            go.Bar(
-                x=van_df["variable"],
-                y=van_df['value']*100,
-                name='City of Vancouver',
-                marker_color='#afb0b3',
-                hovertemplate="%{x}: %{y:.1f}%<extra></extra>",
-            ))
-
-    fig.update_layout(
-        barmode='group',
-        yaxis={'title': "Percent of Total Population"},
-        xaxis_title="Level of Education",
-        showlegend=True,
-        legend=dict(x=1, y=1, xanchor="right", bgcolor=colors['purple2']),
-        height=350)
+    # create bar graph
+    fig = build_bar(edu_df, 
+                    census_year,
+                    area,
+                    clickData,
+                    "Level of Education", 
+                    "Percent of Total Population")
 
     return title, fig
 
@@ -2027,40 +2101,13 @@ def update_size(clickData, year):
     # Set graph title
     title = ("Household Size, in " + str(census_year))
 
-    df = get_filter_melt(size_df, census_year, area)
-
-    fig = go.Figure(
-        data=go.Bar(
-            x=df["variable"],
-            y=df['value']*100,
-            name=area,
-            marker_color='#19B1BA',
-            hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
-        layout=go.Layout(
-            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
-            template='simple_white',
-            plot_bgcolor=colors['purple2']))
-
-    if clickData is not None:
-        van_df = get_filter_melt(size_df, census_year, "City of Vancouver")
-
-        fig.add_trace(
-            go.Bar(
-                x=van_df["variable"],
-                y=van_df['value']*100,
-                name='City of Vancouver',
-                marker_color='#afb0b3',
-                hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
-            ))
-
-    fig.update_layout(
-        barmode='group',
-        xaxis_title="Household Size",
-        yaxis_title="Percent of Total Population",
-        showlegend=True,
-        legend=dict(x=1, y=1, xanchor="right",
-                    bgcolor=colors['purple2']),
-        height=350)
+    # Create bar graph
+    fig = build_bar(size_df, 
+                    census_year,
+                    area,
+                    clickData,
+                    "Household Size", 
+                    "Percent of Total Population")
 
     return title, fig
 
@@ -2079,70 +2126,9 @@ def update_lang(clickData, year):
     # Set graph title
     title = ("Language Composition, in " + str(census_year))
 
-    # filter data frame by area and year
-    df = lang[(lang.Year == census_year) & (
-        lang.LocalArea.isin([area, 'City of Vancouver']))]
-    df.drop(columns=['Year'], inplace=True)
-    df.set_index('LocalArea', inplace=True)
-    df = df.T
+    # Create table
+    fig = build_table(lang, "LANGUAGES", area, census_year, clickData)
 
-    # select the top 5 most common languages
-    df = df.sort_values(by=[area], ascending=False)
-    df.reset_index(inplace=True)
-    df = df[0:5].copy()
-
-    # format long neighbourhood names
-    name_area = re.sub(r"-", "-<br>", area)
-
-    if clickData is not None:
-        # format results in table
-        fig = go.Figure(
-            data=[
-                go.Table(
-                    header=dict(
-                        values=['LANGUAGES',
-                                (name_area.upper() + "<br>(% of population)"),
-                                'CITY OF VANCOUVER<br>(% of population)'],
-                        fill_color=colors['deetken'],
-                        align=['center'],
-                        font=dict(color='white', size=22),
-                        height=40),
-                    cells=dict(values=[df['index'],
-                                       round(df[area]*100, 2),
-                                       round(
-                                           df['City of Vancouver']*100, 2)],
-                               fill=dict(color=['white']),
-                               suffix=['', '%'],
-                               align=['center'],
-                               font_size=20,
-                               height=35)
-                )
-            ]
-        )
-    else:
-        # format results in table
-        fig = go.Figure(
-            data=[
-                go.Table(
-                    header=dict(
-                        values=['LANGUAGES',
-                                (area.upper() + "<br>(% of population)")],
-                        fill_color=colors['deetken'],
-                        align=['center'],
-                        font=dict(color='white', size=22),
-                        height=40),
-                    cells=dict(values=[df['index'],
-                                       round(df[area]*100, 2)],
-                               fill=dict(color=['white']),
-                               suffix=['', '%'],
-                               align=['center'],
-                               font_size=20,
-                               height=35)
-                )
-            ]
-        )
-    fig.update_layout(height=300,
-                      margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
     return title, fig
 
 
@@ -2160,68 +2146,9 @@ def update_eth(clickData, year):
     # Set graph title
     title = ("Ethnic Composition, in " + str(census_year))
 
-    # filter data frame by area and year
-    df = eth[(eth.Year == census_year) & (
-        eth.LocalArea.isin([area, 'City of Vancouver']))]
-    df.drop(columns=['Year'], inplace=True)
-    df.set_index('LocalArea', inplace=True)
-    df = df.T
+    # Create table
+    fig = build_table(eth, "ETHNICITIES", area, census_year, clickData)
 
-    # select the top 5 most common ethnicities
-    df = df.sort_values(by=[area], ascending=False)
-    df.reset_index(inplace=True)
-    df = df[0:5].copy()
-
-    # format long neighbourhood names
-    name_area = re.sub(r"-", "-<br>", area)
-
-    if clickData is not None:
-        # format results in table
-        fig = go.Figure(
-            data=[
-                go.Table(
-                    header=dict(
-                        values=['ETHNICITIES',
-                                (name_area.upper() + "<br>(% of population)"),
-                                'CITY OF VANCOUVER<br>(% of population)'],
-                        fill_color=colors['deetken'],
-                        align=['center'],
-                        font=dict(color='white', size=22),
-                        height=40),
-                    cells=dict(values=[df['index'],
-                                       round(df[area]*100, 2),
-                                       round(df['City of Vancouver']*100, 2)],
-                               fill=dict(color=['white']),
-                               suffix=['', '%'],
-                               align=['center'],
-                               font_size=20,
-                               height=35)
-                )
-            ]
-        )
-    else:
-        # format results in table
-        fig = go.Figure(
-            data=[
-                go.Table(
-                    header=dict(
-                        values=['ETHNICITIES',
-                                (name_area.upper() + "<br>(% of population)")],
-                        fill_color=colors['deetken'],
-                        align=['center'],
-                        font=dict(color='white', size=22),
-                        height=40),
-                    cells=dict(values=[df['index'], round(df[area]*100, 2)],
-                               fill=dict(color=['white']),
-                               suffix=['', '%'],
-                               align=['center'],
-                               font_size=20,
-                               height=35)
-                )
-            ]
-        )
-    fig.update_layout(height=300,
-                      margin={'l': 10, 'r': 10, 't': 10, 'b': 10})
     return title, fig
 
 
@@ -2285,41 +2212,14 @@ def update_dwelling(clickData, year):
     # Set graph title
     title = ("Distribution of Dwelling Types, in " + str(census_year))
 
-    df = get_filter_melt(dwel_df, census_year, area)
-
-    fig = go.Figure(
-        data=go.Bar(
-            x=df['variable'],
-            y=df['value']*100,
-            name=area,
-            marker_color='#19B1BA',
-            hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
-        layout=go.Layout(
-            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
-            template='simple_white',
-            plot_bgcolor=colors['purple2']))
-
-    if clickData is not None:
-        van_df = get_filter_melt(dwel_df, census_year, "City of Vancouver")
-
-        fig.add_trace(
-            go.Bar(
-                x=van_df['variable'],
-                y=van_df['value']*100,
-                name='City of Vancouver',
-                marker_color='#afb0b3',
-                hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
-            ))
-
-    fig.update_layout(
-        barmode='group',
-        xaxis_title="Dwelling Type",
-        yaxis_title="Percent of Total Dwellings",
-        showlegend=True,
-        legend=dict(x=1, y=1, xanchor="right",
-                    bgcolor=colors['purple2']),
-        height=350)
-    fig.update_yaxes(range=[0, 95])
+    # Create bar graph
+    fig = build_bar(dwel_df, 
+                    census_year,
+                    area,
+                    clickData,
+                    "Dwelling Type", 
+                    "Percent of Total Dwellings",
+                    range=[0, 95])
 
     return title, fig
 
@@ -2339,41 +2239,14 @@ def update_transport(clickData, year):
     title = (
         "Dominant Form of Transportation used by Residents, in " + str(census_year))
 
-    df = get_filter_melt(trans_df, census_year, area)
-
-    fig = go.Figure(
-        data=go.Bar(
-            x=df['variable'],
-            y=df['value']*100,
-            name=area,
-            marker_color='#19B1BA',
-            hovertemplate="%{x}: %{y:.1f}%<extra></extra>"),
-        layout=go.Layout(
-            margin={'l': 10, 'r': 10, 't': 10, 'b': 10},
-            template='simple_white',
-            plot_bgcolor=colors['purple2']))
-
-    if clickData is not None:
-        van_df = get_filter_melt(trans_df, census_year, area)
-
-        fig.add_trace(
-            go.Bar(
-                x=van_df['variable'],
-                y=van_df['value']*100,
-                name='City of Vancouver',
-                marker_color='#afb0b3',
-                hovertemplate="%{x}: %{y:.1f}%<extra></extra>"
-            ))
-
-    fig.update_layout(
-        barmode='group',
-        xaxis_title="Transportation Type",
-        yaxis_title="Percent of Total Population",
-        showlegend=True,
-        legend=dict(x=1, y=1, xanchor="right",
-                    bgcolor=colors['purple2']),
-        height=350)
-
+    # Create bar graph
+    fig = build_bar(trans_df, 
+                    census_year,
+                    area,
+                    clickData,
+                    "Transportation Type", 
+                    "Percent of Total Population")
+    
     return title, fig
 
 
