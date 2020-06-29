@@ -44,8 +44,7 @@ def main(path_in, save_to):
     licence_df = licence_df[licence_df.Status == 'Issued']
 
     # 2. Filter out unused columns
-    cols_not_used = ['LicenceRSN',
-                     'LicenceNumber',
+    cols_not_used = ['LicenceNumber',
                      'LicenceRevisionNumber',
                      'IssuedDate',
                      'ExpiredDate',
