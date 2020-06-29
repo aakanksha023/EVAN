@@ -78,7 +78,6 @@ def test_fun(file_path, urls):
     Checks if the main function is able to download 
     and save files at correct location
     """
-    os.makedirs(file_path, exist_ok=True) # Create subdirectory if not exists
     main(file_path, urls)
     assert os.path.exists("src/01_download/urls.txt"), "Urls text file not\
                                                         found in location"
