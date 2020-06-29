@@ -29,6 +29,10 @@ import pandas as pd
 import geopandas as gpd
 import os
 import zipfile
+import warnings
+
+pd.options.mode.chained_assignment = None
+warnings.filterwarnings("ignore")
 
 opt = docopt(__doc__)
 
