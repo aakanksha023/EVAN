@@ -142,8 +142,6 @@ def test_fun():
     Checks if the req. i/p files exist and if the main function is able\
     to store the results at correct location
     """
-    # Run main function for validation set
-    main(file_path="data/processed/validate.csv", mapping_csv="src/02_clean_wrangle/business_mapping_dictionary.csv", save_to="data/processed/03_cleaned_validate.csv")
     # Confirm input and output CSV files exist or not
     assert os.path.exists("src/02_clean_wrangle/business_mapping_dictionary.csv"), "Business mapping Dictionary csv not found in location" 
     assert os.path.exists("data/processed/train.csv"), "Input training csv file not found in location"
