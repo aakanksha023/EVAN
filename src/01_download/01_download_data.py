@@ -44,7 +44,7 @@ def main(file_path, urls):
 
         # check if file is already downloaded
         if os.path.exists(os.path.join(file_path, file_name)):
-            print("%s already exists.\n" % file_name) 
+            print("%s already exists.\n" % file_name)
             continue
         else:
             print("Starting download for %s...\n" % file_name)
