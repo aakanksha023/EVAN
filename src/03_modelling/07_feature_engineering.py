@@ -62,17 +62,11 @@ def main(file_path, save_to):
     dis_park["lon"] = dis_park[
         'Geom'].apply(lambda p: json.loads(p)['coordinates'][1])
 
-    # To keep null Geom records - JQ
     def get_coords(p, axis='lat'):
         """Get a coordinate or return null"""
         ind = 0 if axis == 'lat' else 1
 
         coord = json.loads(p)['coordinates'][ind]
-
-#         try:
-#             coord = json.loads(p)['coordinates'][ind]
-#         except:
-#             coord = np.nan
 
         return coord
 
@@ -107,6 +101,15 @@ def main(file_path, save_to):
         meters = R * c
 
         return round(meters)
+
+    dt=parking_meters_df[parking_meters_df['Geo Local Area'] == "Downtown"]
+    dt=dt[dt.Geom.notnull()]
+    gw=parking_meters_df[parking_meters_df['Geo Local Area'] == "Grandview-Woodland"]
+    gw=gw[gw.Geom.notnull()]
+    coord1=(json.loads(dt.Geom.values[0]))['coordinates']
+    coord2=(json.loads(gw.Geom.values[0]))['coordinates']
+    assert haversine(coord1, coord2) > 100
+    assert haversine(coord1, coord2) < 50000
 
     def get_nearby_facility(area, licence, facility_df,
                             distance, name_for_new_column):
@@ -176,6 +179,9 @@ def main(file_path, save_to):
 
         return df
 
+    licence_feat_eng = fill_geom(licence)
+    assert len(licence_feat_eng) >= len(licence)
+
     def history(df):
         """This function assigns a binary variable
             to each business id:
@@ -195,6 +201,12 @@ def main(file_path, save_to):
                        'history'] = history
 
         return df
+
+    licence_feat_eng = history(licence_feat_eng)
+    assert licence_feat_eng.history.sum() >= 0
+    assert licence_feat_eng.history.max() <= \
+    licence_feat_eng.FOLDERYEAR.max() - licence_feat_eng.FOLDERYEAR.min() + 1
+    assert licence_feat_eng.history.min() >= 0
 
     ##################
     # Chain business # - JQ
@@ -255,7 +267,10 @@ def main(file_path, save_to):
 
         return df
 
-    licence_feat_eng = chain(history(fill_geom(licence)))
+    licence_feat_eng = chain(licence_feat_eng)
+    chain_test = licence_feat_eng[licence_feat_eng.BusinessName.isnull()]
+    assert licence_feat_eng.chain.sum() >= 0
+    assert len(chain_test[chain_test.chain.notnull()]) == 0
 
     ##############################
     # Count of Nearby Businesses # - JQ
@@ -287,11 +302,7 @@ def test_fun():
                                                             not found in location"                           
     assert os.path.exists("data/processed/05_feat_eng_validate.csv"), "Output CSV file\
                                                             not found in location"
-    assert os.path.exists("src/03_modelling/nearby_business_train.csv"), "Input nearby business train csv file\
-                                                            not found in location"
-    assert os.path.exists("src/03_modelling/nearby_business_valid.csv"), "Input nearby business valid csv file\
-                                                            not found in location"
-    assert os.path.exists("src/03_modelling/nearby_business_test.csv"), "Input nearby business test csv file\
+    assert os.path.exists("src/03_modelling/nearby_business.csv"), "Input nearby business train csv file\
                                                             not found in location"
     print("Test cleared successfully") 
 
