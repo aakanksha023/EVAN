@@ -1,4 +1,10 @@
 ---
+output:
+  pdf_document: default
+  html_document: default
+bibliography: project_refs.bib
+---
+---
 title: |
   | \vspace{5cm} \Large \textbf{Understanding the Evolution of Vancouver's Business Landscape}
 subtitle: |
@@ -11,12 +17,12 @@ date: "Date: 2020/06/29"
 output: pdf_document
 geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
 linkcolor: "blue"
+nocite: "@*"
 header-includes:
   - \usepackage{titling}
   - \pretitle{\begin{center}
     \includegraphics[width=7in,height=9in]{../../figures/logo.png}\LARGE\\}
   - \posttitle{\end{center}}
-bibliography: project_refs.bib
 ---
 
 \newpage
@@ -33,8 +39,9 @@ census <- read_csv("../../data/processed/census_viz.csv")
 # Executive Summary
 With a rising demand for future social services planning in Vancouver, the goal of this project is to provide data-driven strategies for individual businesses, as well as, a broader understanding of resource allocations across neighbourhoods. To achieve this, we used a wide range of machine learning methodologies to (1) develop a model to predict whether a business will renew its licence and (2) provide a geospatial summary of the business licence history and the constructed model. The predictive Light-GBM model constructed had a final accuracy of 0.58 and a recall of 0.57 (non-renewed licences). Our data pipeline has been designed with efficiency and flexibility for synthesizing diverse datasets. Thus, despite its limitations in regards to predictive capabilities, the final data product serves as a solid foundation for understanding Vancouver’s evolving business landscape.
 
+
 # Introduction
-Strategic urban planning provides a framework for achieving socio-economic objectives driven by actionable and sustainable development. Centralized city plans serve to reach these objectives through the coordination of efforts from the government, the private sector, and the community. Importantly, by planning and anticipating a community’s future needs, city leaders are better able to allocate municipal spending, mitigate potential risks, and capitalize on opportunities. 
+Strategic urban planning provides a framework for achieving socio-economic objectives driven by actionable and sustainable development[@strategicplanning]. Centralized city plans serve to reach these objectives through the coordination of efforts from the government, the private sector, and the community[@strategicplanning]. Importantly, by planning and anticipating a community’s future needs, city leaders are better able to allocate municipal spending, mitigate potential risks, and capitalize on opportunities. 
 
 Developing an effective strategic plan requires a critical assessment of a diverse set of factors, including budgetary constraints, local demand for social services, accessibility, employment, and housing. Accessible public data portals (e.g., Vancouver Open Data), in conjunction with data science techniques, represent one approach to address these demands. In particular, developing an understanding of how Vancouver’s business landscape has evolved over time can provide insight into how to efficiently allocate the city’s resources and services. 
 
@@ -200,12 +207,4 @@ The dashboard along with the machine learning models provide a tool for people t
 The major limitation faced by our model is the poor accuracy and recall scores, which makes it unsuitable for reliably predicting whether a business will renew its licence. Currently, our model lacks deterministic factors specific to individual businesses; however, we have designed our pipeline to efficiently unify data from a variety of sources, allowing flexibility in adding new attributes. As such, our model pipeline and associated geospatial visualization serve as a great basis for understanding the evolution of Vancouver’s business landscape which Deetken can utilize and further enhancing through the incorporation of additional datasets. 
 
 # References
-
-@opendata; 
-@tidyverse; @datatable; @docoptR; @rgdal; @timevis; @leaflet;
-@vanderplas2018altair; @python3; @docoptpython; @numpy; @pandas;
-@pedregosa2011scikit; @michael_waskom_2017_883859; @shapely2007;
-@aho1991algorithms; @jordahl2014geopandas; @bray2014javascript;
-@dash; @joblib; @eli5; @json5; @lightgbm; @progressbar2;
-@requests; @shap; @zipp;
 
