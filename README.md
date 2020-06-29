@@ -18,7 +18,7 @@ In particular, developing an understanding of how Vancouver’s business landsca
 - [Contributing](https://github.com/deetken/evan/blob/master/Contributing.md)
 - [Contributors](#Contributors)
 - [Data Requirements](#data-requirements)
-- [Final Report](#Final Report)
+- [Final Report](#Final-Report)
 - [Usage](#usage)
 - [Data Products](#data-products)
 - [Package Dependencies](#package-dependencies)
