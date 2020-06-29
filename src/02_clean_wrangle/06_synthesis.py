@@ -778,7 +778,6 @@ def test_fun():
     Checks if the req. i/p files exist and if the main function is able\
     to store the results at correct location
     """
-    main(path_in="data/processed/03_cleaned_validate.csv", save_to="data/processed/04_combined_validate.csv")
     # Confirm input and output CSV files exist or not
     assert os.path.exists("data/processed/03_cleaned_train.csv"), "Input train csv file\
                                                             not found in location"
