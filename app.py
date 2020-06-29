@@ -523,7 +523,7 @@ def build_tab2():
                 # summary of local demographics
                 dcc.Tab(label='PEOPLE', children=[
                         html.Div(
-                            id="info-overlay",
+                            id="people-info-overlay",
                             children=[
                                 # age graph info
                                 build_info_overlay('age', ""),
@@ -689,47 +689,16 @@ def build_tab2():
                 # summary of local infrastructure
                 dcc.Tab(label='INFRASTRUCTURE', children=[
                         html.Div(
+                            id="inf-info-overlay",
                             children=[
                                 # housing tenure pie chart info
-                                build_info_overlay('tenure', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('tenure', ""),
                                 # Dwelling type graph info
-                                build_info_overlay('dwelling', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('dwelling', ""),
                                 # Transportation graph info
-                                build_info_overlay('transport', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('transport', ""),
                                 # parking meters map info
-                                build_info_overlay('parking', dedent("""
-                                The _**Selected Towers**_ panel displays the number of cell towers
-                                that are currently selected. A tower is considered to be selected
-                                if it is currently visible in the _**Locations**_ map, and satisfies
-                                the selections applied in the _**Radio**_, _**Signal Range**_, and
-                                _**Construction Date**_ panels.
-                                The _**Reset All**_ button may be used to clear all selections and
-                                recenter the _**Locations**_ map view. 
-                                """)),
+                                build_info_overlay('parking', ""),
                             ]
                         ),
 
@@ -1565,7 +1534,8 @@ def update_van_map(clickData):
 
 # update graph info overlay by local area + year
 @app.callback(
-    Output("info-overlay", 'children'),
+    [Output("people-info-overlay", 'children'),
+     Output("inf-info-overlay", "children")],
     [Input('van_map', 'clickData'),
      Input('year_slider_census', 'value')])
 def update_people_overlay(clickData, year):
@@ -1615,7 +1585,7 @@ def update_people_overlay(clickData, year):
         """)
 
     if clickData is not None:
-        children=[
+        people_info=[
             # age graph info
             build_info_overlay('age', ((dedent(f"""
             This graph shows the **Age Distribution** of the population in 
@@ -1666,8 +1636,45 @@ def update_people_overlay(clickData, year):
             City of Vancouver is also displayed (grey).
             """) + deselect_info + reset_info + data_source
             ))),]
+        
+
+        infra_info=[
+            # housing tenure pie chart info
+            build_info_overlay('tenure', ((dedent(f"""
+            This graph shows the proportion of the population in **{area}** who
+            **own** their dwelling vs. those who **rent** their dwelling.
+            """) + reset_info + data_source
+            ))),
+            # Dwelling type graph info
+            build_info_overlay('dwelling', ((dedent(f"""
+            This graph shows the distribution of **Dwelling Types** in
+            **{area}** (blue). To provide a baseline comparison, the 
+            distribution for the City of Vancouver is also displayed (grey).
+            """) + deselect_info + reset_info + data_source
+            ))),
+            # Transportation graph info
+            build_info_overlay('transport', ((dedent(f"""
+            This graph shows the distribution of the **Dominant Mode of
+            Transportation** for all residents in **{area}** (blue).
+            To provide a baseline comparison, the distribution for the 
+            City of Vancouver is also displayed (grey).
+            """) + deselect_info + reset_info + data_source
+            ))),
+            # parking meters map info
+            build_info_overlay('parking', ((dedent(f"""
+            This graph shows the locations and count of the **Metered
+            Street Parking Spaces** present in **{area}**.
+            """) + reset_info + dedent(f"""
+            The data source for this graph is the [**2019 Parking Meter 
+            Dataset**](https://opendata.vancouver.ca/explore/dataset/parking-meters/information/),
+            hosted on the City of Vancouver’s [Open Data
+            Portal](https://opendata.vancouver.ca/pages/home/).
+            """)
+            ))),
+        ]
+    
     else:
-        children=[
+        people_info=[
             # age graph info
             build_info_overlay('age', ((dedent(f"""
             This graph shows the **Age Distribution** for the population of 
@@ -1717,8 +1724,40 @@ def update_people_overlay(clickData, year):
             area of the combined 22 local neighbourhoods.
             """) + data_source
             ))),]
+        
+        infra_info=[
+            # housing tenure pie chart info
+            build_info_overlay('tenure', ((dedent(f"""
+            This graph shows the proportion of the population in the **{area}**
+            who **own** their dwelling vs. those who **rent** their dwelling.
+            """) + data_source
+            ))),
+            # Dwelling type graph info
+            build_info_overlay('dwelling', ((dedent(f"""
+            This graph shows the distribution of **Dwelling Types** in
+            the **{area}**.
+            """) + data_source
+            ))),
+            # Transportation graph info
+            build_info_overlay('transport', ((dedent(f"""
+            This graph shows the distribution of the **Dominant Mode of
+            Transportation** for all residents in the **{area}**.
+            """) + data_source
+            ))),
+            # parking meters map info
+            build_info_overlay('parking', ((dedent(f"""
+            This graph shows the locations and count of the **Metered
+            Street Parking Spaces** present in the **{area}**.
+            """) + dedent(f"""
+            The data source for this graph is the [**2019 Parking Meter 
+            Dataset**](https://opendata.vancouver.ca/explore/dataset/parking-meters/information/),
+            hosted on the City of Vancouver’s [Open Data
+            Portal](https://opendata.vancouver.ca/pages/home/).
+            """)
+            ))),
+        ]
 
-    return children
+    return people_info, infra_info
     
 # update education graph by local area
 @app.callback(
