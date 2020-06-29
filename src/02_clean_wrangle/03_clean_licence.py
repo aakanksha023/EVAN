@@ -153,5 +153,5 @@ def test_fun():
     print("Tests cleared successfully")
 
 if __name__ == "__main__":
-    test_fun()
     main(opt["--file_path"], opt["--mapping_csv"], opt["--save_to"])
+    test_fun()
