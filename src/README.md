@@ -169,6 +169,7 @@ python3 app.py
 - json5==0.9.4
 - lightgbm==2.3.1
 - numpy==1.18.4
+- openpyxl==3.0.4
 - pandas==1.0.3
 - progressbar2==3.51.3
 - python-utils==2.4.0
@@ -183,6 +184,7 @@ python3 app.py
 
 ### R 3.6 and R packages:
 
+- compare==0.2.6
 - data.table==1.12.6
 - docopt==0.6.1
 - tidyverse==1.2.1

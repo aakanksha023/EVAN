@@ -51,10 +51,10 @@ Deetken Team:
 ## Data Requirements
 
 The primary dataset utilized in this project consists of all Vancouver Business Licence applications from 1997 to the current date. This data is made available as part of the city of Vancouver’s [Open Data Portal](https://opendata.vancouver.ca/pages/home/) and regulated under the terms of the [Open Government Licence – Vancouver](https://opendata.vancouver.ca/pages/licence/). The most pertinent features present in this dataset are business type, location, and number of employees.
-In addition to the business licence dataset, the Canadian census surveys provide another important source of data for this project. The census data is hosted on the Vancouver Open Data Portal and provides demographic information, such as population density, average income, age distribution, and ethnicity. The current census dataset aggregates the demographic data by Vancouver neighbourhoods. In addition, due to the lack of employement and other important information in Vancouver census data in 2011, we use National Census data avaliable on [Statistic Canada](https://www12.statcan.gc.ca/census-recensement/index-eng.cfm) for 2011.
+In addition to the business licence dataset, the Canadian census surveys provide another important source of data for this project. The census data is hosted on the Vancouver Open Data Portal and provides demographic information, such as population density, average income, age distribution, and ethnicity. The current census dataset aggregates the demographic data by Vancouver neighbourhoods. In addition, due to the lack of employment and other important information in Vancouver census data in 2011, we use National Census data available on [Statistic Canada](https://www12.statcan.gc.ca/census-recensement/index-eng.cfm) for 2011.
 
-Another data source we have is the parking meters and disability parking zone. These two data is also avaliable at the Open Data Portal.
-For the boudary data of the 22 Vancouver geological areas, we use the local_area_boundary data avaliable on Vancouver's Open Data Portal.
+Another data source we have is the parking meters and disability parking zone. These two data is also available at the Open Data Portal.
+For the boundary data of the 22 Vancouver geological areas, we use the local_area_boundary data available on Vancouver's Open Data Portal.
 
 
 ## Final Report
@@ -69,7 +69,11 @@ To replicate the analysis performed in this project, clone this GitHub repositor
 
 ## Data Products
 
-The proposed final product consists of a data pipeline, as well as, a geospatial visualization of Vancouver's business landscape. Users will be able to locate a specific zone on the interactive map and view relevant descriptive information, such as business type distribution and census data [**figure 1**]. The data pipeline will pass processed input data of a specific business to a machine learning model and produce a predicted renewal probability.
+The final data product consists of a fully-reproducible machine learning model pipeline and a visualization dashboard (figure shown below) with the model embedded. The entire pipeline along with usage instructions and commands required to host the Dash dashboard are documented in this repository. Currently, the dashboard is only available to be viewed locally, but it can be easily deployed to Heroku or other cloud servers if public sharing is needed in the future.
+
+The machine learning model pipeline automatically pre-processes, trains, performs hyperparameter tuning and uses a Light-GBM model to make predictions. The accuracy for the current model is 0.60 and the BNR recall is 0.64. Modelling results have been saved to the [results folder](https://github.com/deetken/evan/tree/master/results).
+
+An integrated data product is desired to reflect the reality that predictive modelling of landscape evolution is a sophisticated task that cannot be well explained alone by a model. Cities are dynamic living organisms and associated datasets often contain both temporal and spatial dimensions. In order to aid collaboration and communication among different stakeholders in city planning or business decision-making, it is valuable to visualize these factors on top of Vancouver's physical structure.
 
 
 ![**Figure 1.** geospatial visualization of Vancouver's business landscape.](figures/dashboard_demo.png)
@@ -95,6 +99,7 @@ The proposed final product consists of a data pipeline, as well as, a geospatial
 - json5==0.9.4
 - lightgbm==2.3.1
 - numpy==1.18.4
+- openpyxl==3.0.4
 - pandas==1.0.3
 - progressbar2==3.51.3
 - python-utils==2.4.0
@@ -109,6 +114,7 @@ The proposed final product consists of a data pipeline, as well as, a geospatial
 
 ### R 3.6 and R packages:
 
+- compare==0.2.6
 - data.table==1.12.6
 - docopt==0.6.1
 - tidyverse==1.2.1
