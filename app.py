@@ -239,12 +239,13 @@ trans_df = census[['LocalArea',
                    'walked',
                    'bicycle',
                    'other transportation']]
-trans_df = trans_df.rename(columns={'car as driver': 'Car, as Driver',
-                                    'car as passenger': 'Car, as Passenger',
-                                    'public transportation': 'Public Transportation',
-                                    'walked': 'Walk',
-                                    'bicycle': 'Bicycle',
-                                    'other transportation': 'Other'})
+trans_df = trans_df.rename(
+    columns={'car as driver': 'Car, as Driver',
+             'car as passenger': 'Car, as Passenger',
+             'public transportation': 'Public Transportation',
+             'walked': 'Walk',
+             'bicycle': 'Bicycle',
+             'other transportation': 'Other'})
 
 park = parking_df[['LocalArea', 'coord-x', 'coord-y']]
 
@@ -425,9 +426,10 @@ def build_table(df, col_name, area, census_year, clickData):
 
     return fig
 
+
 # Create bar graph for census data visualization
 def build_bar(df, census_year, area, clickData, xaxis, yaxis, range=None):
-    
+
     area_df = get_filter_melt(df, census_year, area)
 
     fig = go.Figure(
@@ -553,7 +555,8 @@ def build_tab1():
                                         children=[
                                             dcc.Dropdown(
                                                 id="businesstype-dropdown-tab1",
-                                                options=[{'label': k, 'value': k}
+                                                options=[{'label': k,
+                                                          'value': k}
                                                          for k in bt_lookup.keys()],
                                                 style={
                                                     "border": "0px solid black"
@@ -685,9 +688,10 @@ def build_tab2():
                         className="one-fifth column offset-by-four-fifths",
                         children=[
                             # clear selection button
-                            html.Button(id='clearButton',
-                                        n_clicks=0,
-                                        children='Clear Neighbourhood Selection'),
+                            html.Button(
+                                id='clearButton',
+                                n_clicks=0,
+                                children='Clear Neighbourhood Selection'),
                         ],
                     )
                 ], style={'marginTop': 10, 'marginBottom': 5}
@@ -729,7 +733,8 @@ def build_tab2():
                                                 value=2016,
                                                 marks={str(year): {
                                                     'label': str(year),
-                                                    'style': {'color': 'white'}}
+                                                    'style': {'color': 'white'}
+                                                    }
                                                     for year in licence['FOLDERYEAR'].unique()},
                                                 step=None
                                             )
@@ -771,7 +776,7 @@ def build_tab2():
                             children=[
                                 # population by age
                                 html.Div(
-                                    className="one-half-tab2 column bottom__box__tab2",
+                                    className="one-half2 column bottom__box2",
                                     id="age-div",
                                     children=[
                                         html.H4(
@@ -794,7 +799,7 @@ def build_tab2():
 
                                 # population by household size
                                 html.Div(
-                                    className="other-half-tab2 column bottom__box__tab2",
+                                    className="other-half2 column bottom__box2",
                                     id="size-div",
                                     children=[
                                         html.H4(
@@ -821,7 +826,7 @@ def build_tab2():
                             className="app__content",
                             children=[
                                 html.Div(
-                                    className="one-half-tab2 column bottom__box__tab2",
+                                    className="one-half2 column bottom__box2",
                                     id="lang-div",
                                     children=[
                                         html.H4(
@@ -842,7 +847,7 @@ def build_tab2():
                                     ]
                                 ),
                                 html.Div(
-                                    className="other-half-tab2 column bottom__box__tab2",
+                                    className="other-half2 column bottom__box2",
                                     id="eth-div",
                                     children=[
                                         html.H4(
@@ -869,7 +874,7 @@ def build_tab2():
                             className="app__content",
                             children=[
                                 html.Div(
-                                    className="one-half-tab2 column bottom__box__tab2",
+                                    className="one-half2 column bottom__box2",
                                     id="edu-div",
                                     children=[
                                         html.H4(
@@ -889,7 +894,7 @@ def build_tab2():
                                                   config=config)
                                     ]),
                                 html.Div(
-                                    className="other-half-tab2 column bottom__box__tab2",
+                                    className="other-half2 column bottom__box2",
                                     id="occ-div",
                                     children=[
                                         html.H4(
@@ -933,7 +938,7 @@ def build_tab2():
                             children=[
                                 # housing tenure (own vs. rent)
                                 html.Div(
-                                    className="one-half-tab2 column bottom__box__tab2",
+                                    className="one-half2 column bottom__box2",
                                     id="tenure-div",
                                     children=[
                                         html.H4(
@@ -954,7 +959,7 @@ def build_tab2():
                                     ], ),
                                 # distribution of dwelling types
                                 html.Div(
-                                    className="other-half-tab2 column bottom__box__tab2",
+                                    className="other-half2 column bottom__box2",
                                     id="dwelling-div",
                                     children=[
                                         html.H4(
@@ -980,7 +985,7 @@ def build_tab2():
                             children=[
                                 # transportation mode
                                 html.Div(
-                                    className="one-half-tab2 column bottom__box__tab2",
+                                    className="one-half2 column bottom__box2",
                                     id="transport-div",
                                     children=[
                                         html.H4(
@@ -1001,7 +1006,7 @@ def build_tab2():
                                     ], ),
                                 # distribution/count of street parking
                                 html.Div(
-                                    className="other-half-tab2 column bottom__box__tab2",
+                                    className="other-half2 column bottom__box2",
                                     id="parking-div",
                                     children=[
                                         html.H4(
@@ -1300,12 +1305,12 @@ app.layout = html.Div([
     # Main app header
     html.Div([
         # Setting the main title of the Dashboard
-        html.H1("Understanding the Evolution of Vancouver's Business Landscape",
-                style={"textAlign": "center", 'fontFamily': 'Open Sans',
-                       'marginTop': 40, 'marginBottom': 40,
-                       'marginLeft': 100, 'marginRight': 100,
-                       'color': "black"})],
-             ),
+        html.H1(
+            "Understanding the Evolution of Vancouver's Business Landscape",
+            style={"textAlign": "center", 'fontFamily': 'Open Sans',
+                   'marginTop': 40, 'marginBottom': 40,
+                   'marginLeft': 100, 'marginRight': 100,
+                   'color': "black"})],),
 
     # Dividing the dashboard into tabs
     dcc.Tabs(id="mainTabs", children=[
@@ -1799,9 +1804,9 @@ def update_people_overlay(clickData, year):
         click on the ***Clear Neighbourhood Selection*** button
         located in the top right hand corner of the page.
         """)
-    
+
     base_line = dedent("""
-    To provide a baseline comparison, the distribution for the City of 
+    To provide a baseline comparison, the distribution for the City of
     Vancouver is also displayed (grey).
     """)
 
@@ -1815,37 +1820,38 @@ def update_people_overlay(clickData, year):
             # age graph info
             build_info_overlay('age', ((dedent(f"""
             This graph shows the **Age Distribution** of the population in
-            **{area}** (blue line)."""
-            ) + base_line + deselect_info + reset_info + data_source))),
+            **{area}** (blue line).""") + base_line + deselect_info
+                                        + reset_info + data_source))),
             # household size graph info
             build_info_overlay('size', ((dedent(f"""
             This graph shows the distribution of **Household Size** for the
             population in **{area}** (blue); where 'Household size' refers
-            to the number of persons in a private household."""
-            ) + base_line + deselect_info + reset_info + data_source))),
+            to the number of persons
+            in a private household.""") + base_line + deselect_info
+                                        + reset_info + data_source))),
             # language table info
             build_info_overlay('lang', ((dedent(f"""
             This table shows the top five **Mother Tongue
             Languages** spoken by residents in **{area}**. Here 'Mother tongue'
             refers to the first language learned at home in childhood and still
-            understood by the person at the time the data was collected."""
-            ) + base_line + reset_info + data_source))),
+            understood by the person at the time the data was
+            collected.""") + base_line + reset_info + data_source))),
             # ethnicity table info
             build_info_overlay('eth', ((dedent(f"""
             This table shows the top five **Ethnic Origins** of the population
-            in **{area}**."""
-            ) + base_line + reset_info + data_source))),
+            in **{area}**.""") + base_line + reset_info + data_source))),
             # education graph info
             build_info_overlay('edu', ((dedent(f"""
             This graph shows the distribution of the **Highest Level
             of Education Received** for persons aged 15 years and
-            over in **{area}** (blue)."""
-            ) + base_line + deselect_info + reset_info + data_source))),
+            over in **{area}** (blue).""") + base_line + deselect_info
+                                           + reset_info + data_source))),
             # occupation industry info
             build_info_overlay('occ', ((dedent(f"""
             This graph shows the distribution of the **Occupation
-            Industries** for all employed persons in **{area}** (blue)."""
-            ) + base_line + deselect_info + reset_info + data_source))),
+            Industries** for all employed
+            persons in **{area}** (blue).""") + base_line + deselect_info
+                                              + reset_info + data_source))),
         ]
 
         infra_info = [
@@ -1856,14 +1862,15 @@ def update_people_overlay(clickData, year):
             """) + reset_info + data_source))),
             # Dwelling type graph info
             build_info_overlay('dwelling', ((dedent(f"""
-            This graph shows the distribution of **Dwelling Types** in
-            **{area}** (blue)."""
-            ) + base_line + deselect_info + reset_info + data_source))),
+            This graph shows the distribution of **Dwelling
+            Types** in **{area}** (blue).""") + base_line + deselect_info
+                                              + reset_info + data_source))),
             # Transportation graph info
             build_info_overlay('transport', ((dedent(f"""
             This graph shows the distribution of the **Dominant Mode of
-            Transportation** for all residents in **{area}** (blue)."""
-            ) + base_line + deselect_info + reset_info + data_source))),
+            Transportation** for all
+            residents in **{area}** (blue).""") + base_line + deselect_info
+                                                + reset_info + data_source))),
             # parking meters map info
             build_info_overlay('parking', ((dedent(f"""
             This graph shows the locations and count of the **Metered
@@ -1886,8 +1893,8 @@ def update_people_overlay(clickData, year):
             build_info_overlay('size', ((dedent(f"""
             This graph shows the distribution of **Household Size** for the
             population of the **{area}**; where 'Household size' refers
-            to the number of persons in a private household."""
-            ) + van_def + data_source))),
+            to the number of persons in a private
+            household.""") + van_def + data_source))),
             # language table info
             build_info_overlay('lang', ((dedent(f"""
             This table shows the top five **Mother Tongue
@@ -1899,27 +1906,25 @@ def update_people_overlay(clickData, year):
             # ethnicity table info
             build_info_overlay('eth', ((dedent(f"""
             This table shows the top five **Ethnic Origins** of the
-            population in the **{area}**."""
-            ) + van_def + data_source))),
+            population in the **{area}**.""") + van_def + data_source))),
             # education graph info
             build_info_overlay('edu', ((dedent(f"""
             This graph shows the distribution of the **Highest Level
             of Education Received** for persons aged 15 years and
-            over in the **{area}**."""
-            ) + van_def + data_source))),
+            over in the **{area}**.""") + van_def + data_source))),
             # occupation industry info
             build_info_overlay('occ', ((dedent(f"""
             This graph shows the distribution of the **Occupation
-            Industries** for all employed persons in the **{area}**."""
-            ) + van_def + data_source))),
+            Industries** for all employed persons in
+            the **{area}**.""") + van_def + data_source))),
         ]
 
         infra_info = [
             # housing tenure pie chart info
             build_info_overlay('tenure', ((dedent(f"""
             This graph shows the proportion of the population in the **{area}**
-            who **own** their dwelling vs. those who **rent** their dwelling."""
-            ) + van_def + data_source))),
+            who **own** their dwelling vs. those who **rent**
+            their dwelling.""") + van_def + data_source))),
             # Dwelling type graph info
             build_info_overlay('dwelling', ((dedent(f"""
             This graph shows the distribution of **Dwelling Types** in
@@ -1927,8 +1932,8 @@ def update_people_overlay(clickData, year):
             # Transportation graph info
             build_info_overlay('transport', ((dedent(f"""
             This graph shows the distribution of the **Dominant Mode of
-            Transportation** for all residents in the **{area}**."""
-            ) + van_def + data_source))),
+            Transportation** for all residents in
+            the **{area}**.""") + van_def + data_source))),
             # parking meters map info
             build_info_overlay('parking', ((dedent(f"""
             This graph shows the locations and count of the **Metered
@@ -1959,11 +1964,11 @@ def update_edu(clickData, year):
     title = ("Highest Level of Education Achieved, in " + str(census_year))
 
     # create bar graph
-    fig = build_bar(edu_df, 
+    fig = build_bar(edu_df,
                     census_year,
                     area,
                     clickData,
-                    "Level of Education", 
+                    "Level of Education",
                     "Percent of Total Population")
 
     return title, fig
@@ -2102,11 +2107,11 @@ def update_size(clickData, year):
     title = ("Household Size, in " + str(census_year))
 
     # Create bar graph
-    fig = build_bar(size_df, 
+    fig = build_bar(size_df,
                     census_year,
                     area,
                     clickData,
-                    "Household Size", 
+                    "Household Size",
                     "Percent of Total Population")
 
     return title, fig
@@ -2213,11 +2218,11 @@ def update_dwelling(clickData, year):
     title = ("Distribution of Dwelling Types, in " + str(census_year))
 
     # Create bar graph
-    fig = build_bar(dwel_df, 
+    fig = build_bar(dwel_df,
                     census_year,
                     area,
                     clickData,
-                    "Dwelling Type", 
+                    "Dwelling Type",
                     "Percent of Total Dwellings",
                     range=[0, 95])
 
@@ -2240,13 +2245,13 @@ def update_transport(clickData, year):
         "Dominant Form of Transportation used by Residents, in " + str(census_year))
 
     # Create bar graph
-    fig = build_bar(trans_df, 
+    fig = build_bar(trans_df,
                     census_year,
                     area,
                     clickData,
-                    "Transportation Type", 
+                    "Transportation Type",
                     "Percent of Total Population")
-    
+
     return title, fig
 
 
