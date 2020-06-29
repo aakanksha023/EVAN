@@ -62,7 +62,7 @@ main <- function(filepath_in, filepath_out, filename_1, filename_2) {
                      NumberofEmployees = col_character(),
                      FeePaid = col_double(),
                      ExtractDate = col_datetime(format = ""),
-                     Geom = col_character()))) 
+                     Geom = col_character())
   # open raw csv files
   csv1 <- (read_delim(paste0(filepath_in, "/", filename_1), delim = ";", col_types = col_types)) %>% 
     suppressWarnings()

@@ -21,6 +21,10 @@ from docopt import docopt
 import pandas as pd
 import os
 import re
+import warnings
+
+pd.options.mode.chained_assignment = None
+warnings.filterwarnings("ignore")
 
 opt = docopt(__doc__)
 
