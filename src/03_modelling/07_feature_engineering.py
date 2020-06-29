@@ -1,4 +1,4 @@
-# author: Jasmine Qin and Xinwen Wang
+# author: Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang
 # date: 2020-06-13
 
 """
@@ -20,6 +20,7 @@ import pandas as pd
 import numpy as np
 import math
 import json
+import os
 from collections import Counter
 import warnings
 
@@ -276,6 +277,30 @@ def main(file_path, save_to):
     # Output
     licence_feat_eng.to_csv(save_to, index=False)
 
+def test_fun():
+    """
+    Checks if the req. i/p files exist and if the main function is able\
+    to store the results at correct location
+    """
+    main(file_path="data/processed/04_combined_validate.csv",save_to="data/processed/05_feat_eng_validate.csv")
+    # Confirm input and output CSV files exist or not
+    assert os.path.exists("data/processed/04_combined_train.csv"), "Input train csv file\
+                                                            not found in location" 
+    assert os.path.exists("data/processed/04_combined_validate.csv"), "Input validation csv file\
+                                                            not found in location"
+    assert os.path.exists("data/processed/04_combined_test.csv"), "Input test csv file\
+                                                            not found in location"                           
+    assert os.path.exists("data/processed/05_feat_eng_validate.csv"), "Output CSV file\
+                                                            not found in location"
+    assert os.path.exists("src/03_modelling/nearby_business_train.csv"), "Input nearby business train csv file\
+                                                            not found in location"
+    assert os.path.exists("src/03_modelling/nearby_business_valid.csv"), "Input nearby business valid csv file\
+                                                            not found in location"
+    assert os.path.exists("src/03_modelling/nearby_business_test.csv"), "Input nearby business test csv file\
+                                                            not found in location"
+    print("Test cleared successfully") 
+
 
 if __name__ == "__main__":
+    test_fun()
     main(opt["--file_path"], opt["--save_to"])

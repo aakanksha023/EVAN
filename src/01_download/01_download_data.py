@@ -1,4 +1,4 @@
-# author: Keanna Knebel
+# author: Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang
 # date: 2020-05-04
 
 """
@@ -44,10 +44,10 @@ def main(file_path, urls):
 
         # check if file is already downloaded
         if os.path.exists(os.path.join(file_path, file_name)):
-            print("%s already exists.\n"%file_name)
+            print("%s already exists.\n" % file_name) 
             continue
         else:
-            print("Starting download for %s...\n"%file_name)
+            print("Starting download for %s...\n" % file_name)
 
             # Create the data subdirectory if it doesn't exist
             os.makedirs(file_path, exist_ok=True)
@@ -68,10 +68,25 @@ def main(file_path, urls):
                         value += len(chunk)
                         bar.update(value)
 
-            print("\n%s downloaded!\n"%file_name)
+            print("\n%s downloaded!\n" % file_name)
 
     print("All files downloaded!")
 
 
+def test_fun(file_path, urls):
+    """
+    Checks if the main function is able to download 
+    and save files at correct location
+    """
+    os.makedirs(file_path, exist_ok=True) # Create subdirectory if not exists
+    main(file_path, urls)
+    assert os.path.exists("src/01_download/urls.txt"), "Urls text file not\
+                                                        found in location"
+    assert os.path.exists("data/raw/census_2001.csv"), "Census file not\
+                                                        found in location"
+    print("Tests ran succesfully")
+
+
 if __name__ == "__main__":
+    test_fun(opt["--file_path"], opt["--urls"])
     main(opt["--file_path"], opt["--urls"])

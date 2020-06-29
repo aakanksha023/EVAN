@@ -1,4 +1,4 @@
-# author: Keanna Knebel
+# author: Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang
 # date: 2020-06-02
 
 """
@@ -33,9 +33,9 @@ def create_subgroup_dict(df, year):
                '^Male', '^Female', 'total - male', 'total - female']
 
     elif year == 2006:
-        re1 = ['total.*by', 'population.*by', 'common-law couples',
-               '^Male[s\s,]', '^Female[s\s,]', 'total - mobility',
-               'Average number of children']
+        re1 = [r'total.*by', r'population.*by', r'common-law couples',\
+            r'^Male[s\s,]', r'^Female[s\s,]', r'total - mobility',\
+            r'Average number of children']
 
     elif year == 2011:
         df.drop(index=201, inplace=True)
@@ -1927,6 +1927,24 @@ def main(census_file, year, file_path):
     for func in helper_func:
         census_dict = func(census_dict, year, file_path)
 
+        main(census_file, year, file_path)
+
+def test_fun():
+    """
+    Checks if the req. i/p files exist and if the main function is able\
+    to store the results at correct location
+    """
+    # Confirm input and output CSV files exist or not
+    assert os.path.exists("data/raw/census_2001.csv"), "Input census csv file not found in location"
+    assert os.path.exists("data/raw/census_2006.csv"), "Input census csv file not found in location"
+    assert os.path.exists("data/raw/census_2011.csv"), "Input census csv file not found in location"
+    assert os.path.exists("data/raw/census_2016.csv"), "Input census csv file not found in location"
+    assert os.path.exists("data/processed/census_2001/detailed_language.csv"), "Output census csv file not found in location"
+    assert os.path.exists("data/processed/census_2006/education.csv"), "Output census csv file not found in location"
+    assert os.path.exists("data/processed/census_2011/detailed_language.csv"), "Output census csv file not found in location"
+    assert os.path.exists("data/processed/census_2016/education.csv"), "Output census csv file not found in location"
+    print("Tests cleared successfully")
 
 if __name__ == "__main__":
     main(opt["--census_file"], opt["--year"], opt["--file_path"])
+    test_fun()

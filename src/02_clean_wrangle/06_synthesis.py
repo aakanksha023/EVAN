@@ -1,4 +1,4 @@
-# author: Xinwen Wang and Jasmine Qin
+# author: Aakanksha Dimri, Keanna Knebel, Jasmine Qin, Xinwen Wang
 # date: 2020-06-24
 
 """
@@ -773,6 +773,24 @@ def main(path_in, save_to):
     licence_df.rename(columns={'Geo Local Area': 'LocalArea'}).to_csv(
         save_to, index=False)
 
+def test_fun():
+    """
+    Checks if the req. i/p files exist and if the main function is able\
+    to store the results at correct location
+    """
+    main(path_in="data/processed/03_cleaned_validate.csv", save_to="data/processed/04_combined_validate.csv")
+    # Confirm input and output CSV files exist or not
+    assert os.path.exists("data/processed/03_cleaned_train.csv"), "Input train csv file\
+                                                            not found in location"
+    assert os.path.exists("data/processed/03_cleaned_validate.csv"), "Input validation csv file\
+                                                            not found in location"
+    assert os.path.exists("data/processed/03_cleaned_test.csv"), "Input test csv file\
+                                                            not found in location"
+    assert os.path.exists("data/processed/04_combined_validate.csv.csv"), "Output CSV file\
+                                                            not found in location"
+    print("Tests cleared successfully")
+
 
 if __name__ == "__main__":
+    test_fun()
     main(opt["--path_in"], opt["--save_to"])
