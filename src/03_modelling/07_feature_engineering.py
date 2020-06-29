@@ -20,8 +20,13 @@ import pandas as pd
 import numpy as np
 import math
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 import warnings
+from functools import partial
+import pyproj
+from shapely.ops import transform
+from shapely.geometry import Point, Polygon
+proj_wgs84 = pyproj.Proj('+proj=longlat +datum=WGS84')
 
 warnings.filterwarnings("ignore")
 pd.options.mode.chained_assignment = None
@@ -255,24 +260,14 @@ def main(file_path, save_to):
     # Count of Nearby Businesses # - JQ
     ##############################
 
-    # The lookup information is saved to csv's
-    #   because it's time consuming to run
-
-    if 'train' in file_path:
-        nearby_business_lookup = pd.read_csv(
-            'src/03_modelling/nearby_business_train.csv')
-    elif 'valid' in file_path:
-        nearby_business_lookup = pd.read_csv(
-            'src/03_modelling/nearby_business_valid.csv')
-    else:
-        nearby_business_lookup = pd.read_csv(
-            'src/03_modelling/nearby_business_test.csv')
+    nearby_business = pd.read_csv("src/03_modelling/nearby_business.csv")
 
     licence_feat_eng = licence_feat_eng.merge(
-        nearby_business_lookup,
+        nearby_business,
         how='left',
-        left_on=['FOLDERYEAR', 'business_id'],
-        right_on=['FOLDERYEAR', 'business_id'])
+        left_on=['LicenceRSN'],
+        right_on=['LicenceRSN']).drop(columns=['LicenceRSN'])
+
 
     # Output
     licence_feat_eng.to_csv(save_to, index=False)
