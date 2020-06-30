@@ -1933,22 +1933,5 @@ def main(census_file, year, file_path):
 
         main(census_file, year, file_path)
 
-def test_fun():
-    """
-    Checks if the req. i/p files exist and if the main function is able\
-    to store the results at correct location
-    """
-    # Confirm input and output CSV files exist or not
-    assert os.path.exists("data/raw/census_2001.csv"), "Input census csv file not found in location"
-    assert os.path.exists("data/raw/census_2006.csv"), "Input census csv file not found in location"
-    assert os.path.exists("data/raw/census_2011.csv"), "Input census csv file not found in location"
-    assert os.path.exists("data/raw/census_2016.csv"), "Input census csv file not found in location"
-    assert os.path.exists("data/processed/census_2001/detailed_language.csv"), "Output census csv file not found in location"
-    assert os.path.exists("data/processed/census_2006/education.csv"), "Output census csv file not found in location"
-    assert os.path.exists("data/processed/census_2011/detailed_language.csv"), "Output census csv file not found in location"
-    assert os.path.exists("data/processed/census_2016/education.csv"), "Output census csv file not found in location"
-    print("Tests cleared successfully")
-
 if __name__ == "__main__":
     main(opt["--census_file"], opt["--year"], opt["--file_path"])
-    test_fun()

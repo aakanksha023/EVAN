@@ -288,25 +288,6 @@ def main(file_path, save_to):
     # Output
     licence_feat_eng.to_csv(save_to, index=False)
 
-def test_fun():
-    """
-    Checks if the req. i/p files exist and if the main function is able\
-    to store the results at correct location
-    """
-    # Confirm input and output CSV files exist or not
-    assert os.path.exists("data/processed/04_combined_train.csv"), "Input train csv file\
-                                                            not found in location" 
-    assert os.path.exists("data/processed/04_combined_validate.csv"), "Input validation csv file\
-                                                            not found in location"
-    assert os.path.exists("data/processed/04_combined_test.csv"), "Input test csv file\
-                                                            not found in location"                           
-    assert os.path.exists("data/processed/05_feat_eng_validate.csv"), "Output CSV file\
-                                                            not found in location"
-    assert os.path.exists("src/03_modelling/nearby_business.csv"), "Input nearby business train csv file\
-                                                            not found in location"
-    print("Test cleared successfully") 
-
 
 if __name__ == "__main__":
     main(opt["--file_path"], opt["--save_to"])
-    test_fun()

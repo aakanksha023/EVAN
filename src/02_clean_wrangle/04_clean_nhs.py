@@ -117,24 +117,9 @@ def main(nhs_zip, ct_bound_zip, area_file, file_path):
             df = df.rename(columns={'index': 'Type'})
             df['LocalArea'] = str(area)
             sub_group[str(topic)] = pd.concat([sub_group[str(topic)], df])
-        sub_group[str(topic)].to_csv(file_path + str(topic) + '.csv')
-
-def test_fun():
-    """
-    Checks if the correct i/p exists & correct o/p files are produced
-    """
-    # Confirm input and output zip & CSV files exist or not
-    assert os.path.exists("data/raw/nhs_census_2011.zip"), "Input nhs zip file\
-                                                            not found in location"
-    assert os.path.exists("data/raw/census_boundaries_2011.zip"), "Input census boundaries\
-                                                                csv file not found in location"
-    assert os.path.exists("data/raw/local_area_boundary.geojson"), "Input geojson file not found in location"
-    assert os.path.exists("data/processed/nhs/Education.csv"), "Output CSV not found in location"
-    assert os.path.exists("data/processed/nhs/Place of work status.csv"), "Output CSV not found in location"
-    print("Tests cleared successfully")        
+        sub_group[str(topic)].to_csv(file_path + str(topic) + '.csv')   
 
 
 if __name__ == "__main__":
     main(opt["--nhs_zip"], opt["--ct_bound_zip"],
-         opt["--area_file"], opt["--file_path"])
-    test_fun()     
+         opt["--area_file"], opt["--file_path"])    

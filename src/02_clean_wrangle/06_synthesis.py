@@ -843,34 +843,6 @@ def main(path_in, save_to):
 
     licence_df.rename(columns={'Geo Local Area': 'LocalArea'}).to_csv(
         save_to, index=False)
-
-def test_fun():
-    """
-    Checks if the req. i/p files exist
-    """
-    # Confirm input and output CSV files exist or not
-    assert os.path.exists("data/processed/03_cleaned_train.csv"), "Input train csv file\
-                                                            not found in location"
-    assert os.path.exists("data/processed/03_cleaned_validate.csv"), "Input validation csv file\
-                                                            not found in location"
-    assert os.path.exists("data/processed/03_cleaned_test.csv"), "Input test csv file\
-                                                            not found in location"
-
-def test_fun_1():
-    """
-    Checks if the main function is able\
-    to store the results at correct location
-    """
-    assert os.path.exists("data/processed/04_combined_validate.csv"), "Output CSV file\
-                                                            not found in location"
-    assert os.path.exists("data/processed/04_combined_train.csv"), "Output CSV file\
-                                                            not found in location"
-    assert os.path.exists("data/processed/04_combined_test.csv"), "Output CSV file\
-                                                            not found in location"
-    print("Tests cleared successfully")         
-
-
+    
 if __name__ == "__main__":
-    test_fun()
     main(opt["--path_in"], opt["--save_to"])
-    test_fun_1()

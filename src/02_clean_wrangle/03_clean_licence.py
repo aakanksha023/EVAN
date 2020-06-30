@@ -137,18 +137,5 @@ def main(file_path, mapping_csv, save_to):
     # save to a new csv
     df.to_csv(save_to, index=False)
 
-def test_fun():
-    """
-    Checks if the req. i/p files exist and if the main function is able\
-    to store the results at correct location
-    """
-    # Confirm input and output CSV files exist or not
-    assert os.path.exists("src/02_clean_wrangle/business_mapping_dictionary.csv"), "Business mapping Dictionary csv not found in location" 
-    assert os.path.exists("data/processed/train.csv"), "Input training csv file not found in location"
-    assert os.path.exists("data/processed/validate.csv"), "Input validation csv file not found in location"
-    assert os.path.exists("data/processed/test.csv"), "Input test csv file not found in location"
-    print("Tests cleared successfully")
-
 if __name__ == "__main__":
     main(opt["--file_path"], opt["--mapping_csv"], opt["--save_to"])
-    test_fun()
