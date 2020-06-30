@@ -1931,7 +1931,5 @@ def main(census_file, year, file_path):
     for func in helper_func:
         census_dict = func(census_dict, year, file_path)
 
-        main(census_file, year, file_path)
-
 if __name__ == "__main__":
     main(opt["--census_file"], opt["--year"], opt["--file_path"])
