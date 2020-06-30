@@ -147,7 +147,6 @@ def test_fun():
     assert os.path.exists("data/processed/train.csv"), "Input training csv file not found in location"
     assert os.path.exists("data/processed/validate.csv"), "Input validation csv file not found in location"
     assert os.path.exists("data/processed/test.csv"), "Input test csv file not found in location"
-    assert os.path.exists("data/processed/03_cleaned_validate.csv"), "Validation Result csv file not found in location" 
     print("Tests cleared successfully")
 
 if __name__ == "__main__":
